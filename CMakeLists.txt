@@ -23,6 +23,10 @@ FetchContent_MakeAvailable(stapikcommon)
 
 add_executable(stapikbudgeting
         src/main.cpp
+        src/core/model/Category.cpp
+        src/core/model/BudgetPeriod.cpp
+        src/core/util/CategoryColorUtils.cpp
+        src/core/util/CategoryIdGenerator.cpp
         src/ui/window/MainWindow.cpp)
 
 target_include_directories(stapikbudgeting PRIVATE ${GTKMM_INCLUDE_DIRS})

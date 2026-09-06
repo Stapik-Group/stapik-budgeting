@@ -15,6 +15,14 @@ void BudgetPeriod::addEntry(BudgetEntry entry)
     m_entries.push_back(std::move(entry));
 }
 
+void BudgetPeriod::insertEntry(const std::size_t index, BudgetEntry entry)
+{
+    if (index > m_entries.size())
+        throw std::out_of_range("BudgetPeriod::insertEntry: index out of range");
+    
+    m_entries.insert(m_entries.begin() + static_cast<std::ptrdiff_t>(index), std::move(entry));
+}
+
 void BudgetPeriod::removeEntry(const std::size_t index)
 {
     if (index >= m_entries.size())

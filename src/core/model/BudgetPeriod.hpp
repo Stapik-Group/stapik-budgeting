@@ -18,6 +18,7 @@ public:
 
     [[nodiscard]] const std::vector<BudgetEntry>& getEntries() const { return m_entries; }
     void addEntry(BudgetEntry entry);
+    void insertEntry(std::size_t index, BudgetEntry entry);
     void removeEntry(std::size_t index);
     void replaceEntry(std::size_t index, BudgetEntry entry);
     void moveEntry(std::size_t fromIndex, std::size_t toIndex);

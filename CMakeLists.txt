@@ -27,6 +27,14 @@ add_executable(stapikbudgeting
         src/core/model/BudgetPeriod.cpp
         src/core/util/CategoryColorUtils.cpp
         src/core/util/CategoryIdGenerator.cpp
+        src/core/command/BudgetCommand.cpp
+        src/core/command/BudgetEntryCommandBase.cpp
+        src/core/command/IndexedBudgetEntryCommand.cpp
+        src/core/command/AddEntryCommand.cpp
+        src/core/command/DeleteEntryCommand.cpp
+        src/core/command/EditEntryCommand.cpp
+        src/core/command/MoveEntryCommand.cpp
+        src/core/command/BudgetCommandHistory.cpp
         src/ui/window/MainWindow.cpp)
 
 target_include_directories(stapikbudgeting PRIVATE ${GTKMM_INCLUDE_DIRS})

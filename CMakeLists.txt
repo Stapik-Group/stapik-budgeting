@@ -35,6 +35,10 @@ add_executable(stapikbudgeting
         src/core/command/EditEntryCommand.cpp
         src/core/command/MoveEntryCommand.cpp
         src/core/command/BudgetCommandHistory.cpp
+        src/infrastructure/storage/BudgetStorage.cpp
+        src/infrastructure/storage/BudgetSyncCoordinator.cpp
+        src/infrastructure/network/CloudStorageConfigStorage.cpp
+        src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/window/MainWindow.cpp)
 
 target_include_directories(stapikbudgeting PRIVATE ${GTKMM_INCLUDE_DIRS})

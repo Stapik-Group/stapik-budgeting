@@ -3,6 +3,8 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/label.h>
 
+#include "../view/BudgetView.hpp"
+
 class MainWindow : public Gtk::ApplicationWindow
 {
 public:
@@ -14,7 +16,7 @@ private:
     static constexpr int DEFAULT_HEIGHT = 800;
     static constexpr auto WINDOW_TITLE = "Stapik Budgeting";
 
-    Gtk::Label m_placeholderLabel;
+    BudgetView m_budgetView;
 
     void init();
 };

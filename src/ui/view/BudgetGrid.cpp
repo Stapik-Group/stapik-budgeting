@@ -49,16 +49,21 @@ void BudgetGrid::initLayout()
 
 BudgetPeriod& BudgetGrid::currentPeriod()
 {
+    if (auto* existing = const_cast<BudgetPeriod*>(findCurrentPeriod()))
+        return *existing;
+
+    m_periods.emplace_back(m_currentYear, m_currentMonth, 0.0);
+    return m_periods.back();
+}
+
+const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
+{
     const auto it = std::ranges::find_if(m_periods, [this](const BudgetPeriod& period)
     {
         return period.getYear() == m_currentYear && period.getMonth() == m_currentMonth;
     });
 
-    if (it != m_periods.end())
-        return *it;
-
-    m_periods.emplace_back(m_currentYear, m_currentMonth, 0.0);
-    return m_periods.back();
+    return it != m_periods.end() ? &(*it) : nullptr;
 }
 
 const Category& BudgetGrid::categoryFor(const std::string& categoryId) const
@@ -225,3 +230,52 @@ void BudgetGrid::touchLastUpdate()
 
 sigc::signal<void()>& BudgetGrid::signalAddEntryRequested() { return m_signalAddEntryRequested; }
 sigc::signal<void(std::size_t)>& BudgetGrid::signalEditEntryRequested() { return m_signalEditEntryRequested; }
+
+const std::vector<Category>& BudgetGrid::getCategories() const
+{
+    return m_categories;
+}
+
+const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
+{
+    const auto* period = findCurrentPeriod();
+    if (period == nullptr)
+        return nullptr;
+
+    const auto& entries = period->getEntries();
+    return index < entries.size() ? &entries[index] : nullptr;
+}
+
+void BudgetGrid::addCategory(Category category)
+{
+    m_categories.push_back(std::move(category));
+    touchLastUpdate();
+    saveSnapshot();
+}
+
+void BudgetGrid::editCategory(const std::string& categoryId, Category updated)
+{
+    const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category)
+    {
+        return category.id == categoryId;
+    });
+
+    if (it == m_categories.end())
+        return;
+
+    updated.id = categoryId;
+    *it = std::move(updated);
+
+    touchLastUpdate();
+    saveSnapshot();
+    populateRows();
+}
+
+void BudgetGrid::deleteCategory(const std::string& categoryId)
+{
+    std::erase_if(m_categories, [&categoryId](const Category& category) { return category.id == categoryId; });
+
+    touchLastUpdate();
+    saveSnapshot();
+    populateRows();
+}

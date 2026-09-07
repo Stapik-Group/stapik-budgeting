@@ -30,6 +30,12 @@ public:
     void addEntry(BudgetEntry entry);
     void editEntry(std::size_t index, BudgetEntry entry);
 
+    [[nodiscard]] const std::vector<Category>& getCategories() const;
+    [[nodiscard]] const BudgetEntry* getEntry(std::size_t index) const;
+
+    void addCategory(Category category);
+    void editCategory(const std::string& categoryId, Category updated);
+    void deleteCategory(const std::string& categoryId);
 private:
     Gtk::ScrolledWindow m_scrolledWindow;
     Gtk::Box m_rowsBox;
@@ -49,6 +55,7 @@ private:
 
     void initLayout();
     [[nodiscard]] BudgetPeriod& currentPeriod();
+    [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;
     [[nodiscard]] const Category& categoryFor(const std::string& categoryId) const;
     void populateRows();
     void saveSnapshot();

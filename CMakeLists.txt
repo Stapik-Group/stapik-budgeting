@@ -41,6 +41,10 @@ add_executable(stapikbudgeting
         src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp
+        src/ui/widget/CategoryColorPickerWidget.cpp
+        src/ui/dialog/CategoryDialog.cpp
+        src/ui/dialog/BudgetEntryDialog.cpp
+        src/ui/dialog/CategoriesManagerDialog.cpp
         src/ui/view/BudgetHeader.cpp
         src/ui/view/BudgetNavBar.cpp
         src/ui/view/BudgetGrid.cpp

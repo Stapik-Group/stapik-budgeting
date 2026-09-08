@@ -1,4 +1,5 @@
 #include "BudgetGrid.hpp"
+#include "BudgetHeader.hpp"
 
 #include "../../core/command/AddEntryCommand.hpp"
 #include "../../core/command/DeleteEntryCommand.hpp"
@@ -42,6 +43,11 @@ BudgetGrid::BudgetGrid() :
 
 void BudgetGrid::initLayout()
 {
+    using enum Gtk::SizeGroup::Mode;
+    m_plannedSizeGroup = Gtk::SizeGroup::create(HORIZONTAL);
+    m_actualSizeGroup = Gtk::SizeGroup::create(HORIZONTAL);
+    m_actionsSizeGroup = Gtk::SizeGroup::create(HORIZONTAL);
+
     set_hexpand(true);
     set_vexpand(true);
 
@@ -50,6 +56,13 @@ void BudgetGrid::initLayout()
     m_scrolledWindow.set_child(m_rowsBox);
 
     append(m_scrolledWindow);
+}
+
+void BudgetGrid::bindHeader(BudgetHeader& header) const
+{
+    m_plannedSizeGroup->add_widget(header.getPlannedGroup());
+    m_actualSizeGroup->add_widget(header.getActualGroup());
+    m_actionsSizeGroup->add_widget(header.getActionsSpacer());
 }
 
 BudgetPeriod& BudgetGrid::currentPeriod()
@@ -107,6 +120,10 @@ void BudgetGrid::populateRows()
 
         auto* row = Gtk::make_managed<BudgetRowWidget>(entry, category, plannedRemaining[i], actualRemaining[i]);
         row->add_css_class(i % 2 == 0 ? "budget-row-even" : "budget-row-odd");
+
+        m_plannedSizeGroup->add_widget(row->getPlannedGroup());
+        m_actualSizeGroup->add_widget(row->getActualGroup());
+        m_actionsSizeGroup->add_widget(row->getActionsBox());
 
         row->signalEditRequested().connect([this, i] { m_signalEditEntryRequested.emit(i); });
         row->signalDeleteRequested().connect([this, i] { deleteEntryAt(i); });

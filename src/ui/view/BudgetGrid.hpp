@@ -7,7 +7,10 @@
 
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
+#include <gtkmm/sizegroup.h>
 #include <memory>
+
+#include "BudgetHeader.hpp"
 
 class BudgetGrid : public Gtk::Box
 {
@@ -19,6 +22,7 @@ public:
     void redo();
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
     void retrySync();
+    void bindHeader(BudgetHeader& header) const;
 
     sigc::signal<void()>& signalAddEntryRequested();
     sigc::signal<void(std::size_t)>& signalEditEntryRequested();
@@ -45,6 +49,10 @@ private:
     unsigned m_currentMonth;
     std::chrono::system_clock::time_point m_lastUpdate{};
     std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
+
+    Glib::RefPtr<Gtk::SizeGroup> m_plannedSizeGroup;
+    Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;
+    Glib::RefPtr<Gtk::SizeGroup> m_actionsSizeGroup;
 
     BudgetCommandHistory m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;

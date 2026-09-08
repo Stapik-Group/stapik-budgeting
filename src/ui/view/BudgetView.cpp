@@ -33,6 +33,8 @@ void BudgetView::initLayout()
     append(m_header);
     append(m_grid);
     append(m_bottomBar);
+
+    m_grid.bindHeader(m_header);
 }
 
 void BudgetView::initBottomBar()

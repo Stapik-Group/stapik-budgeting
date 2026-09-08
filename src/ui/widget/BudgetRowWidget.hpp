@@ -17,6 +17,9 @@ public:
     sigc::signal<void()>& signalMoveUpRequested();
     sigc::signal<void()>& signalMoveDownRequested();
 
+    Widget& getPlannedGroup() { return m_plannedGroup; }
+    Widget& getActualGroup() { return m_actualGroup; }
+    Widget& getActionsBox() { return m_actionsBox; }
 private:
     Gtk::Label m_categoryLabel;
     Gtk::Label m_expenseLabel;

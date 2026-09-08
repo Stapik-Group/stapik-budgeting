@@ -146,6 +146,12 @@ entry {
     padding: 5px 6px;
 }
 
+.budget-header,
+.budget-row {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
 .budget-group-title {
     color: @win_border_light;
     font-size: 9px;

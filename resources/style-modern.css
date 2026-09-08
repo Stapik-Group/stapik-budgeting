@@ -154,6 +154,12 @@ button.suggested-action:hover {
     padding: 8px 6px;
 }
 
+.budget-header,
+.budget-row {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
 .budget-header label {
     color: @win_text_muted;
     font-weight: 600;

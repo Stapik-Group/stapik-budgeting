@@ -8,6 +8,9 @@ class BudgetHeader : public Gtk::Box
 public:
     explicit BudgetHeader();
 
+    Widget& getPlannedGroup() { return m_plannedGroup; }
+    Widget& getActualGroup() { return m_actualGroup; }
+    Widget& getActionsSpacer() { return m_actionsSpacer; }
 private:
     Gtk::Label m_categoryLabel;
     Gtk::Label m_expenseLabel;

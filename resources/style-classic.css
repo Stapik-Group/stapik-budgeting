@@ -246,7 +246,18 @@ combobox button {
 .color-swatch.category-color-pink   { background-color: #c080a0; }
 .color-swatch.category-color-teal   { background-color: #008080; }
 
-decoration {
+window,
+window.background,
+window > decoration {
+    border-radius: 0;
+}
+
+window > decoration {
+    box-shadow: none;
+}
+
+dialog,
+dialog > decoration {
     border-radius: 0;
     box-shadow: none;
 }

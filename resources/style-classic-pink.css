@@ -290,3 +290,29 @@ windowcontrols button:focus {
     padding: 0 2px;
     box-shadow: none;
 }
+
+/* --- Popovers --- */
+
+popover,
+popover contents {
+    background-color: #f4b6dd;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+popover contents {
+    border: 2px solid;
+    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
+    padding: 2px;
+}
+
+popover modelbutton {
+    padding: 2px 16px;
+    border-radius: 0;
+    color: #000000;
+}
+
+popover modelbutton:hover {
+    background-color: #000080;
+    color: #ffffff;
+}

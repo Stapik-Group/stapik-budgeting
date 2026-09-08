@@ -12,12 +12,12 @@ private:
     Gtk::Label m_categoryLabel;
     Gtk::Label m_expenseLabel;
 
-    Gtk::Box m_plannedGroup;
+    Box m_plannedGroup;
     Gtk::Label m_plannedTitle;
     Gtk::Label m_plannedAmountLabel;
     Gtk::Label m_plannedRemainingLabel;
 
-    Gtk::Box m_actualGroup;
+    Box m_actualGroup;
     Gtk::Label m_actualTitle;
     Gtk::Label m_actualAmountLabel;
     Gtk::Label m_actualRemainingLabel;

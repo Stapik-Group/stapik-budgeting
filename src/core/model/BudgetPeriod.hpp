@@ -14,7 +14,7 @@ public:
     [[nodiscard]] int getYear() const { return m_year; }
     [[nodiscard]] unsigned getMonth() const { return m_month; }
     [[nodiscard]] double getStartingAmount() const { return m_startingAmount; }
-    void setStartingAmount(double startingAmount) { m_startingAmount = startingAmount; }
+    void setStartingAmount(const double startingAmount) { m_startingAmount = startingAmount; }
 
     [[nodiscard]] const std::vector<BudgetEntry>& getEntries() const { return m_entries; }
     void addEntry(BudgetEntry entry);

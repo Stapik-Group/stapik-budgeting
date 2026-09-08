@@ -2,14 +2,14 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
-CategoryDialog::CategoryDialog(Gtk::Window& parent) :
+CategoryDialog::CategoryDialog(Window& parent) :
     Dialog(LocaleManager::instance().translate("dialog.category.new.title"), parent, true),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
     initLayout();
 }
 
-CategoryDialog::CategoryDialog(Gtk::Window& parent, const Category& existing) :
+CategoryDialog::CategoryDialog(Window& parent, const Category& existing) :
     Dialog(LocaleManager::instance().translate("dialog.category.edit.title"), parent, true),
     m_existingId(existing.id),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
@@ -53,7 +53,7 @@ std::optional<Category> CategoryDialog::getResult() const
         return std::nullopt;
 
     if (m_existingId.has_value())
-        return Category{ m_existingId.value(), name, m_colorPicker.getSelectedColor() };
+        return Category{ .id = m_existingId.value(), .name = name, .color = m_colorPicker.getSelectedColor() };
 
     return Category::create(name, m_colorPicker.getSelectedColor());
 }

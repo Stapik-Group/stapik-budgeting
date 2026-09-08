@@ -3,6 +3,7 @@
 #include "stapik/locale/LocaleManager.hpp"
 
 #include <array>
+#include <format>
 
 namespace
 {
@@ -55,7 +56,7 @@ std::string BudgetNavBar::formatYearMonth(const int year, const unsigned month)
     if (month < 1 || month > 12)
         return {};
 
-    return LocaleManager::instance().translate(MONTH_KEYS[month - 1]) + " " + std::to_string(year);
+    return std::format("{} {}", LocaleManager::instance().translate(MONTH_KEYS[month - 1]), year);
 }
 
 sigc::signal<void()>& BudgetNavBar::signalPrevMonth() { return m_signalPrevMonth; }

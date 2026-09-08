@@ -32,7 +32,7 @@ void BudgetHeader::initLayout()
     m_plannedGroup.add_css_class("budget-group-planned");
     m_actualGroup.add_css_class("budget-group-actual");
 
-    Gtk::Box* plannedRow = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, GROUP_INNER_SPACING);
+    auto* plannedRow = Gtk::make_managed<Box>(Gtk::Orientation::HORIZONTAL, GROUP_INNER_SPACING);
     m_plannedAmountLabel.set_width_chars(AMOUNT_COLUMN_WIDTH_CHARS);
     m_plannedRemainingLabel.set_width_chars(REMAINING_COLUMN_WIDTH_CHARS);
     plannedRow->append(m_plannedAmountLabel);
@@ -40,7 +40,7 @@ void BudgetHeader::initLayout()
     m_plannedGroup.append(m_plannedTitle);
     m_plannedGroup.append(*plannedRow);
 
-    Gtk::Box* actualRow = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, GROUP_INNER_SPACING);
+    auto* actualRow = Gtk::make_managed<Box>(Gtk::Orientation::HORIZONTAL, GROUP_INNER_SPACING);
     m_actualAmountLabel.set_width_chars(AMOUNT_COLUMN_WIDTH_CHARS);
     m_actualRemainingLabel.set_width_chars(REMAINING_COLUMN_WIDTH_CHARS);
     actualRow->append(m_actualAmountLabel);

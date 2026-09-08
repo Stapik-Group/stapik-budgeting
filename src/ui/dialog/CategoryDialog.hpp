@@ -12,11 +12,10 @@
 class CategoryDialog : public Gtk::Dialog
 {
 public:
-    explicit CategoryDialog(Gtk::Window& parent);
-    CategoryDialog(Gtk::Window& parent, const Category& existing);
+    explicit CategoryDialog(Window& parent);
+    CategoryDialog(Window& parent, const Category& existing);
 
     [[nodiscard]] std::optional<Category> getResult() const;
-
 private:
     static constexpr int CONTENT_SPACING = 8;
     static constexpr int CONTENT_MARGIN = 16;

@@ -11,7 +11,7 @@ class BudgetGrid;
 class CategoriesManagerDialog : public Gtk::Dialog
 {
 public:
-    CategoriesManagerDialog(Gtk::Window& parent, BudgetGrid& grid);
+    CategoriesManagerDialog(Window& parent, BudgetGrid& grid);
 
 private:
     static constexpr int CONTENT_SPACING = 8;

@@ -18,32 +18,34 @@ std::string CategoryColorUtils::toString(const CategoryColor color)
 {
     switch (color)
     {
-        case CategoryColor::Red: return COLOR_RED;
-        case CategoryColor::Green: return COLOR_GREEN;
-        case CategoryColor::Blue: return COLOR_BLUE;
-        case CategoryColor::Yellow: return COLOR_YELLOW;
-        case CategoryColor::Purple: return COLOR_PURPLE;
-        case CategoryColor::Orange: return COLOR_ORANGE;
-        case CategoryColor::Brown: return COLOR_BROWN;
-        case CategoryColor::Pink: return COLOR_PINK;
-        case CategoryColor::Teal: return COLOR_TEAL;
-        case CategoryColor::Default:
+        using enum CategoryColor;
+        case Red: return COLOR_RED;
+        case Green: return COLOR_GREEN;
+        case Blue: return COLOR_BLUE;
+        case Yellow: return COLOR_YELLOW;
+        case Purple: return COLOR_PURPLE;
+        case Orange: return COLOR_ORANGE;
+        case Brown: return COLOR_BROWN;
+        case Pink: return COLOR_PINK;
+        case Teal: return COLOR_TEAL;
+        case Default:
         default: return COLOR_DEFAULT;
     }
 }
 
 CategoryColor CategoryColorUtils::fromString(const std::string& value)
 {
-    if (value == COLOR_RED) return CategoryColor::Red;
-    if (value == COLOR_GREEN) return CategoryColor::Green;
-    if (value == COLOR_BLUE) return CategoryColor::Blue;
-    if (value == COLOR_YELLOW) return CategoryColor::Yellow;
-    if (value == COLOR_PURPLE) return CategoryColor::Purple;
-    if (value == COLOR_ORANGE) return CategoryColor::Orange;
-    if (value == COLOR_BROWN) return CategoryColor::Brown;
-    if (value == COLOR_PINK) return CategoryColor::Pink;
-    if (value == COLOR_TEAL) return CategoryColor::Teal;
-    return CategoryColor::Default;
+    using enum CategoryColor;
+    if (value == COLOR_RED) return Red;
+    if (value == COLOR_GREEN) return Green;
+    if (value == COLOR_BLUE) return Blue;
+    if (value == COLOR_YELLOW) return Yellow;
+    if (value == COLOR_PURPLE) return Purple;
+    if (value == COLOR_ORANGE) return Orange;
+    if (value == COLOR_BROWN) return Brown;
+    if (value == COLOR_PINK) return Pink;
+    if (value == COLOR_TEAL) return Teal;
+    return Default;
 }
 
 std::string CategoryColorUtils::toCssClass(const CategoryColor color)
@@ -53,16 +55,17 @@ std::string CategoryColorUtils::toCssClass(const CategoryColor color)
 
 std::vector<CategoryColor> CategoryColorUtils::allColors()
 {
+    using enum CategoryColor;
     return {
-        CategoryColor::Default,
-        CategoryColor::Red,
-        CategoryColor::Green,
-        CategoryColor::Blue,
-        CategoryColor::Yellow,
-        CategoryColor::Purple,
-        CategoryColor::Orange,
-        CategoryColor::Brown,
-        CategoryColor::Pink,
-        CategoryColor::Teal
+        Default,
+        Red,
+        Green,
+        Blue,
+        Yellow,
+        Purple,
+        Orange,
+        Brown,
+        Pink,
+        Teal
     };
 }

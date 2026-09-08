@@ -5,11 +5,14 @@
 #include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/command/MoveEntryCommand.hpp"
 #include "../../infrastructure/storage/BudgetSyncCoordinator.hpp"
+#include "../widget/BudgetRowWidget.hpp"
 
 #include "stapik/locale/LocaleManager.hpp"
 
 #include <algorithm>
 #include <chrono>
+#include <memory>
+
 #include <glib.h>
 #include <gtkmm/widget.h>
 
@@ -22,11 +25,11 @@ BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING)
 {
-    auto snapshot = BudgetStorage::load();
-    m_categories = std::move(snapshot.categories);
-    m_periods = std::move(snapshot.periods);
-    m_lastUpdate = snapshot.lastUpdate;
-    m_lastKnownCloudUpdate = snapshot.lastKnownCloudUpdate;
+    auto [categories, periods, lastUpdate, lastKnownCloudUpdate] = BudgetStorage::load();
+    m_categories = std::move(categories);
+    m_periods = std::move(periods);
+    m_lastUpdate = lastUpdate;
+    m_lastKnownCloudUpdate = lastKnownCloudUpdate;
 
     const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
     const std::chrono::year_month_day ymd{today};
@@ -51,7 +54,7 @@ void BudgetGrid::initLayout()
 
 BudgetPeriod& BudgetGrid::currentPeriod()
 {
-    if (auto* existing = const_cast<BudgetPeriod*>(findCurrentPeriod()))
+    if (auto* existing = const_cast<BudgetPeriod*>(findCurrentPeriod())) // NOSONAR
         return *existing;
 
     m_periods.emplace_back(m_currentYear, m_currentMonth, 0.0);
@@ -65,18 +68,17 @@ const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
         return period.getYear() == m_currentYear && period.getMonth() == m_currentMonth;
     });
 
-    return it != m_periods.end() ? &(*it) : nullptr;
+    return it != m_periods.end() ? std::to_address(it) : nullptr;
 }
 
 Category BudgetGrid::categoryFor(const std::string& categoryId) const
 {
-    const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category)
+    if (const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category) {
+            return category.id == categoryId;
+        }); it != m_categories.end())
     {
-        return category.id == categoryId;
-    });
-
-    if (it != m_categories.end())
         return *it;
+    }
 
     return Category::create(LocaleManager::instance().translate("category.uncategorized"), CategoryColor::Default);
 }
@@ -182,7 +184,7 @@ void BudgetGrid::saveSnapshot()
 {
     if (m_cloudClient != nullptr)
     {
-        const BudgetSnapshot snapshot{ m_categories, m_periods, m_lastUpdate, m_lastKnownCloudUpdate };
+        const BudgetSnapshot snapshot{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
         g_message("[Cloud] Saving in cloud...");
 
         const auto resolved = BudgetSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
@@ -196,7 +198,7 @@ void BudgetGrid::saveSnapshot()
         return;
     }
 
-    BudgetStorage::save(BudgetSnapshot{ m_categories, m_periods, m_lastUpdate, m_lastKnownCloudUpdate });
+    BudgetStorage::save(BudgetSnapshot{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate });
 }
 
 void BudgetGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
@@ -210,7 +212,7 @@ void BudgetGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    const BudgetSnapshot local{ m_categories, m_periods, m_lastUpdate, m_lastKnownCloudUpdate };
+    const BudgetSnapshot local{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
     const auto resolved = BudgetSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
 
     m_categories = resolved.categories;

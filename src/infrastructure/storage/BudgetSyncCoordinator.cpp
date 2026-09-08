@@ -13,7 +13,7 @@ BudgetSnapshot BudgetSyncCoordinator::fromCloudDocument(const CloudDocument& doc
 
 BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     const BudgetSnapshot& local,
-    CloudStorageClient& cloudClient,
+    const CloudStorageClient& cloudClient,
     const std::optional<std::chrono::system_clock::time_point> baseline)
 {
     CloudWriteResult result;
@@ -61,7 +61,7 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     }
 }
 
-BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& local, CloudStorageClient& cloudClient)
+BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& local, const CloudStorageClient& cloudClient)
 {
     std::optional<CloudDocument> remote;
 
@@ -84,7 +84,7 @@ BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& loc
     return pushWithConflictResolution(local, cloudClient, remote->updatedAt);
 }
 
-BudgetSnapshot BudgetSyncCoordinator::pushLocalChange(const BudgetSnapshot& local, CloudStorageClient& cloudClient)
+BudgetSnapshot BudgetSyncCoordinator::pushLocalChange(const BudgetSnapshot& local, const CloudStorageClient& cloudClient)
 {
     return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate);
 }

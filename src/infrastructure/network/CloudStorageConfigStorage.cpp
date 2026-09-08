@@ -35,8 +35,8 @@ std::optional<CloudStorageConfig> CloudStorageConfigStorage::load()
         const auto json = nlohmann::json::parse(file);
 
         return CloudStorageConfig{
-            json.at("apiUrl").get<std::string>(),
-            json.at("apiKey").get<std::string>()
+            .apiUrl = json.at("apiUrl").get<std::string>(),
+            .apiKey = json.at("apiKey").get<std::string>()
         };
     }
     catch (const nlohmann::json::exception&)

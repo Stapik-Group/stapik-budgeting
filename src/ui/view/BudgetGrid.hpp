@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../widget/BudgetRowWidget.hpp"
 #include "../../core/command/BudgetCommandHistory.hpp"
 #include "../../infrastructure/storage/BudgetStorage.hpp"
 
@@ -38,7 +37,7 @@ public:
     void deleteCategory(const std::string& categoryId);
 private:
     Gtk::ScrolledWindow m_scrolledWindow;
-    Gtk::Box m_rowsBox;
+    Box m_rowsBox;
 
     std::vector<Category> m_categories;
     std::vector<BudgetPeriod> m_periods;

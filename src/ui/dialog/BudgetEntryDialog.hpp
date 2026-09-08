@@ -15,8 +15,8 @@
 class BudgetEntryDialog : public Gtk::Dialog
 {
 public:
-    BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories);
-    BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing);
+    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories);
+    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing);
 
     [[nodiscard]] std::optional<BudgetEntry> getResult() const;
 

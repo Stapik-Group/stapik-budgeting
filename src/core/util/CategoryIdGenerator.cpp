@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <random>
-#include <sstream>
+#include <format>
 
 namespace
 {
@@ -15,7 +15,5 @@ std::string CategoryIdGenerator::generate()
     static std::mt19937_64 engine(std::random_device{}());
     std::uniform_int_distribution<std::uint64_t> distribution;
 
-    std::ostringstream stream;
-    stream << std::hex << std::setw(ID_HEX_WIDTH) << std::setfill('0') << distribution(engine);
-    return stream.str();
+    return std::format("{:0{}x}", distribution(engine), ID_HEX_WIDTH);
 }

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <gtkmm/label.h>
 
-CategoriesManagerDialog::CategoriesManagerDialog(Gtk::Window& parent, BudgetGrid& grid) :
+CategoriesManagerDialog::CategoriesManagerDialog(Window& parent, BudgetGrid& grid) :
     Dialog(LocaleManager::instance().translate("dialog.categoriesManager.title"), parent, true),
     m_grid(grid),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
@@ -47,17 +47,17 @@ void CategoriesManagerDialog::refreshList()
     while (auto* child = m_listBox.get_first_child())
         m_listBox.remove(*child);
 
-    for (const auto& category : m_grid.getCategories())
+    for (const auto&[id, name, color] : m_grid.getCategories())
     {
         auto* row = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, CONTENT_SPACING);
 
-        auto* nameLabel = Gtk::make_managed<Gtk::Label>(category.name);
+        auto* nameLabel = Gtk::make_managed<Gtk::Label>(name);
         nameLabel->set_hexpand(true);
         nameLabel->set_halign(Gtk::Align::FILL);
         nameLabel->set_xalign(0.0f);
-        nameLabel->add_css_class(CategoryColorUtils::toCssClass(category.color));
+        nameLabel->add_css_class(CategoryColorUtils::toCssClass(color));
 
-        const auto categoryId = category.id;
+        const auto& categoryId = id;
 
         auto* editButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.edit"));
         editButton->signal_clicked().connect([this, categoryId] { showEditCategoryDialog(categoryId); });

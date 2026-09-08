@@ -58,9 +58,9 @@ nlohmann::json BudgetStorage::categoryToJson(const Category& category)
 Category BudgetStorage::categoryFromJson(const nlohmann::json& json)
 {
     return Category{
-        json.at("id").get<std::string>(),
-        json.at("name").get<std::string>(),
-        CategoryColorUtils::fromString(json.value("color", std::string{"default"}))
+        .id = json.at("id").get<std::string>(),
+        .name = json.at("name").get<std::string>(),
+        .color = CategoryColorUtils::fromString(json.value("color", std::string{"default"}))
     };
 }
 
@@ -136,7 +136,7 @@ nlohmann::json BudgetStorage::toJson(const BudgetSnapshot& snapshot)
         { "periods", periods }
     };
 
-    const stapik::sync::SyncEnvelope envelope{ snapshot.lastUpdate, payload };
+    const stapik::sync::SyncEnvelope envelope{ .lastUpdate = snapshot.lastUpdate, .payload = payload };
     auto json = envelope.toJson();
 
     if (snapshot.lastKnownCloudUpdate.has_value())
@@ -163,7 +163,7 @@ BudgetSnapshot BudgetStorage::fromJson(const nlohmann::json& json)
         if (json.contains("lastKnownCloudUpdate"))
             lastKnownCloudUpdate = stapik::sync::fromIso8601(json.at("lastKnownCloudUpdate").get<std::string>());
 
-        return BudgetSnapshot{ std::move(categories), std::move(periods), lastUpdate, lastKnownCloudUpdate };
+        return BudgetSnapshot{ .categories = std::move(categories), .periods = std::move(periods), .lastUpdate = lastUpdate, .lastKnownCloudUpdate = lastKnownCloudUpdate };
     }
     catch (const nlohmann::json::exception&)
     {

@@ -22,7 +22,7 @@ private:
     BudgetNavBar m_navBar;
     BudgetHeader m_header;
     BudgetGrid m_grid;
-    Gtk::Box m_bottomBar;
+    Box m_bottomBar;
     Gtk::Button m_addEntryButton;
 
     void initLayout();

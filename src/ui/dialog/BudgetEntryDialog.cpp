@@ -6,7 +6,7 @@
 #include <format>
 #include <stdexcept>
 
-BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories) :
+BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<Category>& categories) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
     m_categories(categories),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
@@ -15,7 +15,7 @@ BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Cate
     populateCategoryCombo(m_categories.empty() ? std::string{} : m_categories.front().id);
 }
 
-BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing) :
+BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing) :
     Dialog(LocaleManager::instance().translate("dialog.entry.edit.title"), parent, true),
     m_categories(categories),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)

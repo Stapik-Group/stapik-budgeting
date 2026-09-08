@@ -52,8 +52,9 @@ void CategoriesManagerDialog::refreshList()
         auto* row = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, CONTENT_SPACING);
 
         auto* nameLabel = Gtk::make_managed<Gtk::Label>(category.name);
-        nameLabel->set_halign(Gtk::Align::START);
         nameLabel->set_hexpand(true);
+        nameLabel->set_halign(Gtk::Align::FILL);
+        nameLabel->set_xalign(0.0f);
         nameLabel->add_css_class(CategoryColorUtils::toCssClass(category.color));
 
         const auto categoryId = category.id;

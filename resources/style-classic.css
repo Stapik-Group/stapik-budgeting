@@ -1,298 +1,46 @@
+/* --- Color palette --- */
+@define-color win_bg #c0c0c0;
+@define-color win_blue #000080;
+@define-color win_blue_light #1084d0;
+@define-color win_border_light #ffffff;
+@define-color win_border_dark #808080;
+@define-color win_border_black #000000;
+
+/* --- General rules and rounding reset --- */
 * {
     font-family: "Arial", sans-serif;
     font-size: 13px;
 }
 
-window {
-    background-color: #c0c0c0;
+window, window.background, window > decoration,
+dialog, dialog > decoration,
+popover, popover contents {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+window, dialog, dialog .dialog-vbox, popover contents {
+    background-color: @win_bg;
+}
+
+/* --- Title bars and navigation --- */
+headerbar,
+.budget-navbar {
+    background: linear-gradient(to right, @win_blue, @win_blue_light);
+    padding: 2px 4px;
+    border-bottom: 2px solid @win_border_dark;
 }
 
 headerbar {
-    background: linear-gradient(to right, #000080, #1084d0);
-    padding: 2px 4px;
-    border-bottom: 2px solid #808080;
     min-height: 26px;
-    box-shadow: none;
 }
+
 headerbar .title,
-headerbar label {
-    color: #ffffff;
-    font-weight: bold;
-}
-windowcontrols button {
-    min-width: 20px;
-    min-height: 18px;
-    padding: 0 2px;
-}
-
-menubar {
-    background-color: #c0c0c0;
-    border-bottom: 1px solid #808080;
-    padding: 1px;
-}
-
-menubar > item {
-    padding: 2px 6px;
-    color: #000000;
-}
-
-menubar > item:hover {
-    background-color: #000080;
-    color: #ffffff;
-}
-
-popover contents {
-    background-color: #c0c0c0;
-    border: 2px solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    padding: 2px;
-}
-
-popover modelbutton {
-    padding: 2px 16px;
-    color: #000000;
-    border-radius: 0;
-}
-
-popover modelbutton:hover {
-    background-color: #000080;
-    color: #ffffff;
-}
-
-button {
-    background-image: none;
-    background-color: #c0c0c0;
-    border-radius: 0;
-    border: 2px solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    box-shadow: 1px 1px 0 #000000;
-    padding: 2px 8px;
-    color: #000000;
-}
-
-button:hover {
-    background-color: #c0c0c0;
-}
-
-button:active {
-    border-color: #808080 #ffffff #ffffff #808080;
-    box-shadow: none;
-    padding: 3px 7px 1px 9px;
-}
-
-button.suggested-action {
-    background-color: #000080;
-    color: #ffffff;
-    font-weight: bold;
-    padding: 5px 14px;
-}
-button.suggested-action:hover {
-    background-color: #1084d0;
-}
-
-/* --- Nav bar --- */
-
-.budget-navbar {
-    background: linear-gradient(to right, #000080, #1084d0);
-    padding: 4px;
-    border-bottom: 2px solid #808080;
-}
-
-.budget-navbar label {
-    color: #ffffff;
-    font-weight: bold;
-}
-
-.budget-navbar button {
-    background-color: #c0c0c0;
-    min-width: 28px;
-    min-height: 20px;
-}
-
-/* --- Column header row --- */
-
-.budget-header {
-    background-color: #000080;
-    font-weight: bold;
-    border: 1px solid #808080;
-    padding: 5px 6px;
-}
-
+headerbar label,
+.budget-navbar label,
 .budget-header label {
     color: #ffffff;
     font-weight: bold;
-}
-
-.budget-group-title {
-    color: #d8d8ff;
-    font-size: 9px;
-    font-weight: bold;
-}
-
-.budget-row {
-    padding: 5px 8px;
-}
-
-.budget-group-planned,
-.budget-group-actual {
-    padding: 2px 6px;
-}
-
-.budget-row .budget-group-planned {
-    background-color: #dcdcf4;
-    border: 1px solid #808080;
-}
-
-.budget-row .budget-group-actual {
-    background-color: #f4e8d8;
-    border: 1px solid #808080;
-}
-
-/* --- Row --- */
-
-.budget-row-expense {
-    color: #000000;
-}
-
-.budget-row-action {
-    color: #000000;
-    min-width: 22px;
-    min-height: 22px;
-    padding: 0;
-    font-size: 10px;
-}
-
-.budget-row-action:active {
-    padding: 0;
-    border-color: #808080 #ffffff #ffffff #808080;
-    box-shadow: none;
-}
-
-.budget-row-even {
-    background-color: #c0c0c0;
-}
-
-.budget-row-odd {
-    background-color: #d4d4e8;
-}
-
-/* --- Dialogs / entries --- */
-
-dialog {
-    background-color: #c0c0c0;
-}
-
-dialog .dialog-vbox {
-    background-color: #c0c0c0;
-}
-
-entry {
-    background-color: #ffffff;
-    border: 2px solid;
-    border-color: #808080 #ffffff #ffffff #808080;
-    border-radius: 0;
-    padding: 2px 4px;
-    color: #000000;
-}
-
-combobox button {
-    background-color: #ffffff;
-    border: 2px solid;
-    border-color: #808080 #ffffff #ffffff #808080;
-    border-radius: 0;
-}
-
-/* --- Color picker swatches --- */
-
-button.color-swatch {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border: 2px solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    box-shadow: none;
-    background-image: none;
-}
-
-button.color-swatch:hover {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    box-shadow: none;
-}
-
-button.color-swatch:active {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #808080 #ffffff #ffffff #808080;
-    box-shadow: none;
-}
-
-button.color-swatch:checked {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #808080 #ffffff #ffffff #808080;
-    box-shadow: none;
-}
-
-button.color-swatch:focus {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    outline: none;
-}
-
-/* --- Category colors (badge on the category label + swatch) --- */
-
-.category-color-default { color: #000000; }
-.category-color-red    { background-color: #800000; color: #ffffff; padding: 1px 4px; }
-.category-color-green  { background-color: #008000; color: #ffffff; padding: 1px 4px; }
-.category-color-blue   { background-color: #000080; color: #ffffff; padding: 1px 4px; }
-.category-color-yellow { background-color: #808000; color: #000000; padding: 1px 4px; }
-.category-color-purple { background-color: #800080; color: #ffffff; padding: 1px 4px; }
-.category-color-orange { background-color: #ff8000; color: #000000; padding: 1px 4px; }
-.category-color-brown  { background-color: #804000; color: #ffffff; padding: 1px 4px; }
-.category-color-pink   { background-color: #c080a0; color: #000000; padding: 1px 4px; }
-.category-color-teal   { background-color: #008080; color: #ffffff; padding: 1px 4px; }
-
-.color-swatch.category-color-red    { background-color: #800000; }
-.color-swatch.category-color-green  { background-color: #008000; }
-.color-swatch.category-color-blue   { background-color: #000080; }
-.color-swatch.category-color-yellow { background-color: #808000; }
-.color-swatch.category-color-purple { background-color: #800080; }
-.color-swatch.category-color-orange { background-color: #ff8000; }
-.color-swatch.category-color-brown  { background-color: #804000; }
-.color-swatch.category-color-pink   { background-color: #c080a0; }
-.color-swatch.category-color-teal   { background-color: #008080; }
-
-window,
-window.background,
-window > decoration {
-    border-radius: 0;
-}
-
-window > decoration {
-    box-shadow: none;
-}
-
-dialog,
-dialog > decoration {
-    border-radius: 0;
-    box-shadow: none;
 }
 
 windowcontrols button,
@@ -305,28 +53,191 @@ windowcontrols button:focus {
     box-shadow: none;
 }
 
-/* --- Popovers --- */
-
-popover,
-popover contents {
-    background-color: #c0c0c0;
-    border-radius: 0;
-    box-shadow: none;
+/* --- Menus and Popovers --- */
+menubar {
+    background-color: @win_bg;
+    border-bottom: 1px solid @win_border_dark;
+    padding: 1px;
 }
 
-popover contents {
-    border: 2px solid;
-    border-color: #ffffff #808080 #808080 #ffffff;
-    padding: 2px;
+menubar > item,
+popover modelbutton {
+    padding: 2px 6px;
+    color: @win_border_black;
+    border-radius: 0;
 }
 
 popover modelbutton {
     padding: 2px 16px;
-    border-radius: 0;
-    color: #000000;
 }
 
+menubar > item:hover,
 popover modelbutton:hover {
-    background-color: #000080;
+    background-color: @win_blue;
     color: #ffffff;
 }
+
+popover contents {
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    padding: 2px;
+}
+
+/* --- Buttons --- */
+button {
+    background-image: none;
+    background-color: @win_bg;
+    border-radius: 0;
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    box-shadow: 1px 1px 0 @win_border_black;
+    padding: 2px 8px;
+    color: @win_border_black;
+}
+
+button:hover:not(.color-swatch) {
+    background-color: @win_bg;
+}
+
+button:active,
+.budget-row-action:active {
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+    box-shadow: none;
+    padding-top: 3px;
+    padding-right: 7px;
+    padding-bottom: 1px;
+    padding-left: 9px;
+}
+
+button.suggested-action {
+    background-color: @win_blue;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 5px 14px;
+}
+
+button.suggested-action:hover {
+    background-color: @win_blue_light;
+}
+
+.budget-navbar button {
+    min-width: 28px;
+    min-height: 20px;
+}
+
+/* --- Entry / Combobox --- */
+entry,
+combobox button {
+    background-color: #ffffff;
+    border: 2px solid;
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+    border-radius: 0;
+    color: @win_border_black;
+}
+
+entry {
+    padding: 2px 4px;
+}
+
+/* --- Budget Table --- */
+.budget-header {
+    background-color: @win_blue;
+    border: 1px solid @win_border_dark;
+    padding: 5px 6px;
+}
+
+.budget-group-title {
+    color: #d8d8ff;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.budget-row {
+    padding: 5px 8px;
+}
+
+.budget-row-even {
+    background-color: @win_bg;
+}
+
+.budget-row-odd {
+    background-color: #d4d4e8;
+}
+
+.budget-group-planned,
+.budget-group-actual {
+    padding: 2px 6px;
+    border: 1px solid @win_border_dark;
+}
+
+.budget-row .budget-group-planned {
+    background-color: #dcdcf4;
+}
+
+.budget-row .budget-group-actual {
+    background-color: #f4e8d8;
+}
+
+.budget-row-expense {
+    color: @win_border_black;
+}
+
+.budget-row-action {
+    color: @win_border_black;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    font-size: 10px;
+}
+
+/* --- Color Swatch --- */
+button.color-swatch {
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    box-shadow: none;
+    background-image: none;
+    outline: none;
+}
+
+button.color-swatch:hover,
+button.color-swatch:focus {
+    box-shadow: none;
+}
+
+button.color-swatch:active,
+button.color-swatch:checked {
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+}
+
+/* --- Categories colors (Badges & Swatches) --- */
+.category-color-red,
+.category-color-green,
+.category-color-blue,
+.category-color-yellow,
+.category-color-purple,
+.category-color-orange,
+.category-color-brown,
+.category-color-pink,
+.category-color-teal {
+    padding: 1px 4px;
+}
+
+button.color-swatch {
+    padding: 0;
+}
+
+.category-color-default { color: @win_border_black; padding: 0; }
+.category-color-red     { background-color: #800000; color: #ffffff; }
+.category-color-green   { background-color: #008000; color: #ffffff; }
+.category-color-blue    { background-color: @win_blue; color: #ffffff; }
+.category-color-yellow  { background-color: #808000; color: @win_border_black; }
+.category-color-purple  { background-color: #800080; color: #ffffff; }
+.category-color-orange  { background-color: #ff8000; color: @win_border_black; }
+.category-color-brown   { background-color: #804000; color: #ffffff; }
+.category-color-pink    { background-color: #c080a0; color: @win_border_black; }
+.category-color-teal    { background-color: #008080; color: #ffffff; }

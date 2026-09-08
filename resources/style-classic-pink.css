@@ -1,284 +1,47 @@
+/* --- Color palette --- */
+@define-color win_bg #f4b6dd;
+@define-color win_bg_hover #f9cbe6;
+@define-color win_accent #7b2ff7;
+@define-color win_accent_light #ff6ec7;
+@define-color win_border_light #ffe0f3;
+@define-color win_border_dark #8c3a72;
+@define-color win_text #4a0e4e;
+
+/* --- General rules and rounding reset --- */
 * {
     font-family: "Arial", sans-serif;
     font-size: 13px;
 }
-window {
-    background-color: #f4b6dd;
-}
-headerbar {
-    background: linear-gradient(to right, #ff6ec7, #7b2ff7);
-    padding: 2px 4px;
-    border-bottom: 2px solid #8c3a72;
-    min-height: 26px;
+
+window, window.background, window > decoration,
+dialog, dialog > decoration,
+popover, popover contents {
+    border-radius: 0;
     box-shadow: none;
 }
-headerbar .title,
-headerbar label {
-    color: #ffffff;
-    font-weight: bold;
+
+window, dialog, dialog .dialog-vbox, popover contents {
+    background-color: @win_bg;
 }
 
-menubar {
-    background-color: #f4b6dd;
-    border-bottom: 1px solid #8c3a72;
-    padding: 1px;
-}
-menubar > item {
-    padding: 2px 6px;
-    color: #4a0e4e;
-}
-menubar > item:hover {
-    background-color: #7b2ff7;
-    color: #ffffff;
-}
-popover contents {
-    background-color: #f4b6dd;
-    border: 2px solid;
-    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
-    padding: 2px;
-}
-popover modelbutton {
-    padding: 2px 16px;
-    color: #4a0e4e;
-    border-radius: 0;
-}
-popover modelbutton:hover {
-    background-color: #7b2ff7;
-    color: #ffffff;
-}
-button {
-    background-image: none;
-    background-color: #f4b6dd;
-    border-radius: 0;
-    border: 2px solid;
-    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
-    box-shadow: 1px 1px 0 #4a0e4e;
-    padding: 2px 8px;
-    color: #4a0e4e;
-}
-button:hover {
-    background-color: #f9cbe6;
-}
-button:active {
-    border-color: #8c3a72 #ffe0f3 #ffe0f3 #8c3a72;
-    box-shadow: none;
-    padding: 3px 7px 1px 9px;
-}
-
-button.suggested-action {
-    background-color: #7b2ff7;
-    color: #ffffff;
-    font-weight: bold;
-    padding: 5px 14px;
-}
-button.suggested-action:hover {
-    background-color: #ff6ec7;
-}
-
-/* --- Nav bar --- */
-
+/* --- Title bars and navigation --- */
+headerbar,
 .budget-navbar {
-    background: linear-gradient(to right, #ff6ec7, #7b2ff7);
-    padding: 4px;
-    border-bottom: 2px solid #8c3a72;
-}
-.budget-navbar label {
-    color: #ffffff;
-    font-weight: bold;
-}
-.budget-navbar button {
-    background-color: #f4b6dd;
-    min-width: 28px;
-    min-height: 20px;
+    background: linear-gradient(to right, @win_accent_light, @win_accent);
+    padding: 2px 4px;
+    border-bottom: 2px solid @win_border_dark;
 }
 
-/* --- Column header row --- */
-
-.budget-header {
-    background-color: #7b2ff7;
-    font-weight: bold;
-    border: 1px solid #8c3a72;
-    padding: 5px 6px;
+headerbar {
+    min-height: 26px;
 }
+
+headerbar .title,
+headerbar label,
+.budget-navbar label,
 .budget-header label {
     color: #ffffff;
     font-weight: bold;
-}
-
-.budget-group-title {
-    color: #ffe0f3;
-    font-size: 9px;
-    font-weight: bold;
-}
-
-.budget-row {
-    padding: 5px 8px;
-}
-
-.budget-group-planned,
-.budget-group-actual {
-    padding: 2px 6px;
-}
-
-.budget-row .budget-group-planned {
-    background-color: #f9cbe6;
-    border: 1px solid #8c3a72;
-}
-
-.budget-row .budget-group-actual {
-    background-color: #e6d4ff;
-    border: 1px solid #8c3a72;
-}
-
-/* --- Row --- */
-
-.budget-row-expense {
-    color: #4a0e4e;
-}
-
-.budget-row-action {
-    color: #4a0e4e;
-    min-width: 22px !important;
-    min-height: 22px !important;
-    padding: 0 !important;
-    font-size: 10px;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-}
-.budget-row-action:hover,
-.budget-row-action:active {
-    padding: 0 !important;
-    background-color: rgba(74, 14, 78, 0.15);
-    border: none;
-    box-shadow: none;
-}
-
-.budget-row-even {
-    background-color: #f4b6dd;
-}
-
-.budget-row-odd {
-    background-color: #f9d2ec;
-}
-
-/* --- Dialogs / entries --- */
-
-dialog {
-    background-color: #f4b6dd;
-}
-dialog .dialog-vbox {
-    background-color: #f4b6dd;
-}
-entry {
-    background-color: #ffffff;
-    border: 2px solid;
-    border-color: #8c3a72 #ffe0f3 #ffe0f3 #8c3a72;
-    border-radius: 0;
-    padding: 2px 4px;
-    color: #4a0e4e;
-}
-combobox button {
-    background-color: #ffffff;
-    border: 2px solid;
-    border-color: #8c3a72 #ffe0f3 #ffe0f3 #8c3a72;
-    border-radius: 0;
-}
-
-/* --- Color picker swatches --- */
-
-/* --- Color picker swatches --- */
-
-button.color-swatch {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border: 2px solid;
-    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
-    box-shadow: none;
-    background-image: none;
-}
-
-button.color-swatch:hover {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
-    box-shadow: none;
-}
-
-button.color-swatch:active {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #8c3a72 #ffe0f3 #ffe0f3 #8c3a72;
-    box-shadow: none;
-}
-
-button.color-swatch:checked {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    border-color: #808080 #ffffff #ffffff #808080;
-    box-shadow: none;
-}
-
-button.color-swatch:focus {
-    min-width: 16px;
-    min-height: 16px;
-    padding: 0;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    outline: none;
-}
-
-/* --- Category colors (badge on the category label + swatch) --- */
-
-.category-color-default { color: #4a0e4e; }
-.category-color-red    { background-color: #ff6ec7; color: #ffffff; padding: 1px 4px; }
-.category-color-green  { background-color: #00e5a0; color: #1a1a2e; padding: 1px 4px; }
-.category-color-blue   { background-color: #00c8ff; color: #1a1a2e; padding: 1px 4px; }
-.category-color-yellow { background-color: #fff65e; color: #4a0e4e; padding: 1px 4px; }
-.category-color-purple { background-color: #7b2ff7; color: #ffffff; padding: 1px 4px; }
-.category-color-orange { background-color: #ff9f6e; color: #4a0e4e; padding: 1px 4px; }
-.category-color-brown  { background-color: #b5836b; color: #ffffff; padding: 1px 4px; }
-.category-color-pink   { background-color: #ff2fd0; color: #ffffff; padding: 1px 4px; }
-.category-color-teal   { background-color: #00e5ff; color: #1a1a2e; padding: 1px 4px; }
-
-.color-swatch.category-color-default { background-color: #f4b6dd; }
-.color-swatch.category-color-red    { background-color: #ff6ec7; }
-.color-swatch.category-color-green  { background-color: #00e5a0; }
-.color-swatch.category-color-blue   { background-color: #00c8ff; }
-.color-swatch.category-color-yellow { background-color: #fff65e; }
-.color-swatch.category-color-purple { background-color: #7b2ff7; }
-.color-swatch.category-color-orange { background-color: #ff9f6e; }
-.color-swatch.category-color-brown  { background-color: #b5836b; }
-.color-swatch.category-color-pink   { background-color: #ff2fd0; }
-.color-swatch.category-color-teal   { background-color: #00e5ff; }
-
-window,
-window.background,
-window > decoration {
-    border-radius: 0;
-}
-
-window > decoration {
-    box-shadow: none;
-}
-
-dialog,
-dialog > decoration {
-    border-radius: 0;
-    box-shadow: none;
 }
 
 windowcontrols button,
@@ -291,28 +54,203 @@ windowcontrols button:focus {
     box-shadow: none;
 }
 
-/* --- Popovers --- */
-
-popover,
-popover contents {
-    background-color: #f4b6dd;
-    border-radius: 0;
-    box-shadow: none;
+/* --- Menus and Popovers --- */
+menubar {
+    background-color: @win_bg;
+    border-bottom: 1px solid @win_border_dark;
+    padding: 1px;
 }
 
-popover contents {
-    border: 2px solid;
-    border-color: #ffe0f3 #8c3a72 #8c3a72 #ffe0f3;
-    padding: 2px;
+menubar > item,
+popover modelbutton {
+    padding: 2px 6px;
+    color: @win_text;
+    border-radius: 0;
 }
 
 popover modelbutton {
     padding: 2px 16px;
-    border-radius: 0;
-    color: #000000;
 }
 
+menubar > item:hover,
 popover modelbutton:hover {
-    background-color: #000080;
+    background-color: @win_accent;
     color: #ffffff;
 }
+
+popover contents {
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    padding: 2px;
+}
+
+/* --- Buttons --- */
+button {
+    background-image: none;
+    background-color: @win_bg;
+    border-radius: 0;
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    box-shadow: 1px 1px 0 @win_text;
+    padding: 2px 8px;
+    color: @win_text;
+}
+
+button:hover:not(.color-swatch):not(.budget-row-action) {
+    background-color: @win_bg_hover;
+}
+
+button:active {
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+    box-shadow: none;
+    padding-top: 3px;
+    padding-right: 7px;
+    padding-bottom: 1px;
+    padding-left: 9px;
+}
+
+button.suggested-action {
+    background-color: @win_accent;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 5px 14px;
+}
+
+button.suggested-action:hover {
+    background-color: @win_accent_light;
+}
+
+.budget-navbar button {
+    min-width: 28px;
+    min-height: 20px;
+}
+
+/* --- Entry / Combobox --- */
+entry,
+combobox button {
+    background-color: #ffffff;
+    border: 2px solid;
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+    border-radius: 0;
+    color: @win_text;
+}
+
+entry {
+    padding: 2px 4px;
+}
+
+/* --- Budget Table --- */
+.budget-header {
+    background-color: @win_accent;
+    border: 1px solid @win_border_dark;
+    padding: 5px 6px;
+}
+
+.budget-group-title {
+    color: @win_border_light;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.budget-row {
+    padding: 5px 8px;
+}
+
+.budget-row-even {
+    background-color: @win_bg;
+}
+
+.budget-row-odd {
+    background-color: #f9d2ec;
+}
+
+.budget-group-planned,
+.budget-group-actual {
+    padding: 2px 6px;
+    border: 1px solid @win_border_dark;
+}
+
+.budget-row .budget-group-planned {
+    background-color: #f9cbe6;
+}
+
+.budget-row .budget-group-actual {
+    background-color: #e6d4ff;
+}
+
+.budget-row-expense {
+    color: @win_text;
+}
+
+.budget-row-action {
+    color: @win_text;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    font-size: 10px;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.budget-row-action:hover,
+.budget-row-action:active {
+    padding: 0;
+    background-color: rgba(74, 14, 78, 0.15);
+    border: none;
+    box-shadow: none;
+}
+
+/* --- Color Swatch --- */
+button.color-swatch {
+    min-width: 16px;
+    min-height: 16px;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    border: 2px solid;
+    border-color: @win_border_light @win_border_dark @win_border_dark @win_border_light;
+    box-shadow: none;
+    background-image: none;
+    outline: none;
+}
+
+button.color-swatch:hover,
+button.color-swatch:focus {
+    box-shadow: none;
+}
+
+button.color-swatch:active,
+button.color-swatch:checked {
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+}
+
+/* --- Categories colors (Badges & Swatches) --- */
+.category-color-red,
+.category-color-green,
+.category-color-blue,
+.category-color-yellow,
+.category-color-purple,
+.category-color-orange,
+.category-color-brown,
+.category-color-pink,
+.category-color-teal {
+    padding: 1px 4px;
+}
+
+button.color-swatch {
+    padding: 0;
+}
+
+.category-color-default { color: @win_text; padding: 0; }
+.category-color-red     { background-color: #ff6ec7; color: #ffffff; }
+.category-color-green   { background-color: #00e5a0; color: #1a1a2e; }
+.category-color-blue    { background-color: #00c8ff; color: #1a1a2e; }
+.category-color-yellow  { background-color: #fff65e; color: @win_text; }
+.category-color-purple  { background-color: @win_accent; color: #ffffff; }
+.category-color-orange  { background-color: #ff9f6e; color: @win_text; }
+.category-color-brown   { background-color: #b5836b; color: #ffffff; }
+.category-color-pink    { background-color: #ff2fd0; color: #ffffff; }
+.category-color-teal    { background-color: #00e5ff; color: #1a1a2e; }
+
+.color-swatch.category-color-default { background-color: @win_bg; }

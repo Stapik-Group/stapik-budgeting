@@ -16,24 +16,35 @@ headerbar {
     min-height: 40px;
     padding: 4px 8px;
 }
+
 headerbar .title,
 headerbar label {
     color: #1c1c1e;
     font-weight: 600;
 }
-windowcontrols button {
+
+windowcontrols button,
+windowcontrols button:hover,
+windowcontrols button:active,
+windowcontrols button:focus {
     min-width: 24px;
     min-height: 24px;
     padding: 0;
+    margin: 0;
     border-radius: 999px;
     border: none;
     box-shadow: none;
     background-color: #e2e2e5;
-    transition: background-color 120ms ease;
 }
+
 windowcontrols button:hover {
     background-color: #d4d4d8;
 }
+
+windowcontrols button:active {
+    background-color: #ccccd1;
+}
+
 
 /* --- Menu bar --- */
 
@@ -42,33 +53,39 @@ menubar {
     border-bottom: 1px solid #e2e2e5;
     padding: 3px 4px;
 }
+
 menubar > item {
     padding: 4px 10px;
     border-radius: 6px;
     color: #1c1c1e;
     transition: background-color 120ms ease;
 }
+
 menubar > item:hover {
     background-color: #e8e8ec;
     color: #1c1c1e;
 }
+
 popover contents {
     background-color: #ffffff;
     border: none;
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
     padding: 6px;
 }
+
 popover modelbutton {
     padding: 6px 12px;
     border-radius: 7px;
     color: #1c1c1e;
     transition: background-color 100ms ease;
 }
+
 popover modelbutton:hover {
     background-color: #007aff;
     color: #ffffff;
 }
+
 
 /* --- Buttons --- */
 
@@ -77,15 +94,17 @@ button {
     background-color: #ffffff;
     border-radius: 8px;
     border: 1px solid #dcdce0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     padding: 5px 12px;
     color: #1c1c1e;
     transition: background-color 120ms ease, box-shadow 120ms ease;
 }
+
 button:hover {
     background-color: #f0f0f3;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
 button:active {
     background-color: #e4e4e8;
     box-shadow: none;
@@ -99,9 +118,11 @@ button.suggested-action {
     font-weight: 600;
     padding: 8px 18px;
 }
+
 button.suggested-action:hover {
     background-color: #0069d9;
 }
+
 
 /* --- Nav bar --- */
 
@@ -110,16 +131,19 @@ button.suggested-action:hover {
     padding: 10px 12px;
     border-bottom: 1px solid #e2e2e5;
 }
+
 .budget-navbar label {
     color: #1c1c1e;
     font-weight: 600;
 }
+
 .budget-navbar button {
     background-color: #ffffff;
     min-width: 30px;
     min-height: 26px;
     border-radius: 8px;
 }
+
 
 /* --- Column header row --- */
 
@@ -130,6 +154,7 @@ button.suggested-action:hover {
     border-bottom: 1px solid #e2e2e5;
     padding: 8px 6px;
 }
+
 .budget-header label {
     color: #6e6e73;
     font-weight: 600;
@@ -160,6 +185,7 @@ button.suggested-action:hover {
     background-color: #eefaf1;
 }
 
+
 /* --- Row --- */
 
 .budget-row-expense {
@@ -177,12 +203,14 @@ button.suggested-action:hover {
     background-color: transparent;
     box-shadow: none;
 }
+
 .budget-row-action:hover,
 .budget-row-action:active {
     background-color: #e8e8ec;
     padding: 0 !important;
     box-shadow: none;
 }
+
 .budget-row-delete:hover,
 .budget-row-delete:active {
     background-color: #ffe5e5;
@@ -197,14 +225,17 @@ button.suggested-action:hover {
     background-color: #f7f7f9;
 }
 
+
 /* --- Dialogs / entries --- */
 
 dialog {
     background-color: #f5f5f7;
 }
+
 dialog .dialog-vbox {
     background-color: #f5f5f7;
 }
+
 entry {
     background-color: #ffffff;
     border: 1px solid #dcdce0;
@@ -214,49 +245,137 @@ entry {
     box-shadow: none;
     transition: border-color 120ms ease;
 }
+
 entry:focus {
     border-color: #007aff;
 }
+
 combobox button {
     background-color: #ffffff;
     border: 1px solid #dcdce0;
     border-radius: 8px;
 }
 
+
 /* --- Color picker swatches --- */
 
-.color-swatch,
-.color-swatch:hover,
-.color-swatch:active,
-.color-swatch:checked,
-.color-swatch:focus {
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    min-height: 18px !important;
-    padding: 0 !important;
+button.color-swatch,
+button.color-swatch:hover,
+button.color-swatch:active,
+button.color-swatch:checked,
+button.color-swatch:focus {
+    min-width: 18px;
+    min-height: 18px;
+    padding: 0;
     margin: 0;
     border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+button.color-swatch {
     border: 2px solid transparent;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    background-image: none;
 }
-.color-swatch:checked {
-    border-color: #1c1c1e;
-    box-shadow: 0 0 0 1px #ffffff inset, 0 1px 2px rgba(0,0,0,0.2);
+
+button.color-swatch:hover {
+    border-color: rgba(28, 28, 30, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.20);
 }
+
+button.color-swatch:active {
+    min-width: 18px;
+    min-height: 18px;
+    padding: 0;
+    border-color: rgba(28, 28, 30, 0.30);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+}
+
+button.color-swatch:checked {
+    min-width: 18px;
+    min-height: 18px;
+    padding: 0;
+    border: 2px solid #1c1c1e;
+    box-shadow:
+            0 0 0 1px #ffffff inset,
+            0 1px 2px rgba(0, 0, 0, 0.20);
+}
+
+button.color-swatch:focus {
+    min-width: 18px;
+    min-height: 18px;
+    padding: 0;
+    outline: none;
+}
+
 
 /* --- Category colors (badge on the category label + swatch) --- */
 
-.category-color-default { color: #6e6e73; }
-.category-color-red    { background-color: #ff453a; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-green  { background-color: #34c759; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-blue   { background-color: #007aff; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-yellow { background-color: #ffcc00; color: #1c1c1e; border-radius: 6px; padding: 1px 6px; }
-.category-color-purple { background-color: #af52de; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-orange { background-color: #ff9500; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-brown  { background-color: #a2845e; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-pink   { background-color: #ff2d55; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
-.category-color-teal   { background-color: #30b0c7; color: #ffffff; border-radius: 6px; padding: 1px 6px; }
+.category-color-default {
+    color: #6e6e73;
+}
+
+.category-color-red {
+    background-color: #ff453a;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-green {
+    background-color: #34c759;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-blue {
+    background-color: #007aff;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-yellow {
+    background-color: #ffcc00;
+    color: #1c1c1e;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-purple {
+    background-color: #af52de;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-orange {
+    background-color: #ff9500;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-brown {
+    background-color: #a2845e;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-pink {
+    background-color: #ff2d55;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
+
+.category-color-teal {
+    background-color: #30b0c7;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 1px 6px;
+}
 
 .category-color-red:hover,
 .category-color-green:hover,
@@ -269,13 +388,45 @@ combobox button {
     filter: brightness(0.92);
 }
 
-.color-swatch.category-color-default { background-color: #e8e8ec; }
-.color-swatch.category-color-red    { background-color: #ff453a; }
-.color-swatch.category-color-green  { background-color: #34c759; }
-.color-swatch.category-color-blue   { background-color: #007aff; }
-.color-swatch.category-color-yellow { background-color: #ffcc00; }
-.color-swatch.category-color-purple { background-color: #af52de; }
-.color-swatch.category-color-orange { background-color: #ff9500; }
-.color-swatch.category-color-brown  { background-color: #a2845e; }
-.color-swatch.category-color-pink   { background-color: #ff2d55; }
-.color-swatch.category-color-teal   { background-color: #30b0c7; }
+
+/* --- Color picker swatch colors --- */
+
+.color-swatch.category-color-default {
+    background-color: #e8e8ec;
+}
+
+.color-swatch.category-color-red {
+    background-color: #ff453a;
+}
+
+.color-swatch.category-color-green {
+    background-color: #34c759;
+}
+
+.color-swatch.category-color-blue {
+    background-color: #007aff;
+}
+
+.color-swatch.category-color-yellow {
+    background-color: #ffcc00;
+}
+
+.color-swatch.category-color-purple {
+    background-color: #af52de;
+}
+
+.color-swatch.category-color-orange {
+    background-color: #ff9500;
+}
+
+.color-swatch.category-color-brown {
+    background-color: #a2845e;
+}
+
+.color-swatch.category-color-pink {
+    background-color: #ff2d55;
+}
+
+.color-swatch.category-color-teal {
+    background-color: #30b0c7;
+}

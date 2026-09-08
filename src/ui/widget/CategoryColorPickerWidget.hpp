@@ -16,7 +16,7 @@ public:
 
 private:
     static constexpr int SWATCH_SPACING = 4;
-    static constexpr int SWATCH_SIZE = 16;
+    static constexpr int SWATCH_SIZE = 20;
     static constexpr std::size_t SWATCH_COUNT = 10;
 
     std::array<Gtk::ToggleButton, SWATCH_COUNT> m_swatches;

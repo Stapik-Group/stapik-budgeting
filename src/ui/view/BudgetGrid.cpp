@@ -6,6 +6,8 @@
 #include "../../core/command/MoveEntryCommand.hpp"
 #include "../../infrastructure/storage/BudgetSyncCoordinator.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <algorithm>
 #include <chrono>
 #include <glib.h>
@@ -66,16 +68,17 @@ const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
     return it != m_periods.end() ? &(*it) : nullptr;
 }
 
-const Category& BudgetGrid::categoryFor(const std::string& categoryId) const
+Category BudgetGrid::categoryFor(const std::string& categoryId) const
 {
-    static const Category fallback = Category::create("Bez kategorii", CategoryColor::Default);
-
     const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category)
     {
         return category.id == categoryId;
     });
 
-    return it != m_categories.end() ? *it : fallback;
+    if (it != m_categories.end())
+        return *it;
+
+    return Category::create(LocaleManager::instance().translate("category.uncategorized"), CategoryColor::Default);
 }
 
 void BudgetGrid::displayMonth(const int year, const unsigned month)
@@ -101,6 +104,7 @@ void BudgetGrid::populateRows()
         const auto& category = categoryFor(entry.categoryId);
 
         auto* row = Gtk::make_managed<BudgetRowWidget>(entry, category, plannedRemaining[i], actualRemaining[i]);
+        row->add_css_class(i % 2 == 0 ? "budget-row-even" : "budget-row-odd");
 
         row->signalEditRequested().connect([this, i] { m_signalEditEntryRequested.emit(i); });
         row->signalDeleteRequested().connect([this, i] { deleteEntryAt(i); });

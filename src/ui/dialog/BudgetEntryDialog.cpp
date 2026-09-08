@@ -1,11 +1,13 @@
 #include "BudgetEntryDialog.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <algorithm>
 #include <format>
 #include <stdexcept>
 
 BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories) :
-    Dialog("Nowa pozycja", parent, true),
+    Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
     m_categories(categories),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
@@ -14,7 +16,7 @@ BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Cate
 }
 
 BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing) :
-    Dialog("Edytuj pozycję", parent, true),
+    Dialog(LocaleManager::instance().translate("dialog.entry.edit.title"), parent, true),
     m_categories(categories),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
@@ -31,20 +33,22 @@ BudgetEntryDialog::BudgetEntryDialog(Gtk::Window& parent, const std::vector<Cate
 
 void BudgetEntryDialog::initLayout()
 {
-    m_nameLabel.set_text("Wydatek");
-    m_nameLabel.set_halign(Gtk::Align::START);
-    m_nameEntry.set_placeholder_text("np. Prąd");
+    const auto& loc = LocaleManager::instance();
 
-    m_categoryLabel.set_text("Kategoria");
+    m_nameLabel.set_text(loc.translate("dialog.entry.name.label"));
+    m_nameLabel.set_halign(Gtk::Align::START);
+    m_nameEntry.set_placeholder_text(loc.translate("dialog.entry.name.placeholder"));
+
+    m_categoryLabel.set_text(loc.translate("dialog.entry.category.label"));
     m_categoryLabel.set_halign(Gtk::Align::START);
 
-    m_plannedAmountLabel.set_text("Planowana kwota (puste = brak)");
+    m_plannedAmountLabel.set_text(loc.translate("dialog.entry.planned.label"));
     m_plannedAmountLabel.set_halign(Gtk::Align::START);
-    m_plannedAmountEntry.set_placeholder_text("np. 250,00");
+    m_plannedAmountEntry.set_placeholder_text(loc.translate("dialog.entry.planned.placeholder"));
 
-    m_actualAmountLabel.set_text("Wykonana kwota (puste = jeszcze nieopłacone)");
+    m_actualAmountLabel.set_text(loc.translate("dialog.entry.actual.label"));
     m_actualAmountLabel.set_halign(Gtk::Align::START);
-    m_actualAmountEntry.set_placeholder_text("np. 250,00");
+    m_actualAmountEntry.set_placeholder_text(loc.translate("dialog.entry.actual.placeholder"));
 
     m_contentBox.set_margin(CONTENT_MARGIN);
     m_contentBox.append(m_nameLabel);
@@ -58,8 +62,8 @@ void BudgetEntryDialog::initLayout()
 
     get_content_area()->append(m_contentBox);
 
-    add_button("Anuluj", Gtk::ResponseType::CANCEL);
-    add_button("OK", Gtk::ResponseType::OK);
+    add_button(loc.translate("dialog.button.cancel"), Gtk::ResponseType::CANCEL);
+    add_button(loc.translate("dialog.button.ok"), Gtk::ResponseType::OK);
 
     set_default_response(Gtk::ResponseType::OK);
     m_nameEntry.set_activates_default(true);

@@ -4,24 +4,30 @@
 #include "../view/BudgetGrid.hpp"
 #include "../../core/util/CategoryColorUtils.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <algorithm>
 #include <gtkmm/label.h>
 
 CategoriesManagerDialog::CategoriesManagerDialog(Gtk::Window& parent, BudgetGrid& grid) :
-    Dialog("Kategorie", parent, true),
+    Dialog(LocaleManager::instance().translate("dialog.categoriesManager.title"), parent, true),
     m_grid(grid),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
 {
     initLayout();
     refreshList();
+
+    signal_response().connect([this](int) { hide(); });
 }
 
 void CategoriesManagerDialog::initLayout()
 {
+    const auto& loc = LocaleManager::instance();
+
     m_scrolledWindow.set_child(m_listBox);
     m_scrolledWindow.set_vexpand(true);
 
-    m_addButton.set_label("Dodaj kategorię");
+    m_addButton.set_label(loc.translate("dialog.categoriesManager.button.add"));
     m_addButton.signal_clicked().connect([this] { showAddCategoryDialog(); });
 
     m_contentBox.set_margin(CONTENT_MARGIN);
@@ -30,12 +36,14 @@ void CategoriesManagerDialog::initLayout()
 
     get_content_area()->append(m_contentBox);
 
-    add_button("Zamknij", Gtk::ResponseType::CLOSE);
+    add_button(loc.translate("dialog.categoriesManager.button.close"), Gtk::ResponseType::CLOSE);
     set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 }
 
 void CategoriesManagerDialog::refreshList()
 {
+    const auto& loc = LocaleManager::instance();
+
     while (auto* child = m_listBox.get_first_child())
         m_listBox.remove(*child);
 
@@ -50,10 +58,10 @@ void CategoriesManagerDialog::refreshList()
 
         const auto categoryId = category.id;
 
-        auto* editButton = Gtk::make_managed<Gtk::Button>("Edytuj");
+        auto* editButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.edit"));
         editButton->signal_clicked().connect([this, categoryId] { showEditCategoryDialog(categoryId); });
 
-        auto* deleteButton = Gtk::make_managed<Gtk::Button>("Usuń");
+        auto* deleteButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.delete"));
         deleteButton->signal_clicked().connect([this, categoryId]
         {
             m_grid.deleteCategory(categoryId);

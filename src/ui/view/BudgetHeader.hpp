@@ -9,15 +9,21 @@ public:
     explicit BudgetHeader();
 
 private:
-    static constexpr int BOX_SPACING = 4;
-
     Gtk::Label m_categoryLabel;
     Gtk::Label m_expenseLabel;
+
+    Gtk::Box m_plannedGroup;
+    Gtk::Label m_plannedTitle;
     Gtk::Label m_plannedAmountLabel;
     Gtk::Label m_plannedRemainingLabel;
+
+    Gtk::Box m_actualGroup;
+    Gtk::Label m_actualTitle;
     Gtk::Label m_actualAmountLabel;
     Gtk::Label m_actualRemainingLabel;
+
     Gtk::Label m_actionsSpacer;
 
     void initLayout();
+    void updateLabels();
 };

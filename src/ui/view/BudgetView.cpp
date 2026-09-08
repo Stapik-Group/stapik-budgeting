@@ -1,14 +1,15 @@
 #include "BudgetView.hpp"
 
 #include "../dialog/BudgetEntryDialog.hpp"
-#include "../dialog/CategoriesManagerDialog.hpp"
+
+#include "stapik/locale/LocaleManager.hpp"
 
 #include <chrono>
 #include <gtkmm/window.h>
 
 BudgetView::BudgetView() :
     Box(Gtk::Orientation::VERTICAL, 0),
-    m_toolBar(Gtk::Orientation::HORIZONTAL, TOOLBAR_SPACING)
+    m_bottomBar(Gtk::Orientation::HORIZONTAL, 0)
 {
     const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
     const std::chrono::year_month_day ymd{today};
@@ -16,9 +17,11 @@ BudgetView::BudgetView() :
     m_currentMonth = static_cast<unsigned>(ymd.month());
 
     initLayout();
-    initToolBar();
+    initBottomBar();
     initNavigation();
     refreshView();
+
+    LocaleManager::instance().signalLocaleChanged().connect([this] { updateLabels(); });
 }
 
 void BudgetView::initLayout()
@@ -27,21 +30,25 @@ void BudgetView::initLayout()
     set_vexpand(true);
 
     append(m_navBar);
-    append(m_toolBar);
     append(m_header);
     append(m_grid);
+    append(m_bottomBar);
 }
 
-void BudgetView::initToolBar()
+void BudgetView::initBottomBar()
 {
-    m_toolBar.set_halign(Gtk::Align::CENTER);
-    m_toolBar.set_margin(TOOLBAR_MARGIN);
+    m_bottomBar.set_halign(Gtk::Align::END);
+    m_bottomBar.set_margin(BOTTOM_BAR_MARGIN);
 
-    m_addEntryButton.set_label("+ Dodaj pozycję");
-    m_manageCategoriesButton.set_label("Kategorie");
+    m_addEntryButton.add_css_class("suggested-action");
+    updateLabels();
 
-    m_toolBar.append(m_addEntryButton);
-    m_toolBar.append(m_manageCategoriesButton);
+    m_bottomBar.append(m_addEntryButton);
+}
+
+void BudgetView::updateLabels()
+{
+    m_addEntryButton.set_label(LocaleManager::instance().translate("view.toolbar.addEntry"));
 }
 
 void BudgetView::initNavigation()
@@ -50,7 +57,6 @@ void BudgetView::initNavigation()
     m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &BudgetView::navigateNextMonth));
 
     m_addEntryButton.signal_clicked().connect([this] { showAddEntryDialog(); });
-    m_manageCategoriesButton.signal_clicked().connect([this] { showManageCategoriesDialog(); });
     m_grid.signalEditEntryRequested().connect([this](const std::size_t index) { showEditEntryDialog(index); });
 }
 
@@ -137,17 +143,6 @@ void BudgetView::showEditEntryDialog(const std::size_t index)
         dialog->hide();
     });
 
-    dialog->signal_hide().connect([dialog] { delete dialog; });
-    dialog->show();
-}
-
-void BudgetView::showManageCategoriesDialog()
-{
-    auto* parent = dynamic_cast<Gtk::Window*>(get_root());
-    if (parent == nullptr)
-        return;
-
-    auto* dialog = new CategoriesManagerDialog(*parent, m_grid);
     dialog->signal_hide().connect([dialog] { delete dialog; });
     dialog->show();
 }

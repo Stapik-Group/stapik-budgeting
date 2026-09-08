@@ -56,7 +56,7 @@ private:
     void initLayout();
     [[nodiscard]] BudgetPeriod& currentPeriod();
     [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;
-    [[nodiscard]] const Category& categoryFor(const std::string& categoryId) const;
+    [[nodiscard]] Category categoryFor(const std::string& categoryId) const;
     void populateRows();
     void saveSnapshot();
     void syncFromCloud();

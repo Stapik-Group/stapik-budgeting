@@ -1,8 +1,9 @@
 #pragma once
 
 #include <gtkmm/applicationwindow.h>
-#include <gtkmm/label.h>
+#include <gtkmm/box.h>
 
+#include "../widget/MainMenu.hpp"
 #include "../view/BudgetView.hpp"
 
 class MainWindow : public Gtk::ApplicationWindow
@@ -16,7 +17,10 @@ private:
     static constexpr int DEFAULT_HEIGHT = 800;
     static constexpr auto WINDOW_TITLE = "Stapik Budgeting";
 
+    Gtk::Box m_mainBox;
     BudgetView m_budgetView;
+    MainMenu m_mainMenu;
 
     void init();
+    void initLayout();
 };

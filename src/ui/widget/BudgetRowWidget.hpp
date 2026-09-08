@@ -18,16 +18,21 @@ public:
     sigc::signal<void()>& signalMoveDownRequested();
 
 private:
-    static constexpr int BOX_SPACING = 4;
-
     Gtk::Label m_categoryLabel;
     Gtk::Label m_expenseLabel;
+
+    Gtk::Box m_plannedGroup;
     Gtk::Label m_plannedAmountLabel;
     Gtk::Label m_plannedRemainingLabel;
+
+    Gtk::Box m_actualGroup;
     Gtk::Label m_actualAmountLabel;
     Gtk::Label m_actualRemainingLabel;
+
+    Gtk::Box m_actionsBox;
     Gtk::Button m_moveUpButton;
     Gtk::Button m_moveDownButton;
+    Gtk::Button m_editButton;
     Gtk::Button m_deleteButton;
 
     sigc::signal<void()> m_signalEditRequested;

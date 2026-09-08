@@ -23,6 +23,9 @@ private:
     Gtk::Button m_btnNextMonth;
     Gtk::Label m_currentLabel;
 
+    int m_lastYear = 0;
+    unsigned m_lastMonth = 1;
+
     sigc::signal<void()> m_signalPrevMonth;
     sigc::signal<void()> m_signalNextMonth;
 

@@ -42,6 +42,7 @@ add_executable(stapikbudgeting
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp
         src/ui/widget/CategoryColorPickerWidget.cpp
+        src/ui/widget/MainMenu.cpp
         src/ui/dialog/CategoryDialog.cpp
         src/ui/dialog/BudgetEntryDialog.cpp
         src/ui/dialog/CategoriesManagerDialog.cpp
@@ -49,8 +50,14 @@ add_executable(stapikbudgeting
         src/ui/view/BudgetNavBar.cpp
         src/ui/view/BudgetGrid.cpp
         src/ui/view/BudgetView.cpp
+        src/ui/action/MenuActionHandler.cpp
         src/ui/window/MainWindow.cpp)
 
 target_include_directories(stapikbudgeting PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_compile_options(stapikbudgeting PRIVATE ${GTKMM_CFLAGS_OTHER})
 target_link_libraries(stapikbudgeting PRIVATE ${GTKMM_LIBRARIES} stapikcommon CURL::libcurl nlohmann_json::nlohmann_json)
+
+add_custom_command(TARGET stapikbudgeting POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:stapikbudgeting>/resources)

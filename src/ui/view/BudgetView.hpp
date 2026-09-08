@@ -14,22 +14,21 @@ public:
     BudgetGrid& getBudgetGrid();
 
 private:
-    static constexpr int TOOLBAR_SPACING = 4;
-    static constexpr int TOOLBAR_MARGIN = 4;
+    static constexpr int BOTTOM_BAR_MARGIN = 10;
 
     int m_currentYear;
     unsigned m_currentMonth;
 
     BudgetNavBar m_navBar;
-    Gtk::Box m_toolBar;
-    Gtk::Button m_addEntryButton;
-    Gtk::Button m_manageCategoriesButton;
     BudgetHeader m_header;
     BudgetGrid m_grid;
+    Gtk::Box m_bottomBar;
+    Gtk::Button m_addEntryButton;
 
     void initLayout();
-    void initToolBar();
+    void initBottomBar();
     void initNavigation();
+    void updateLabels();
 
     void navigatePrevMonth();
     void navigateNextMonth();
@@ -38,5 +37,4 @@ private:
 
     void showAddEntryDialog();
     void showEditEntryDialog(std::size_t index);
-    void showManageCategoriesDialog();
 };

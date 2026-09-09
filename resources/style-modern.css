@@ -131,6 +131,12 @@ button.suggested-action:hover {
     background-color: @win_accent_hover;
 }
 
+button:checked:not(.color-swatch) {
+    background-color: @win_accent;
+    box-shadow: none;
+    color: #ffffff;
+}
+
 /* --- Navbar --- */
 .budget-navbar {
     background: #ffffff;

@@ -61,5 +61,9 @@
   "dialog.categoriesManager.button.delete": "Delete",
   "dialog.categoriesManager.button.close": "Close",
 
+  "dialog.entry.type.label": "Type",
+  "dialog.entry.type.expense": "Expense",
+  "dialog.entry.type.income": "Income",
+
   "category.uncategorized": "Uncategorized"
 }

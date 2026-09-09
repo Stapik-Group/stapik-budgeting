@@ -71,7 +71,7 @@ std::vector<double> BudgetPeriod::remainingFor(std::optional<double> BudgetEntry
     for (const auto& entry : m_entries)
     {
         if (const auto& amount = entry.*amountMember; amount.has_value())
-            runningTotal -= amount.value();
+            runningTotal += entry.type == BudgetEntryType::Income ? amount.value() : -amount.value();
         remaining.push_back(runningTotal);
     }
     return remaining;

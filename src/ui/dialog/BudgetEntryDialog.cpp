@@ -22,6 +22,7 @@ BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<Category>
 {
     initLayout();
     populateCategoryCombo(existing.categoryId);
+    selectType(existing.type);
 
     m_nameEntry.set_text(existing.name);
 
@@ -34,6 +35,28 @@ BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<Category>
 void BudgetEntryDialog::initLayout()
 {
     const auto& loc = LocaleManager::instance();
+
+    m_typeLabel.set_text(loc.translate("dialog.entry.type.label"));
+    m_typeLabel.set_halign(Gtk::Align::START);
+
+    m_typeBox.add_css_class("linked");
+    m_expenseTypeButton.set_label(loc.translate("dialog.entry.type.expense"));
+    m_incomeTypeButton.set_label(loc.translate("dialog.entry.type.income"));
+    m_expenseTypeButton.signal_toggled().connect([this]
+    {
+        if (m_expenseTypeButton.get_active())
+            selectType(BudgetEntryType::Expense);
+    });
+
+    m_incomeTypeButton.signal_toggled().connect([this]
+    {
+        if (m_incomeTypeButton.get_active())
+            selectType(BudgetEntryType::Income);
+    });
+
+    m_expenseTypeButton.set_active(true);
+    m_typeBox.append(m_expenseTypeButton);
+    m_typeBox.append(m_incomeTypeButton);
 
     m_nameLabel.set_text(loc.translate("dialog.entry.name.label"));
     m_nameLabel.set_halign(Gtk::Align::START);
@@ -51,6 +74,8 @@ void BudgetEntryDialog::initLayout()
     m_actualAmountEntry.set_placeholder_text(loc.translate("dialog.entry.actual.placeholder"));
 
     m_contentBox.set_margin(CONTENT_MARGIN);
+    m_contentBox.append(m_typeLabel);
+    m_contentBox.append(m_typeBox);
     m_contentBox.append(m_nameLabel);
     m_contentBox.append(m_nameEntry);
     m_contentBox.append(m_categoryLabel);
@@ -70,6 +95,17 @@ void BudgetEntryDialog::initLayout()
     m_plannedAmountEntry.set_activates_default(true);
     m_actualAmountEntry.set_activates_default(true);
     set_default_size(DEFAULT_WIDTH, -1);
+}
+
+void BudgetEntryDialog::selectType(const BudgetEntryType type)
+{
+    m_expenseTypeButton.set_active(type == BudgetEntryType::Expense);
+    m_incomeTypeButton.set_active(type == BudgetEntryType::Income);
+}
+
+BudgetEntryType BudgetEntryDialog::getSelectedType() const
+{
+    return m_incomeTypeButton.get_active() ? BudgetEntryType::Income : BudgetEntryType::Expense;
 }
 
 void BudgetEntryDialog::populateCategoryCombo(const std::string& selectedCategoryId)
@@ -133,6 +169,7 @@ std::optional<BudgetEntry> BudgetEntryDialog::getResult() const
     BudgetEntry entry;
     entry.name = name;
     entry.categoryId = categoryId;
+    entry.type = getSelectedType();
     entry.plannedAmount = parseAmount(m_plannedAmountEntry.get_text());
     entry.actualAmount = parseAmount(m_actualAmountEntry.get_text());
 

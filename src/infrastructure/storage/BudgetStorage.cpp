@@ -68,7 +68,8 @@ nlohmann::json BudgetStorage::entryToJson(const BudgetEntry& entry)
 {
     nlohmann::json json{
         { "name", entry.name },
-        { "categoryId", entry.categoryId }
+        { "categoryId", entry.categoryId },
+        { "type", entry.type == BudgetEntryType::Income ? "income" : "expense" }
     };
 
     if (entry.plannedAmount.has_value())
@@ -84,6 +85,9 @@ BudgetEntry BudgetStorage::entryFromJson(const nlohmann::json& json)
     BudgetEntry entry;
     entry.name = json.at("name").get<std::string>();
     entry.categoryId = json.at("categoryId").get<std::string>();
+    entry.type = json.value("type", std::string{"expense"}) == "income" ?
+        BudgetEntryType::Income :
+        BudgetEntryType::Expense;
 
     if (json.contains("plannedAmount"))
         entry.plannedAmount = json.at("plannedAmount").get<double>();

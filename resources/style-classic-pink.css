@@ -125,6 +125,13 @@ button.suggested-action:hover {
     min-height: 20px;
 }
 
+button:checked:not(.color-swatch) {
+    border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
+    box-shadow: none;
+    background-color: @win_accent;
+    color: #ffffff;
+}
+
 /* --- Entry / Combobox --- */
 entry,
 combobox button {

@@ -8,6 +8,7 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/label.h>
+#include <gtkmm/togglebutton.h>
 
 #include "../../core/model/BudgetEntry.hpp"
 #include "../../core/model/Category.hpp"
@@ -28,6 +29,11 @@ private:
     const std::vector<Category>& m_categories;
 
     Gtk::Box m_contentBox;
+    Gtk::Label m_typeLabel;
+    Gtk::Box m_typeBox;
+    Gtk::ToggleButton m_expenseTypeButton;
+    Gtk::ToggleButton m_incomeTypeButton;
+
     Gtk::Label m_nameLabel;
     Gtk::Entry m_nameEntry;
     Gtk::Label m_categoryLabel;
@@ -39,6 +45,9 @@ private:
 
     void initLayout();
     void populateCategoryCombo(const std::string& selectedCategoryId);
+    void selectType(BudgetEntryType type);
+
+    [[nodiscard]] BudgetEntryType getSelectedType() const;
 
     [[nodiscard]] static std::optional<double> parseAmount(const Glib::ustring& text);
     [[nodiscard]] static std::string formatForEntry(double value);

@@ -61,5 +61,9 @@
   "dialog.categoriesManager.button.delete": "Löschen",
   "dialog.categoriesManager.button.close": "Schließen",
 
+  "dialog.entry.type.label": "Typ",
+  "dialog.entry.type.expense": "Ausgabe",
+  "dialog.entry.type.income": "Einnahme",
+
   "category.uncategorized": "Ohne Kategorie"
 }

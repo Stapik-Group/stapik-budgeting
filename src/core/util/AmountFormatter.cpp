@@ -1,12 +1,16 @@
 #include "AmountFormatter.hpp"
 
+#include "stapik/locale/Locale.hpp"
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <algorithm>
 #include <format>
 
 std::string AmountFormatter::format(const double amount)
 {
     auto text = std::format("{:.2f}", amount);
-    std::ranges::replace(text, '.', ',');
+    const char decimalSeparator = LocaleManager::instance().getLocale() == Locale::EN ? '.' : ',';
+    std::ranges::replace(text, '.', decimalSeparator);
     return text + " zł";
 }
 

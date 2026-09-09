@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <format>
-#include <stdexcept>
+#include <charconv>
 
 BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<Category>& categories) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
@@ -129,30 +129,26 @@ std::optional<double> BudgetEntryDialog::parseAmount(const Glib::ustring& text)
 
     std::ranges::replace(raw, ',', '.');
 
-    try
-    {
-        std::size_t consumed = 0;
-        const double value = std::stod(raw, &consumed);
+    // std::from_chars is locale-independent (always uses '.'), unlike std::stod,
+    // which follows the global C locale that GTK sets from the system locale
+    // (e.g. pl_PL, where std::stod would not accept '.' as a decimal separator).
+    double value{};
+    const auto* end = raw.data() + raw.size();
+    const auto [ptr, ec] = std::from_chars(raw.data(), end, value);
 
-        if (consumed != raw.size())
-            return std::nullopt;
+    if (ec != std::errc{} || ptr != end)
+        return std::nullopt;
 
-        return value;
-    }
-    catch (const std::invalid_argument&)
-    {
-        return std::nullopt;
-    }
-    catch (const std::out_of_range&)
-    {
-        return std::nullopt;
-    }
+    return value;
 }
 
 std::string BudgetEntryDialog::formatForEntry(const double value)
 {
     auto text = std::format("{:.2f}", value);
-    std::ranges::replace(text, '.', ',');
+
+    const char decimalSeparator = LocaleManager::instance().getLocale() == Locale::EN ? '.' : ',';
+    std::ranges::replace(text, '.', decimalSeparator);
+
     return text;
 }
 

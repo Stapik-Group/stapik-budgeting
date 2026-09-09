@@ -39,6 +39,8 @@ BudgetGrid::BudgetGrid() :
 
     initLayout();
     populateRows();
+
+    LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
 }
 
 void BudgetGrid::initLayout()

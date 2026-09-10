@@ -61,6 +61,8 @@ private:
     sigc::signal<void()> m_signalAddEntryRequested;
     sigc::signal<void(std::size_t)> m_signalEditEntryRequested;
 
+    bool m_syncingCurrency = false;
+
     void initLayout();
     [[nodiscard]] BudgetPeriod& currentPeriod();
     [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;

@@ -31,6 +31,7 @@ BudgetGrid::BudgetGrid() :
     auto [categories, periods, currencyCode, lastUpdate, lastKnownCloudUpdate] = BudgetStorage::load();
     m_categories = std::move(categories);
     m_periods = std::move(periods);
+    m_currencyCode = std::move(currencyCode);
     m_lastUpdate = lastUpdate;
     m_lastKnownCloudUpdate = lastKnownCloudUpdate;
 
@@ -43,7 +44,16 @@ BudgetGrid::BudgetGrid() :
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
-    CurrencyManager::instance().signalCurrencyChanged().connect([this] { populateRows(); });
+    CurrencyManager::instance().signalCurrencyChanged().connect([this]
+    {
+        if (m_syncingCurrency)
+            return;
+
+        m_currencyCode = CurrencyManager::instance().getCurrency().code;
+        touchLastUpdate();
+        saveSnapshot();
+        populateRows();
+    });
 }
 
 void BudgetGrid::initLayout()
@@ -208,15 +218,22 @@ void BudgetGrid::saveSnapshot()
 {
     if (m_cloudClient != nullptr)
     {
-        const BudgetSnapshot snapshot{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
+        const BudgetSnapshot snapshot{
+            .categories = m_categories,
+            .periods = m_periods,
+            .currencyCode = m_currencyCode,
+            .lastUpdate = m_lastUpdate,
+            .lastKnownCloudUpdate = m_lastKnownCloudUpdate
+        };
+
         g_message("[Cloud] Saving in cloud...");
 
         const auto resolved = BudgetSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
         m_categories = resolved.categories;
         m_periods = resolved.periods;
+        m_currencyCode = resolved.currencyCode;
         m_lastUpdate = resolved.lastUpdate;
         m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
-        m_currencyCode = resolved.currencyCode;
 
         g_message("[Cloud] Saved in cloud.");
         BudgetStorage::save(resolved);
@@ -251,6 +268,10 @@ void BudgetGrid::syncFromCloud()
     m_currencyCode = resolved.currencyCode;
     m_lastUpdate = resolved.lastUpdate;
     m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
+
+    m_syncingCurrency = true;
+    CurrencyManager::instance().setCurrency(m_currencyCode);
+    m_syncingCurrency = false;
 
     BudgetStorage::save(resolved);
     populateRows();

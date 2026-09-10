@@ -1,8 +1,8 @@
 #include "CloudSchemaMigrationGuard.hpp"
 
-#include "CloudStorageConfigStorage.hpp"
+#include "../../AppInfo.hpp"
+#include "stapik/storage/AppPaths.hpp"
 
-#include <cstdlib>
 #include <fstream>
 #include <glib.h>
 
@@ -12,7 +12,10 @@ void CloudSchemaMigrationGuard::ensureCompatible()
         return;
 
     g_message("[Cloud] Incompatible cloud settings detected from a previous version — clearing.");
-    CloudStorageConfigStorage::clear();
+
+    std::error_code ec;
+    std::filesystem::remove(AppPaths::userDataDir(APP_NAME) / "config.json", ec);
+
     writeStoredVersion(CURRENT_SCHEMA_VERSION);
 }
 
@@ -43,9 +46,5 @@ void CloudSchemaMigrationGuard::writeStoredVersion(const int version)
 
 std::filesystem::path CloudSchemaMigrationGuard::versionFilePath()
 {
-    const auto* home = std::getenv("HOME");
-    if (home == nullptr)
-        return {};
-
-    return std::filesystem::path(home) / ".local" / "share" / "stapikbudgeting" / "cloud_schema_version";
+    return AppPaths::userDataDir(APP_NAME) / "cloud_schema_version";
 }

@@ -40,7 +40,6 @@ add_executable(stapikbudgeting
         src/infrastructure/storage/BudgetStorage.cpp
         src/infrastructure/storage/BudgetSyncCoordinator.cpp
         src/infrastructure/storage/CurrencyCatalog.cpp
-        src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp
         src/ui/widget/CategoryColorPickerWidget.cpp

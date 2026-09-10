@@ -23,4 +23,5 @@ private:
 
     void init();
     void initLayout();
+    void initCloud();
 };

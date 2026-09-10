@@ -49,6 +49,7 @@ private:
     unsigned m_currentMonth;
     std::chrono::system_clock::time_point m_lastUpdate{};
     std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
+    std::string m_currencyCode;
 
     Glib::RefPtr<Gtk::SizeGroup> m_plannedSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;

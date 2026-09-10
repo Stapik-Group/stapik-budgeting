@@ -1,15 +1,11 @@
 #include <gtkmm.h>
 
+#include "AppInfo.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 #include "stapik/ui/style/AppStyleProvider.hpp"
 #include "ui/window/MainWindow.hpp"
-
-namespace
-{
-    constexpr auto APP_NAME = "stapikbudgeting";
-}
 
 int main(const int argc, char *argv[])
 {

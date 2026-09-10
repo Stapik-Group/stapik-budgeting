@@ -137,6 +137,8 @@ void BudgetGrid::populateRows()
 
         m_rowsBox.append(*row);
     }
+
+    m_currencyCode = CurrencyManager::instance().getCurrency().code;
 }
 
 void BudgetGrid::deleteEntryAt(const std::size_t index)
@@ -214,13 +216,20 @@ void BudgetGrid::saveSnapshot()
         m_periods = resolved.periods;
         m_lastUpdate = resolved.lastUpdate;
         m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
+        m_currencyCode = resolved.currencyCode;
 
         g_message("[Cloud] Saved in cloud.");
         BudgetStorage::save(resolved);
         return;
     }
 
-    BudgetStorage::save(BudgetSnapshot{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate });
+    BudgetStorage::save(BudgetSnapshot{
+        .categories = m_categories,
+        .periods = m_periods,
+        .currencyCode = m_currencyCode,
+        .lastUpdate = m_lastUpdate,
+        .lastKnownCloudUpdate = m_lastKnownCloudUpdate
+    });
 }
 
 void BudgetGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
@@ -234,11 +243,12 @@ void BudgetGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    const BudgetSnapshot local{ .categories = m_categories, .periods = m_periods, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
+    const BudgetSnapshot local{ .categories = m_categories, .periods = m_periods, .currencyCode = m_currencyCode, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
     const auto resolved = BudgetSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
 
     m_categories = resolved.categories;
     m_periods = resolved.periods;
+    m_currencyCode = resolved.currencyCode;
     m_lastUpdate = resolved.lastUpdate;
     m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
 

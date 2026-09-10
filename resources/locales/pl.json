@@ -6,6 +6,7 @@
   "menu.edit.redo": "Ponów",
   "menu.edit.manageCategories": "Kategorie…",
   "menu.settings": "Ustawienia",
+  "menu.settings.currency": "Waluta",
   "menu.settings.language": "Język",
   "menu.settings.language.pl": "Polski",
   "menu.settings.language.en": "Angielski",
@@ -65,5 +66,9 @@
   "dialog.entry.type.expense": "Wydatek",
   "dialog.entry.type.income": "Wpływ",
 
-  "category.uncategorized": "Bez kategorii"
+  "category.uncategorized": "Bez kategorii",
+
+  "currency.PLN": "Polski złoty",
+  "currency.EUR": "Euro",
+  "currency.USD": "Dolar amerykański"
 }

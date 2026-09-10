@@ -36,8 +36,10 @@ add_executable(stapikbudgeting
         src/core/command/EditEntryCommand.cpp
         src/core/command/MoveEntryCommand.cpp
         src/core/command/BudgetCommandHistory.cpp
+        src/core/currency/CurrencyManager.cpp
         src/infrastructure/storage/BudgetStorage.cpp
         src/infrastructure/storage/BudgetSyncCoordinator.cpp
+        src/infrastructure/storage/CurrencyCatalog.cpp
         src/infrastructure/network/CloudStorageConfigStorage.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp

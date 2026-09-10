@@ -17,6 +17,8 @@
 #include <glib.h>
 #include <gtkmm/widget.h>
 
+#include "../../core/currency/CurrencyManager.hpp"
+
 namespace
 {
     constexpr int ROWS_BOX_SPACING = 2;
@@ -26,7 +28,7 @@ BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING)
 {
-    auto [categories, periods, lastUpdate, lastKnownCloudUpdate] = BudgetStorage::load();
+    auto [categories, periods, currencyCode, lastUpdate, lastKnownCloudUpdate] = BudgetStorage::load();
     m_categories = std::move(categories);
     m_periods = std::move(periods);
     m_lastUpdate = lastUpdate;
@@ -41,6 +43,7 @@ BudgetGrid::BudgetGrid() :
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
+    CurrencyManager::instance().signalCurrencyChanged().connect([this] { populateRows(); });
 }
 
 void BudgetGrid::initLayout()

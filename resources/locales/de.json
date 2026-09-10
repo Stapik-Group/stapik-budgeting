@@ -6,6 +6,7 @@
   "menu.edit.redo": "Wiederholen",
   "menu.edit.manageCategories": "Kategorien…",
   "menu.settings": "Einstellungen",
+  "menu.settings.currency": "Währung",
   "menu.settings.language": "Sprache",
   "menu.settings.language.pl": "Polnisch",
   "menu.settings.language.en": "Englisch",
@@ -65,5 +66,9 @@
   "dialog.entry.type.expense": "Ausgabe",
   "dialog.entry.type.income": "Einnahme",
 
-  "category.uncategorized": "Ohne Kategorie"
+  "category.uncategorized": "Ohne Kategorie",
+
+  "currency.PLN": "Złoty",
+  "currency.EUR": "Euro",
+  "currency.USD": "US-Dollar"
 }

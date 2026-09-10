@@ -1,0 +1,14 @@
+[
+  {
+    "code": "PLN",
+    "symbol": "zł"
+  },
+  {
+    "code": "EUR",
+    "symbol": "€"
+  },
+  {
+    "code": "USD",
+    "symbol": "$"
+  }
+]

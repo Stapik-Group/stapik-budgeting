@@ -137,7 +137,8 @@ nlohmann::json BudgetStorage::toJson(const BudgetSnapshot& snapshot)
 
     const nlohmann::json payload{
         { "categories", categories },
-        { "periods", periods }
+        { "periods", periods },
+        { "currency", snapshot.currencyCode }
     };
 
     const stapik::sync::SyncEnvelope envelope{ .lastUpdate = snapshot.lastUpdate, .payload = payload };
@@ -167,7 +168,13 @@ BudgetSnapshot BudgetStorage::fromJson(const nlohmann::json& json)
         if (json.contains("lastKnownCloudUpdate"))
             lastKnownCloudUpdate = stapik::sync::fromIso8601(json.at("lastKnownCloudUpdate").get<std::string>());
 
-        return BudgetSnapshot{ .categories = std::move(categories), .periods = std::move(periods), .lastUpdate = lastUpdate, .lastKnownCloudUpdate = lastKnownCloudUpdate };
+        return BudgetSnapshot{
+            .categories = std::move(categories),
+            .periods = std::move(periods),
+            .currencyCode = payload.value("currency", "PLN"),
+            .lastUpdate = lastUpdate,
+            .lastKnownCloudUpdate = lastKnownCloudUpdate
+        };
     }
     catch (const nlohmann::json::exception&)
     {

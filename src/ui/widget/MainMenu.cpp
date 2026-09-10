@@ -1,7 +1,11 @@
 #include "MainMenu.hpp"
 
+#include "../../core/currency/CurrencyManager.hpp"
+#include "../../infrastructure/storage/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/theme/ThemeManager.hpp"
+
+#include <format>
 
 MainMenu::MainMenu(Gtk::ApplicationWindow &window, BudgetGrid &budgetGrid) : m_window(window),
     m_actionHandler(window, budgetGrid)
@@ -9,6 +13,7 @@ MainMenu::MainMenu(Gtk::ApplicationWindow &window, BudgetGrid &budgetGrid) : m_w
     m_actionHandler.registerActions();
     initLanguageAction();
     initThemeAction();
+    initCurrencyAction();
     buildModel();
     LocaleManager::instance().signalLocaleChanged().connect([this] { buildModel(); });
 }
@@ -46,9 +51,19 @@ void MainMenu::buildModel()
     menuTheme->append(loc.translate("menu.settings.theme.classicPink"), "win.setTheme::classic-pink");
     menuTheme->append(loc.translate("menu.settings.theme.modern"), "win.setTheme::modern");
 
+    const auto menuCurrency = Gio::Menu::create();
+    for (const auto&[code, symbol] : CurrencyCatalog::instance().getCurrencies())
+    {
+        menuCurrency->append(
+            std::format("{} ({})", loc.translate(std::format("currency.{}", code)), code),
+            std::format("win.setCurrency::{}", code)
+        );
+    }
+
     const auto menuSettings = Gio::Menu::create();
     menuSettings->append_submenu(loc.translate("menu.settings.language"), menuLanguage);
     menuSettings->append_submenu(loc.translate("menu.settings.theme"), menuTheme);
+    menuSettings->append_submenu(loc.translate("menu.settings.currency"), menuCurrency);
     m_menuModel->append_submenu(loc.translate("menu.settings"), menuSettings);
 
     m_menuBar.set_menu_model(m_menuModel);
@@ -88,11 +103,29 @@ void MainMenu::initThemeAction() const
     auto action = Gio::SimpleAction::create_radio_string("setTheme", initialValue);
     action->signal_activate().connect([action](const Glib::VariantBase& parameter)
     {
+        using enum Theme;
         const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
         action->change_state(value);
-        if (value == "modern") ThemeManager::instance().setTheme(Theme::Modern);
-        else if (value == "classic-pink") ThemeManager::instance().setTheme(Theme::ClassicPink);
-        else ThemeManager::instance().setTheme(Theme::Classic);
+        if (value == "modern") ThemeManager::instance().setTheme(Modern);
+        else if (value == "classic-pink") ThemeManager::instance().setTheme(ClassicPink);
+        else ThemeManager::instance().setTheme(Classic);
     });
+    m_window.add_action(action);
+}
+
+void MainMenu::initCurrencyAction() const
+{
+    const auto currentCurrency = CurrencyManager::instance().getCurrency().code;
+
+    auto action = Gio::SimpleAction::create_radio_string("setCurrency", currentCurrency);
+
+    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
+    {
+        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
+
+        action->change_state(value);
+        CurrencyManager::instance().setCurrency(value);
+    });
+
     m_window.add_action(action);
 }

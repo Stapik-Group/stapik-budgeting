@@ -6,12 +6,15 @@
 #include <algorithm>
 #include <format>
 
+#include "../currency/CurrencyManager.hpp"
+
 std::string AmountFormatter::format(const double amount)
 {
     auto text = std::format("{:.2f}", amount);
     const char decimalSeparator = LocaleManager::instance().getLocale() == Locale::EN ? '.' : ',';
+    const auto currentCurrency = CurrencyManager::instance().getCurrency().symbol;
     std::ranges::replace(text, '.', decimalSeparator);
-    return text + " zł";
+    return text + " " + currentCurrency;
 }
 
 std::string AmountFormatter::format(const std::optional<double>& amount)

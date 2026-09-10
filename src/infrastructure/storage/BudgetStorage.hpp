@@ -9,6 +9,7 @@
 #include <optional>
 #include <stdexcept>
 #include <vector>
+#include <string>
 
 class BudgetStorageException : public std::runtime_error
 {
@@ -20,6 +21,7 @@ struct BudgetSnapshot
 {
     std::vector<Category> categories;
     std::vector<BudgetPeriod> periods;
+    std::string currencyCode;
     std::chrono::system_clock::time_point lastUpdate;
     std::optional<std::chrono::system_clock::time_point> lastKnownCloudUpdate;
 };

@@ -6,6 +6,7 @@
   "menu.edit.redo": "Redo",
   "menu.edit.manageCategories": "Categories…",
   "menu.settings": "Settings",
+  "menu.settings.currency": "Currency",
   "menu.settings.language": "Language",
   "menu.settings.language.pl": "Polish",
   "menu.settings.language.en": "English",
@@ -65,5 +66,9 @@
   "dialog.entry.type.expense": "Expense",
   "dialog.entry.type.income": "Income",
 
-  "category.uncategorized": "Uncategorized"
+  "category.uncategorized": "Uncategorized",
+
+  "currency.PLN": "Polish złoty",
+  "currency.EUR": "Euro",
+  "currency.USD": "United States dollar"
 }

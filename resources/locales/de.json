@@ -1,5 +1,7 @@
 {
   "menu.file": "Datei",
+  "menu.file.connect": "Mit Cloud verbinden",
+  "menu.file.sync": "Synchronisieren",
   "menu.file.quit": "Beenden",
   "menu.edit": "Bearbeiten",
   "menu.edit.undo": "Rückgängig",
@@ -65,6 +67,12 @@
   "dialog.entry.type.label": "Typ",
   "dialog.entry.type.expense": "Ausgabe",
   "dialog.entry.type.income": "Einnahme",
+
+  "dialog.connect.title": "Mit Cloud verbinden",
+  "dialog.connect.url.label": "API-URL",
+  "dialog.connect.key.label": "API-Schlüssel",
+  "dialog.connect.key.placeholder": "Schlüssel eingeben",
+  "dialog.connect.button.connect": "Verbinden",
 
   "category.uncategorized": "Ohne Kategorie",
 

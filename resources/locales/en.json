@@ -1,5 +1,7 @@
 {
   "menu.file": "File",
+  "menu.file.connect": "Connect to cloud",
+  "menu.file.sync": "Sync",
   "menu.file.quit": "Exit",
   "menu.edit": "Edit",
   "menu.edit.undo": "Undo",
@@ -39,6 +41,12 @@
 
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Cancel",
+
+  "dialog.connect.title": "Connect to cloud",
+  "dialog.connect.url.label": "API URL",
+  "dialog.connect.key.label": "API key",
+  "dialog.connect.key.placeholder": "Enter key",
+  "dialog.connect.button.connect": "Connect",
 
   "dialog.category.new.title": "New category",
   "dialog.category.edit.title": "Edit category",

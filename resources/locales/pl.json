@@ -1,5 +1,7 @@
 {
   "menu.file": "Plik",
+  "menu.file.connect": "Połącz z chmurą",
+  "menu.file.sync": "Synchronizuj",
   "menu.file.quit": "Wyjście",
   "menu.edit": "Edycja",
   "menu.edit.undo": "Cofnij",
@@ -65,6 +67,16 @@
   "dialog.entry.type.label": "Typ",
   "dialog.entry.type.expense": "Wydatek",
   "dialog.entry.type.income": "Wpływ",
+
+  "dialog.connect.title": "Połącz z chmurą",
+  "dialog.connect.url.label": "Adres API",
+  "dialog.connect.key.label": "Klucz API",
+  "dialog.connect.key.placeholder": "Wprowadź klucz",
+  "dialog.connect.button.connect": "Połącz",
+
+  "cloud.connected": "Połączono",
+  "cloud.connected.secondary": "Pomyślnie połączono z chmurą.",
+  "cloud.failed.header": "Nie udało się połączyć",
 
   "category.uncategorized": "Bez kategorii",
 

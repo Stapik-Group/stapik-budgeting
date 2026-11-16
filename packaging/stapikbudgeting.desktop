@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Stapik Budgeting
-Comment=Oldschool budgeting
-Exec=stapikbudgeting
-Icon=stapikbudgeting
-Terminal=false
-Categories=Office;
-StartupWMClass=pl.stapik.budgeting

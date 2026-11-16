@@ -146,7 +146,7 @@ std::string BudgetEntryDialog::formatForEntry(const double value)
 {
     auto text = std::format("{:.2f}", value);
 
-    const char decimalSeparator = LocaleManager::instance().getLocale() == Locale::EN ? '.' : ',';
+    const char decimalSeparator = LocaleManager::instance().languageCode() == "en" ? '.' : ',';
     std::ranges::replace(text, '.', decimalSeparator);
 
     return text;

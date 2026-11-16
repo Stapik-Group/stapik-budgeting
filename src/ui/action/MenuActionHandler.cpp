@@ -88,12 +88,12 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
         m_budgetGrid.setCloudClient(std::move(client));
 
         g_message("[Cloud] Connected: %s", config.apiUrl.c_str());
-        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"), Gtk::MessageType::INFO);
+        showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
     }
     catch (const CloudStorageException& e)
     {
         g_warning("[Cloud] Cloud connection error: %s", e.what());
-        showMessageDialog(m_window, loc.translate("cloud.failed.header"), e.what(), Gtk::MessageType::ERROR);
+        showMessageDialog(m_window, loc.translate("cloud.failed.header"), e.what());
     }
 }
 

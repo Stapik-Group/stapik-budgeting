@@ -20,13 +20,15 @@ A desktop budgeting application for Linux, written in C++20 using GTK4/gtkmm. Tr
 
 * `gtkmm-4.0`
 * `libcurl`
-* [`stapik-common`](https://github.com/stapik/stapik-common) (fetched automatically via CMake FetchContent)
+* [`stapik-common`](https://github.com/Stapik-Group/stapik-common) 1.6.0 (fetched automatically via CMake FetchContent)
+* `libsodium` and `zlib`, required by `stapik-common`
+* `libsecret` (optional, keeps the cloud API key in the system keyring)
 * `nlohmann/json` (fetched automatically via CMake FetchContent, transitively provided by `stapik-common`)
 
 On Ubuntu/Debian:
 
 ```bash
-sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev
+sudo apt install libgtkmm-4.0-dev libcurl4-openssl-dev libsodium-dev zlib1g-dev libsecret-1-dev libx11-dev
 ```
 
 Building a `.deb` package additionally requires `dpkg-dev` (used to auto-detect runtime dependencies):
@@ -66,15 +68,19 @@ sudo dpkg -i stapikbudgeting_*.deb
 sudo apt install -f
 ```
 
-Either option installs the app to `/usr/lib/stapikbudgeting/`, with a launcher at `/usr/bin/stapikbudgeting`, and it appears in the desktop environment's application menu.
+Either option installs the app to `/opt/stapikbudgeting/`, with a launcher at `/usr/bin/stapikbudgeting`, and it appears in the desktop environment's application menu.
 
 ### Option 3 — Per-user install (no sudo required)
 
 ```bash
-cmake --install cmake-build-release --prefix "$HOME/.local"
+cmake -B cmake-build-user -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="$HOME/.local/opt/stapikbudgeting" \
+    -DSTAPIK_APP_SYSTEM_PREFIX="$HOME/.local"
+cmake --build cmake-build-user
+cmake --install cmake-build-user
 ```
 
-Installs to `~/.local/lib/stapikbudgeting/`, with a launcher at `~/.local/bin/stapikbudgeting`. Make sure `~/.local/bin` is in your `PATH`.
+Installs to `~/.local/opt/stapikbudgeting/`, with a launcher at `~/.local/bin/stapikbudgeting`. Make sure `~/.local/bin` is in your `PATH`.
 
 ## Uninstalling
 
@@ -87,17 +93,17 @@ sudo dpkg -r stapikbudgeting
 ### If installed per-user
 
 ```bash
-rm -rf ~/.local/lib/stapikbudgeting
+rm -rf ~/.local/opt/stapikbudgeting
 rm ~/.local/bin/stapikbudgeting
-rm ~/.local/share/applications/stapikbudgeting.desktop
-rm ~/.local/share/icons/hicolor/256x256/apps/stapikbudgeting.png
+rm ~/.local/share/applications/pl.stapik.budgeting.desktop
+rm ~/.local/share/icons/hicolor/256x256/apps/pl.stapik.budgeting.png
 ```
 
 Uninstalling the application does not remove your budget data, cloud configuration, language preference, theme or currency preference stored in `~/.local/share/stapikbudgeting/`.
 
 ## Cloud Sync
 
-The app supports synchronization via [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud). Go to **File → Connect**, enter the server URL and API key. If a connection is already configured, the app reconnects automatically on startup.
+The app supports synchronization via [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) 1.2.0 or newer. Go to **File → Connect**, enter the server URL and API key. If a connection is already configured, the app reconnects automatically on startup.
 
 Once connected, the app compares the local budget and the cloud copy using a `lastUpdate` timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the older document is fully replaced.
 

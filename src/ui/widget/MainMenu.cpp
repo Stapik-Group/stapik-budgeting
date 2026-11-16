@@ -73,23 +73,14 @@ void MainMenu::buildModel()
 
 void MainMenu::initLanguageAction() const
 {
-    const auto initialLocale = LocaleManager::instance().getLocale();
-    std::string initialValue = "pl";
-    if (initialLocale == Locale::EN) initialValue = "en";
-    else if (initialLocale == Locale::DE) initialValue = "de";
-
-    auto action = Gio::SimpleAction::create_radio_string("setLanguage", initialValue);
+    auto action = Gio::SimpleAction::create_radio_string("setLanguage", LocaleManager::instance().languageCode());
 
     action->signal_activate().connect([action](const Glib::VariantBase &parameter)
     {
-        using enum Locale;
         const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring> >(parameter).get();
 
         action->change_state(value);
-
-        if (value == "pl") LocaleManager::instance().setLocale(PL);
-        else if (value == "en") LocaleManager::instance().setLocale(EN);
-        else if (value == "de") LocaleManager::instance().setLocale(DE);
+        LocaleManager::instance().setLanguage(value.raw());
     });
 
     m_window.add_action(action);

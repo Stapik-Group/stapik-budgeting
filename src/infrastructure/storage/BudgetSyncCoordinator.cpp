@@ -2,7 +2,7 @@
 
 #include "stapik/cloud/CloudStorageException.hpp"
 
-#include <glib.h>
+#include "stapik/log/Log.hpp"
 
 BudgetSnapshot BudgetSyncCoordinator::fromCloudDocument(const CloudDocument& document)
 {
@@ -24,7 +24,7 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     }
     catch (const CloudStorageException&)
     {
-        g_debug("Cannot sync with cloud, will retry on next save.");
+        stapik::log::debug("Cannot sync with cloud, will retry on next save.");
         return local;
     }
 
@@ -56,7 +56,7 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     }
     catch (const CloudStorageException&)
     {
-        g_debug("Cannot sync with cloud, will retry on next save.");
+        stapik::log::debug("Cannot sync with cloud, will retry on next save.");
         return local;
     }
 }
@@ -71,7 +71,7 @@ BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& loc
     }
     catch (const CloudStorageException&)
     {
-        g_debug("Cloud unreachable right now — keep working with local data.");
+        stapik::log::debug("Cloud unreachable right now, keeping local data.");
         return local;
     }
 

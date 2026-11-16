@@ -15,7 +15,6 @@ public:
 private:
     static constexpr int DEFAULT_WIDTH = 1280;
     static constexpr int DEFAULT_HEIGHT = 800;
-    static constexpr auto WINDOW_TITLE = "Stapik Budgeting";
 
     Gtk::Box m_mainBox;
     BudgetView m_budgetView;

@@ -9,12 +9,12 @@
 #include "../widget/BudgetRowWidget.hpp"
 
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/log/Log.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <memory>
 
-#include <glib.h>
 #include <gtkmm/widget.h>
 
 #include "../../core/currency/CurrencyManager.hpp"
@@ -226,7 +226,7 @@ void BudgetGrid::saveSnapshot()
             .lastKnownCloudUpdate = m_lastKnownCloudUpdate
         };
 
-        g_message("[Cloud] Saving in cloud...");
+        stapik::log::info("[Cloud] Saving in cloud...");
 
         const auto resolved = BudgetSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
         m_categories = resolved.categories;
@@ -235,7 +235,7 @@ void BudgetGrid::saveSnapshot()
         m_lastUpdate = resolved.lastUpdate;
         m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
 
-        g_message("[Cloud] Saved in cloud.");
+        stapik::log::info("[Cloud] Saved in cloud.");
         BudgetStorage::save(resolved);
         return;
     }

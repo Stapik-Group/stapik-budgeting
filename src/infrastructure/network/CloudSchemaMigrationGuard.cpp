@@ -4,14 +4,14 @@
 #include "stapik/storage/AppPaths.hpp"
 
 #include <fstream>
-#include <glib.h>
+#include "stapik/log/Log.hpp"
 
 void CloudSchemaMigrationGuard::ensureCompatible()
 {
     if (readStoredVersion() >= CURRENT_SCHEMA_VERSION)
         return;
 
-    g_message("[Cloud] Incompatible cloud settings detected from a previous version — clearing.");
+    stapik::log::info("[Cloud] Incompatible cloud settings detected from a previous version, clearing.");
 
     std::error_code ec;
     std::filesystem::remove(AppPaths::userDataDir(APP_NAME) / "config.json", ec);

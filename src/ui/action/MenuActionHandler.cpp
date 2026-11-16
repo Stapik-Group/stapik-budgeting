@@ -4,13 +4,13 @@
 
 #include "stapik/cloud/CloudStorageException.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/log/Log.hpp"
 #include "stapik/storage/CloudStorageConfigStorage.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
 
 #include "../dialog/CategoriesManagerDialog.hpp"
 
-#include <gtkmm/application.h>
 #include <tuple>
 
 MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid):
@@ -19,17 +19,11 @@ MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid&
 
 void MenuActionHandler::registerActions()
 {
-    m_window.add_action("quit", sigc::mem_fun(*this, &MenuActionHandler::onActionQuit));
     m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
     m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
     m_window.add_action("manageCategories", sigc::mem_fun(*this, &MenuActionHandler::onActionManageCategories));
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
     m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
-}
-
-void MenuActionHandler::onActionQuit() const
-{
-    m_window.get_application()->quit();
 }
 
 void MenuActionHandler::onActionUndo() const
@@ -87,12 +81,12 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
 
         m_budgetGrid.setCloudClient(std::move(client));
 
-        g_message("[Cloud] Connected: %s", config.apiUrl.c_str());
+        stapik::log::info("[Cloud] Connected: {}", config.apiUrl);
         showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
     }
     catch (const CloudStorageException& e)
     {
-        g_warning("[Cloud] Cloud connection error: %s", e.what());
+        stapik::log::warning("[Cloud] Cloud connection error: {}", e.what());
         showMessageDialog(m_window, loc.translate("cloud.failed.header"), e.what());
     }
 }

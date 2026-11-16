@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 
 #include "../../AppInfo.hpp"
+#include "stapik/app/version.hpp"
 #include "stapik/storage/CloudStorageConfigStorage.hpp"
 
 MainWindow::MainWindow() :
@@ -14,7 +15,7 @@ MainWindow::MainWindow() :
 
 void MainWindow::init()
 {
-    set_title(WINDOW_TITLE);
+    set_title(std::string{stapik::app::build::DISPLAY_NAME});
     set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     set_child(m_mainBox);
 }

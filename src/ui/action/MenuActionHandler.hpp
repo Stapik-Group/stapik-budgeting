@@ -15,7 +15,6 @@ private:
     Gtk::ApplicationWindow& m_window;
     BudgetGrid& m_budgetGrid;
 
-    void onActionQuit() const;
     void onActionUndo() const;
     void onActionRedo() const;
     void onActionManageCategories() const;

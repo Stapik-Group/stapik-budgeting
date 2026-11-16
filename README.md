@@ -127,6 +127,10 @@ Budget data is stored locally at:
 
 The document contains the budget categories, periods, currency code and `lastUpdate` timestamp used for cloud synchronization.
 
+Every save is written atomically, so a crash can never leave a half-written file. The three previous versions are kept next to it as `budget.json.bak`, `budget.json.bak.2` and `budget.json.bak.3`. A file that cannot be read is never overwritten: it is moved aside as `budget.json.corrupt-<timestamp>` and the application starts with an empty budget.
+
+Files written by version 1.0.0 are upgraded automatically on the first start, and the original stays available as `budget.json.bak`. The data directory follows `XDG_DATA_HOME` and the `--data-dir` and `--portable` command line options.
+
 Other application data is stored at:
 
 ```text

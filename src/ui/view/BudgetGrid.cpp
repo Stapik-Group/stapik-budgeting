@@ -26,15 +26,9 @@ namespace
 
 BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
-    m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING)
+    m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING),
+    m_document(m_store.load())
 {
-    auto [categories, periods, currencyCode, lastUpdate, lastKnownCloudUpdate] = BudgetStorage::load();
-    m_categories = std::move(categories);
-    m_periods = std::move(periods);
-    m_currencyCode = std::move(currencyCode);
-    m_lastUpdate = lastUpdate;
-    m_lastKnownCloudUpdate = lastKnownCloudUpdate;
-
     const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
     const std::chrono::year_month_day ymd{today};
     m_currentYear = static_cast<int>(ymd.year());
@@ -49,9 +43,8 @@ BudgetGrid::BudgetGrid() :
         if (m_syncingCurrency)
             return;
 
-        m_currencyCode = CurrencyManager::instance().getCurrency().code;
-        touchLastUpdate();
-        saveSnapshot();
+        m_document.setCurrencyCode(CurrencyManager::instance().getCurrency().code);
+        commit();
         populateRows();
     });
 }
@@ -82,31 +75,18 @@ void BudgetGrid::bindHeader(BudgetHeader& header) const
 
 BudgetPeriod& BudgetGrid::currentPeriod()
 {
-    if (auto* existing = const_cast<BudgetPeriod*>(findCurrentPeriod())) // NOSONAR
-        return *existing;
-
-    m_periods.emplace_back(m_currentYear, m_currentMonth, 0.0);
-    return m_periods.back();
+    return m_document.periodFor(m_currentYear, m_currentMonth);
 }
 
 const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
 {
-    const auto it = std::ranges::find_if(m_periods, [this](const BudgetPeriod& period)
-    {
-        return period.getYear() == m_currentYear && period.getMonth() == m_currentMonth;
-    });
-
-    return it != m_periods.end() ? std::to_address(it) : nullptr;
+    return m_document.findPeriod(m_currentYear, m_currentMonth);
 }
 
 Category BudgetGrid::categoryFor(const std::string& categoryId) const
 {
-    if (const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category) {
-            return category.id == categoryId;
-        }); it != m_categories.end())
-    {
-        return *it;
-    }
+    if (const auto* category = m_document.findCategory(categoryId))
+        return *category;
 
     return Category::create(LocaleManager::instance().translate("category.uncategorized"), CategoryColor::Default);
 }
@@ -123,7 +103,14 @@ void BudgetGrid::populateRows()
     while (auto* child = m_rowsBox.get_first_child())
         m_rowsBox.remove(*child);
 
-    const auto& period = currentPeriod();
+    if (const auto* period = findCurrentPeriod())
+        appendRows(*period);
+
+    m_document.setCurrencyCode(CurrencyManager::instance().getCurrency().code);
+}
+
+void BudgetGrid::appendRows(const BudgetPeriod& period)
+{
     const auto plannedRemaining = period.remainingPlanned();
     const auto actualRemaining = period.remainingActual();
     const auto& entries = period.getEntries();
@@ -147,15 +134,12 @@ void BudgetGrid::populateRows()
 
         m_rowsBox.append(*row);
     }
-
-    m_currencyCode = CurrencyManager::instance().getCurrency().code;
 }
 
 void BudgetGrid::deleteEntryAt(const std::size_t index)
 {
     m_history.execute(std::make_unique<DeleteEntryCommand>(currentPeriod(), index));
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
@@ -165,8 +149,7 @@ void BudgetGrid::moveEntryUp(const std::size_t index)
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(currentPeriod(), index, index - 1));
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
@@ -177,76 +160,50 @@ void BudgetGrid::moveEntryDown(const std::size_t index)
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(period, index, index + 1));
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
 void BudgetGrid::addEntry(BudgetEntry entry)
 {
     m_history.execute(std::make_unique<AddEntryCommand>(currentPeriod(), std::move(entry)));
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
 void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
 {
     m_history.execute(std::make_unique<EditEntryCommand>(currentPeriod(), index, std::move(entry)));
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
 void BudgetGrid::undo()
 {
     m_history.undo();
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
 void BudgetGrid::redo()
 {
     m_history.redo();
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
-void BudgetGrid::saveSnapshot()
+void BudgetGrid::commit()
 {
+    m_document.touch();
+
     if (m_cloudClient != nullptr)
     {
-        const BudgetSnapshot snapshot{
-            .categories = m_categories,
-            .periods = m_periods,
-            .currencyCode = m_currencyCode,
-            .lastUpdate = m_lastUpdate,
-            .lastKnownCloudUpdate = m_lastKnownCloudUpdate
-        };
-
         stapik::log::info("[Cloud] Saving in cloud...");
-
-        const auto resolved = BudgetSyncCoordinator::pushLocalChange(snapshot, *m_cloudClient);
-        m_categories = resolved.categories;
-        m_periods = resolved.periods;
-        m_currencyCode = resolved.currencyCode;
-        m_lastUpdate = resolved.lastUpdate;
-        m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
-
+        m_document = BudgetSyncCoordinator::pushLocalChange(m_document, *m_cloudClient);
         stapik::log::info("[Cloud] Saved in cloud.");
-        BudgetStorage::save(resolved);
-        return;
     }
 
-    BudgetStorage::save(BudgetSnapshot{
-        .categories = m_categories,
-        .periods = m_periods,
-        .currencyCode = m_currencyCode,
-        .lastUpdate = m_lastUpdate,
-        .lastKnownCloudUpdate = m_lastKnownCloudUpdate
-    });
+    m_store.save(m_document);
 }
 
 void BudgetGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
@@ -260,20 +217,13 @@ void BudgetGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    const BudgetSnapshot local{ .categories = m_categories, .periods = m_periods, .currencyCode = m_currencyCode, .lastUpdate = m_lastUpdate, .lastKnownCloudUpdate = m_lastKnownCloudUpdate };
-    const auto resolved = BudgetSyncCoordinator::resolveOnConnect(local, *m_cloudClient);
-
-    m_categories = resolved.categories;
-    m_periods = resolved.periods;
-    m_currencyCode = resolved.currencyCode;
-    m_lastUpdate = resolved.lastUpdate;
-    m_lastKnownCloudUpdate = resolved.lastKnownCloudUpdate;
+    m_document = BudgetSyncCoordinator::resolveOnConnect(m_document, *m_cloudClient);
 
     m_syncingCurrency = true;
-    CurrencyManager::instance().setCurrency(m_currencyCode);
+    CurrencyManager::instance().setCurrency(m_document.currencyCode());
     m_syncingCurrency = false;
 
-    BudgetStorage::save(resolved);
+    m_store.save(m_document);
     populateRows();
 }
 
@@ -282,17 +232,12 @@ void BudgetGrid::retrySync()
     syncFromCloud();
 }
 
-void BudgetGrid::touchLastUpdate()
-{
-    m_lastUpdate = std::chrono::system_clock::now();
-}
-
 sigc::signal<void()>& BudgetGrid::signalAddEntryRequested() { return m_signalAddEntryRequested; }
 sigc::signal<void(std::size_t)>& BudgetGrid::signalEditEntryRequested() { return m_signalEditEntryRequested; }
 
 const std::vector<Category>& BudgetGrid::getCategories() const
 {
-    return m_categories;
+    return m_document.categories();
 }
 
 const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
@@ -307,34 +252,22 @@ const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
 
 void BudgetGrid::addCategory(Category category)
 {
-    m_categories.push_back(std::move(category));
-    touchLastUpdate();
-    saveSnapshot();
+    m_document.addCategory(std::move(category));
+    commit();
 }
 
 void BudgetGrid::editCategory(const std::string& categoryId, Category updated)
 {
-    const auto it = std::ranges::find_if(m_categories, [&categoryId](const Category& category)
-    {
-        return category.id == categoryId;
-    });
-
-    if (it == m_categories.end())
+    if (!m_document.editCategory(categoryId, std::move(updated)))
         return;
 
-    updated.id = categoryId;
-    *it = std::move(updated);
-
-    touchLastUpdate();
-    saveSnapshot();
+    commit();
     populateRows();
 }
 
 void BudgetGrid::deleteCategory(const std::string& categoryId)
 {
-    std::erase_if(m_categories, [&categoryId](const Category& category) { return category.id == categoryId; });
-
-    touchLastUpdate();
-    saveSnapshot();
+    m_document.deleteCategory(categoryId);
+    commit();
     populateRows();
 }

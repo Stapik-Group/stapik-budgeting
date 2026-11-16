@@ -30,6 +30,7 @@ stapik_add_application(
         src/main.cpp
         src/core/model/Category.cpp
         src/core/model/BudgetPeriod.cpp
+        src/core/model/BudgetDocument.cpp
         src/core/util/CategoryColorUtils.cpp
         src/core/util/CategoryIdGenerator.cpp
         src/core/util/AmountFormatter.cpp
@@ -42,7 +43,7 @@ stapik_add_application(
         src/core/command/MoveEntryCommand.cpp
         src/core/command/BudgetCommandHistory.cpp
         src/core/currency/CurrencyManager.cpp
-        src/infrastructure/storage/BudgetStorage.cpp
+        src/infrastructure/storage/BudgetDocumentStore.cpp
         src/infrastructure/storage/BudgetSyncCoordinator.cpp
         src/infrastructure/storage/CurrencyCatalog.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp

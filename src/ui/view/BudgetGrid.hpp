@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../../core/command/BudgetCommandHistory.hpp"
-#include "../../infrastructure/storage/BudgetStorage.hpp"
+#include "../../core/model/BudgetDocument.hpp"
+#include "../../infrastructure/storage/BudgetDocumentStore.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
 
@@ -43,13 +44,10 @@ private:
     Gtk::ScrolledWindow m_scrolledWindow;
     Box m_rowsBox;
 
-    std::vector<Category> m_categories;
-    std::vector<BudgetPeriod> m_periods;
+    BudgetDocumentStore m_store;
+    BudgetDocument m_document;
     int m_currentYear;
     unsigned m_currentMonth;
-    std::chrono::system_clock::time_point m_lastUpdate{};
-    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
-    std::string m_currencyCode;
 
     Glib::RefPtr<Gtk::SizeGroup> m_plannedSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;
@@ -68,7 +66,7 @@ private:
     [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;
     [[nodiscard]] Category categoryFor(const std::string& categoryId) const;
     void populateRows();
-    void saveSnapshot();
+    void appendRows(const BudgetPeriod& period);
+    void commit();
     void syncFromCloud();
-    void touchLastUpdate();
 };

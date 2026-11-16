@@ -1,18 +1,34 @@
 #include "BudgetSyncCoordinator.hpp"
 
 #include "stapik/cloud/CloudStorageException.hpp"
-
 #include "stapik/log/Log.hpp"
+#include "stapik/sync/SyncEnvelope.hpp"
 
-BudgetSnapshot BudgetSyncCoordinator::fromCloudDocument(const CloudDocument& document)
+#include <exception>
+
+std::optional<BudgetDocument> BudgetSyncCoordinator::fromCloudDocument(const CloudDocument& document)
 {
-    auto snapshot = BudgetStorage::fromJson(document.content);
-    snapshot.lastKnownCloudUpdate = document.updatedAt;
-    return snapshot;
+    try
+    {
+        const auto envelope = stapik::sync::SyncEnvelope::fromJson(document.content);
+        return BudgetDocument::fromJson(envelope.payload)
+            .withLastUpdate(envelope.lastUpdate)
+            .withLastKnownCloudUpdate(document.updatedAt);
+    }
+    catch (const std::exception& exception)
+    {
+        stapik::log::warning("Cannot read the cloud document: {}", exception.what());
+        return std::nullopt;
+    }
 }
 
-BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
-    const BudgetSnapshot& local,
+nlohmann::json BudgetSyncCoordinator::toCloudJson(const BudgetDocument& document)
+{
+    return stapik::sync::SyncEnvelope{ .lastUpdate = document.lastUpdate(), .payload = document.toJson() }.toJson();
+}
+
+BudgetDocument BudgetSyncCoordinator::pushWithConflictResolution(
+    const BudgetDocument& local,
     const CloudStorageClient& cloudClient,
     const std::optional<std::chrono::system_clock::time_point> baseline)
 {
@@ -20,7 +36,7 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
 
     try
     {
-        result = cloudClient.saveDocument(BudgetStorage::toJson(local), baseline.value_or(std::chrono::system_clock::time_point{}));
+        result = cloudClient.saveDocument(toCloudJson(local), baseline.value_or(std::chrono::system_clock::time_point{}));
     }
     catch (const CloudStorageException&)
     {
@@ -29,30 +45,19 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     }
 
     if (!result.conflict)
-    {
-        auto snapshot = local;
-        snapshot.lastKnownCloudUpdate = result.document.updatedAt;
-        return snapshot;
-    }
+        return local.withLastKnownCloudUpdate(result.document.updatedAt);
 
-    // Server has a newer document than we knew about.
-    if (result.document.updatedAt > local.lastUpdate)
-        return fromCloudDocument(result.document);
+    if (result.document.updatedAt > local.lastUpdate())
+        return fromCloudDocument(result.document).value_or(local);
 
-    // We're still newer (rare race) — one retry against the server's current baseline.
     try
     {
-        const auto [document, conflict] = cloudClient.saveDocument(BudgetStorage::toJson(local), result.document.updatedAt);
+        const auto [document, conflict] = cloudClient.saveDocument(toCloudJson(local), result.document.updatedAt);
 
         if (!conflict)
-        {
-            auto snapshot = local;
-            snapshot.lastKnownCloudUpdate = document.updatedAt;
-            return snapshot;
-        }
+            return local.withLastKnownCloudUpdate(document.updatedAt);
 
-        // Lost the race twice — accept the server's version to avoid looping.
-        return fromCloudDocument(document);
+        return fromCloudDocument(document).value_or(local);
     }
     catch (const CloudStorageException&)
     {
@@ -61,7 +66,7 @@ BudgetSnapshot BudgetSyncCoordinator::pushWithConflictResolution(
     }
 }
 
-BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& local, const CloudStorageClient& cloudClient)
+BudgetDocument BudgetSyncCoordinator::resolveOnConnect(const BudgetDocument& local, const CloudStorageClient& cloudClient)
 {
     std::optional<CloudDocument> remote;
 
@@ -78,13 +83,13 @@ BudgetSnapshot BudgetSyncCoordinator::resolveOnConnect(const BudgetSnapshot& loc
     if (!remote.has_value())
         return pushWithConflictResolution(local, cloudClient, std::nullopt);
 
-    if (remote->updatedAt > local.lastUpdate)
-        return fromCloudDocument(remote.value());
+    if (remote->updatedAt > local.lastUpdate())
+        return fromCloudDocument(remote.value()).value_or(local);
 
     return pushWithConflictResolution(local, cloudClient, remote->updatedAt);
 }
 
-BudgetSnapshot BudgetSyncCoordinator::pushLocalChange(const BudgetSnapshot& local, const CloudStorageClient& cloudClient)
+BudgetDocument BudgetSyncCoordinator::pushLocalChange(const BudgetDocument& local, const CloudStorageClient& cloudClient)
 {
-    return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate);
+    return pushWithConflictResolution(local, cloudClient, local.lastKnownCloudUpdate());
 }

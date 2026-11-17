@@ -28,11 +28,8 @@ stapik_add_application(
         PACKAGING_DIRECTORY packaging
         SOURCES
         src/main.cpp
-        src/core/model/Category.cpp
         src/core/model/BudgetPeriod.cpp
         src/core/model/BudgetDocument.cpp
-        src/core/util/CategoryColorUtils.cpp
-        src/core/util/CategoryIdGenerator.cpp
         src/core/util/AmountFormatter.cpp
         src/core/command/BudgetCommand.cpp
         src/core/command/BudgetEntryCommandBase.cpp

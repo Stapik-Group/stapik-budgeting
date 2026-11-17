@@ -1,34 +1,30 @@
 #include "BudgetRowWidget.hpp"
 
 #include "../../core/util/AmountFormatter.hpp"
-#include "../../core/util/CategoryColorUtils.hpp"
 #include "../view/BudgetTableLayout.hpp"
 
 #include <gtkmm/gestureclick.h>
 #include <pangomm/layout.h>
 
-BudgetRowWidget::BudgetRowWidget(const BudgetEntry& entry, const Category& category,
+BudgetRowWidget::BudgetRowWidget(const BudgetEntry& entry, const stapik::domain::Category& category,
     const double plannedRemaining, const double actualRemaining) :
     Box(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::COLUMN_SPACING),
+    m_categoryChip(category),
     m_plannedGroup(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::GROUP_INNER_SPACING),
     m_actualGroup(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::GROUP_INNER_SPACING),
     m_actionsBox(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::ROW_ACTION_SPACING)
 {
-    initLayout(entry, category, plannedRemaining, actualRemaining);
+    initLayout(entry, plannedRemaining, actualRemaining);
     initGesture();
 }
 
-void BudgetRowWidget::initLayout(const BudgetEntry& entry, const Category& category,
-    const double plannedRemaining, const double actualRemaining)
+void BudgetRowWidget::initLayout(const BudgetEntry& entry, const double plannedRemaining, const double actualRemaining)
 {
     using namespace BudgetTableLayout;
 
     add_css_class("budget-row");
 
-    m_categoryLabel.set_text(category.name);
-    m_categoryLabel.set_width_chars(CATEGORY_COLUMN_WIDTH_CHARS);
-    m_categoryLabel.set_halign(Gtk::Align::START);
-    m_categoryLabel.add_css_class(CategoryColorUtils::toCssClass(category.color));
+    m_categoryChip.set_width_chars(CATEGORY_COLUMN_WIDTH_CHARS);
 
     m_expenseLabel.set_text(entry.name);
     m_expenseLabel.set_hexpand(true);
@@ -74,7 +70,7 @@ void BudgetRowWidget::initLayout(const BudgetEntry& entry, const Category& categ
     m_actionsBox.append(m_editButton);
     m_actionsBox.append(m_deleteButton);
 
-    append(m_categoryLabel);
+    append(m_categoryChip);
     append(m_expenseLabel);
     append(m_plannedGroup);
     append(m_actualGroup);

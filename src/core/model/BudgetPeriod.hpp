@@ -6,13 +6,14 @@
 
 #include "BudgetEntry.hpp"
 
+#include "stapik/domain/YearMonth.hpp"
+
 class BudgetPeriod
 {
 public:
-    BudgetPeriod(int year, unsigned month, double startingAmount);
+    BudgetPeriod(stapik::domain::YearMonth month, double startingAmount);
 
-    [[nodiscard]] int getYear() const { return m_year; }
-    [[nodiscard]] unsigned getMonth() const { return m_month; }
+    [[nodiscard]] const stapik::domain::YearMonth& getMonth() const { return m_month; }
     [[nodiscard]] double getStartingAmount() const { return m_startingAmount; }
     void setStartingAmount(const double startingAmount) { m_startingAmount = startingAmount; }
 
@@ -27,8 +28,7 @@ public:
     [[nodiscard]] std::vector<double> remainingActual() const;
 
 private:
-    int m_year;
-    unsigned m_month;
+    stapik::domain::YearMonth m_month;
     double m_startingAmount;
     std::vector<BudgetEntry> m_entries;
 

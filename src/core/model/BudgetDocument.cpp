@@ -1,30 +1,45 @@
 #include "BudgetDocument.hpp"
 
-#include "../util/CategoryColorUtils.hpp"
-
+#include "stapik/domain/CategoryJson.hpp"
+#include "stapik/log/Log.hpp"
 #include "stapik/sync/Timestamp.hpp"
 #include "stapik/time/Clock.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 #include <utility>
 
 namespace
 {
-    auto periodMatcher(const int year, const unsigned month)
+    using stapik::domain::Category;
+    using stapik::domain::CategoryColor;
+    using stapik::domain::YearMonth;
+
+    constexpr auto LEGACY_DEFAULT_COLOR_ID = "default";
+
+    auto periodMatcher(const YearMonth& month)
     {
-        return [year, month](const BudgetPeriod& period)
+        return [month](const BudgetPeriod& period)
         {
-            return period.getYear() == year && period.getMonth() == month;
+            return period.getMonth() == month;
         };
+    }
+
+    CategoryColor colorFromId(const std::string& colorId)
+    {
+        if (colorId == LEGACY_DEFAULT_COLOR_ID)
+            return CategoryColor::Gray;
+
+        if (const auto color = stapik::domain::categoryColorFromId(colorId))
+            return *color;
+
+        stapik::log::warning("Unknown category color '{}', using gray", colorId);
+        return CategoryColor::Gray;
     }
 
     nlohmann::json categoryToJson(const Category& category)
     {
-        return {
-            { "id", category.id },
-            { "name", category.name },
-            { "color", CategoryColorUtils::toString(category.color) }
-        };
+        return nlohmann::json(category);
     }
 
     Category categoryFromJson(const nlohmann::json& json)
@@ -32,7 +47,7 @@ namespace
         return Category{
             .id = json.at("id").get<std::string>(),
             .name = json.at("name").get<std::string>(),
-            .color = CategoryColorUtils::fromString(json.value("color", std::string{"default"}))
+            .color = colorFromId(json.value("color", std::string{LEGACY_DEFAULT_COLOR_ID}))
         };
     }
 
@@ -76,8 +91,8 @@ namespace
             entries.push_back(entryToJson(entry));
 
         return {
-            { "year", period.getYear() },
-            { "month", period.getMonth() },
+            { "year", period.getMonth().year() },
+            { "month", period.getMonth().month() },
             { "startingAmount", period.getStartingAmount() },
             { "entries", entries }
         };
@@ -85,11 +100,11 @@ namespace
 
     BudgetPeriod periodFromJson(const nlohmann::json& json)
     {
-        BudgetPeriod period(
-            json.at("year").get<int>(),
-            json.at("month").get<unsigned>(),
-            json.at("startingAmount").get<double>()
-        );
+        const auto month = YearMonth::tryCreate(json.at("year").get<int>(), json.at("month").get<int>());
+        if (!month)
+            throw std::invalid_argument("The budget period has an invalid year or month");
+
+        BudgetPeriod period(*month, json.at("startingAmount").get<double>());
 
         for (const auto& item : json.at("entries"))
             period.addEntry(entryFromJson(item));
@@ -98,20 +113,20 @@ namespace
     }
 }
 
-const Category* BudgetDocument::findCategory(const std::string& categoryId) const
+const stapik::domain::Category* BudgetDocument::findCategory(const std::string& categoryId) const
 {
-    const auto it = std::ranges::find(m_categories, categoryId, &Category::id);
+    const auto it = std::ranges::find(m_categories, categoryId, &stapik::domain::Category::id);
     return it != m_categories.end() ? &*it : nullptr;
 }
 
-void BudgetDocument::addCategory(Category category)
+void BudgetDocument::addCategory(stapik::domain::Category category)
 {
     m_categories.push_back(std::move(category));
 }
 
-bool BudgetDocument::editCategory(const std::string& categoryId, Category updated)
+bool BudgetDocument::editCategory(const std::string& categoryId, stapik::domain::Category updated)
 {
-    const auto it = std::ranges::find(m_categories, categoryId, &Category::id);
+    const auto it = std::ranges::find(m_categories, categoryId, &stapik::domain::Category::id);
     if (it == m_categories.end())
         return false;
 
@@ -122,21 +137,21 @@ bool BudgetDocument::editCategory(const std::string& categoryId, Category update
 
 void BudgetDocument::deleteCategory(const std::string& categoryId)
 {
-    std::erase_if(m_categories, [&categoryId](const Category& category) { return category.id == categoryId; });
+    std::erase_if(m_categories, [&categoryId](const stapik::domain::Category& category) { return category.id == categoryId; });
 }
 
-const BudgetPeriod* BudgetDocument::findPeriod(const int year, const unsigned month) const
+const BudgetPeriod* BudgetDocument::findPeriod(const stapik::domain::YearMonth& month) const
 {
-    const auto it = std::ranges::find_if(m_periods, periodMatcher(year, month));
+    const auto it = std::ranges::find_if(m_periods, periodMatcher(month));
     return it != m_periods.end() ? &*it : nullptr;
 }
 
-BudgetPeriod& BudgetDocument::periodFor(const int year, const unsigned month)
+BudgetPeriod& BudgetDocument::periodFor(const stapik::domain::YearMonth& month)
 {
-    if (const auto it = std::ranges::find_if(m_periods, periodMatcher(year, month)); it != m_periods.end())
+    if (const auto it = std::ranges::find_if(m_periods, periodMatcher(month)); it != m_periods.end())
         return *it;
 
-    return m_periods.emplace_back(year, month, 0.0);
+    return m_periods.emplace_back(month, 0.0);
 }
 
 void BudgetDocument::touch()

@@ -238,32 +238,7 @@ button.color-swatch:checked {
     border-color: @win_border_dark @win_border_light @win_border_light @win_border_dark;
 }
 
-/* --- Categories colors (Badges & Swatches) --- */
-.category-color-red,
-.category-color-green,
-.category-color-blue,
-.category-color-yellow,
-.category-color-purple,
-.category-color-orange,
-.category-color-brown,
-.category-color-pink,
-.category-color-teal {
-    padding: 1px 4px;
-}
-
+/* --- Category color swatches --- */
 button.color-swatch {
     padding: 0;
 }
-
-.category-color-default { color: @win_text; padding: 0; }
-.category-color-red     { background-color: #ff6ec7; color: #ffffff; }
-.category-color-green   { background-color: #00e5a0; color: #1a1a2e; }
-.category-color-blue    { background-color: #00c8ff; color: #1a1a2e; }
-.category-color-yellow  { background-color: #fff65e; color: @win_text; }
-.category-color-purple  { background-color: @win_accent; color: #ffffff; }
-.category-color-orange  { background-color: #ff9f6e; color: @win_text; }
-.category-color-brown   { background-color: #b5836b; color: #ffffff; }
-.category-color-pink    { background-color: #ff2fd0; color: #ffffff; }
-.category-color-teal    { background-color: #00e5ff; color: #1a1a2e; }
-
-.color-swatch.category-color-default { background-color: @win_bg; }

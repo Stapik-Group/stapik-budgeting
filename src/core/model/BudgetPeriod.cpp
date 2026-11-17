@@ -3,8 +3,7 @@
 #include <stdexcept>
 #include <utility>
 
-BudgetPeriod::BudgetPeriod(const int year, const unsigned month, const double startingAmount) :
-    m_year(year),
+BudgetPeriod::BudgetPeriod(const stapik::domain::YearMonth month, const double startingAmount) :
     m_month(month),
     m_startingAmount(startingAmount)
 {

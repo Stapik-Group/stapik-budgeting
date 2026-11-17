@@ -5,11 +5,13 @@
 #include <gtkmm/label.h>
 #include <sigc++/signal.h>
 
+#include "stapik/domain/YearMonth.hpp"
+
 class BudgetNavBar : public Gtk::Box
 {
 public:
     explicit BudgetNavBar();
-    void updateDisplay(int year, unsigned month);
+    void updateDisplay(const stapik::domain::YearMonth& month);
 
     sigc::signal<void()>& signalPrevMonth();
     sigc::signal<void()>& signalNextMonth();
@@ -23,8 +25,7 @@ private:
     Gtk::Button m_btnNextMonth;
     Gtk::Label m_currentLabel;
 
-    int m_lastYear = 0;
-    unsigned m_lastMonth = 1;
+    stapik::domain::YearMonth m_displayedMonth;
 
     sigc::signal<void()> m_signalPrevMonth;
     sigc::signal<void()> m_signalNextMonth;
@@ -32,5 +33,4 @@ private:
     void initLayout();
     void initButtons();
 
-    static std::string formatYearMonth(int year, unsigned month);
 };

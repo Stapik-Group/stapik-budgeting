@@ -27,13 +27,9 @@ namespace
 BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING),
-    m_document(m_store.load())
+    m_document(m_store.load()),
+    m_month(stapik::domain::YearMonth::current())
 {
-    const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
-    const std::chrono::year_month_day ymd{today};
-    m_currentYear = static_cast<int>(ymd.year());
-    m_currentMonth = static_cast<unsigned>(ymd.month());
-
     initLayout();
     populateRows();
 
@@ -75,26 +71,29 @@ void BudgetGrid::bindHeader(BudgetHeader& header) const
 
 BudgetPeriod& BudgetGrid::currentPeriod()
 {
-    return m_document.periodFor(m_currentYear, m_currentMonth);
+    return m_document.periodFor(m_month);
 }
 
 const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
 {
-    return m_document.findPeriod(m_currentYear, m_currentMonth);
+    return m_document.findPeriod(m_month);
 }
 
-Category BudgetGrid::categoryFor(const std::string& categoryId) const
+stapik::domain::Category BudgetGrid::categoryFor(const std::string& categoryId) const
 {
     if (const auto* category = m_document.findCategory(categoryId))
         return *category;
 
-    return Category::create(LocaleManager::instance().translate("category.uncategorized"), CategoryColor::Default);
+    return stapik::domain::Category{
+        .id = {},
+        .name = LocaleManager::instance().translate("category.uncategorized"),
+        .color = stapik::domain::CategoryColor::Gray
+    };
 }
 
-void BudgetGrid::displayMonth(const int year, const unsigned month)
+void BudgetGrid::displayMonth(const stapik::domain::YearMonth& month)
 {
-    m_currentYear = year;
-    m_currentMonth = month;
+    m_month = month;
     populateRows();
 }
 
@@ -235,7 +234,7 @@ void BudgetGrid::retrySync()
 sigc::signal<void()>& BudgetGrid::signalAddEntryRequested() { return m_signalAddEntryRequested; }
 sigc::signal<void(std::size_t)>& BudgetGrid::signalEditEntryRequested() { return m_signalEditEntryRequested; }
 
-const std::vector<Category>& BudgetGrid::getCategories() const
+const std::vector<stapik::domain::Category>& BudgetGrid::getCategories() const
 {
     return m_document.categories();
 }
@@ -250,13 +249,13 @@ const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
     return index < entries.size() ? &entries[index] : nullptr;
 }
 
-void BudgetGrid::addCategory(Category category)
+void BudgetGrid::addCategory(stapik::domain::Category category)
 {
     m_document.addCategory(std::move(category));
     commit();
 }
 
-void BudgetGrid::editCategory(const std::string& categoryId, Category updated)
+void BudgetGrid::editCategory(const std::string& categoryId, stapik::domain::Category updated)
 {
     if (!m_document.editCategory(categoryId, std::move(updated)))
         return;

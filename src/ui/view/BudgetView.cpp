@@ -4,18 +4,13 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
-#include <chrono>
 #include <gtkmm/window.h>
 
 BudgetView::BudgetView() :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_month(stapik::domain::YearMonth::current()),
     m_bottomBar(Gtk::Orientation::HORIZONTAL, 0)
 {
-    const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
-    const std::chrono::year_month_day ymd{today};
-    m_currentYear = static_cast<int>(ymd.year());
-    m_currentMonth = static_cast<unsigned>(ymd.month());
-
     initLayout();
     initBottomBar();
     initNavigation();
@@ -64,36 +59,20 @@ void BudgetView::initNavigation()
 
 void BudgetView::navigatePrevMonth()
 {
-    if (m_currentMonth == 1)
-    {
-        m_currentMonth = 12;
-        --m_currentYear;
-    }
-    else
-    {
-        --m_currentMonth;
-    }
+    m_month = m_month.previous();
     refreshView();
 }
 
 void BudgetView::navigateNextMonth()
 {
-    if (m_currentMonth == 12)
-    {
-        m_currentMonth = 1;
-        ++m_currentYear;
-    }
-    else
-    {
-        ++m_currentMonth;
-    }
+    m_month = m_month.next();
     refreshView();
 }
 
 void BudgetView::refreshView()
 {
-    m_navBar.updateDisplay(m_currentYear, m_currentMonth);
-    m_grid.displayMonth(m_currentYear, m_currentMonth);
+    m_navBar.updateDisplay(m_month);
+    m_grid.displayMonth(m_month);
 }
 
 BudgetGrid& BudgetView::getBudgetGrid()

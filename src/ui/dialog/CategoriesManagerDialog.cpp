@@ -2,9 +2,8 @@
 
 #include "CategoryDialog.hpp"
 #include "../view/BudgetGrid.hpp"
-#include "../../core/util/CategoryColorUtils.hpp"
-
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/ui/widget/CategoryChip.hpp"
 
 #include <algorithm>
 #include <gtkmm/label.h>
@@ -47,17 +46,16 @@ void CategoriesManagerDialog::refreshList()
     while (auto* child = m_listBox.get_first_child())
         m_listBox.remove(*child);
 
-    for (const auto&[id, name, color] : m_grid.getCategories())
+    for (const auto& category : m_grid.getCategories())
     {
         auto* row = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, CONTENT_SPACING);
 
-        auto* nameLabel = Gtk::make_managed<Gtk::Label>(name);
-        nameLabel->set_hexpand(true);
-        nameLabel->set_halign(Gtk::Align::FILL);
-        nameLabel->set_xalign(0.0f);
-        nameLabel->add_css_class(CategoryColorUtils::toCssClass(color));
+        auto* chip = Gtk::make_managed<CategoryChip>(category);
+        chip->set_hexpand(true);
+        chip->set_halign(Gtk::Align::FILL);
+        chip->set_xalign(0.0f);
 
-        const auto& categoryId = id;
+        const auto& categoryId = category.id;
 
         auto* editButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.edit"));
         editButton->signal_clicked().connect([this, categoryId] { showEditCategoryDialog(categoryId); });
@@ -69,7 +67,7 @@ void CategoriesManagerDialog::refreshList()
             refreshList();
         });
 
-        row->append(*nameLabel);
+        row->append(*chip);
         row->append(*editButton);
         row->append(*deleteButton);
 
@@ -101,10 +99,7 @@ void CategoriesManagerDialog::showAddCategoryDialog()
 void CategoriesManagerDialog::showEditCategoryDialog(const std::string& categoryId)
 {
     const auto& categories = m_grid.getCategories();
-    const auto it = std::ranges::find_if(categories, [&categoryId](const Category& category)
-    {
-        return category.id == categoryId;
-    });
+    const auto it = std::ranges::find(categories, categoryId, &stapik::domain::Category::id);
 
     if (it == categories.end())
         return;

@@ -11,13 +11,14 @@
 #include <gtkmm/togglebutton.h>
 
 #include "../../core/model/BudgetEntry.hpp"
-#include "../../core/model/Category.hpp"
+
+#include "stapik/domain/Category.hpp"
 
 class BudgetEntryDialog : public Gtk::Dialog
 {
 public:
-    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories);
-    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing);
+    BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories);
+    BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories, const BudgetEntry& existing);
 
     [[nodiscard]] std::optional<BudgetEntry> getResult() const;
 
@@ -26,7 +27,7 @@ private:
     static constexpr int CONTENT_MARGIN = 16;
     static constexpr int DEFAULT_WIDTH = 400;
 
-    const std::vector<Category>& m_categories;
+    const std::vector<stapik::domain::Category>& m_categories;
 
     Gtk::Box m_contentBox;
     Gtk::Label m_typeLabel;

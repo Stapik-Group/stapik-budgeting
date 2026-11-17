@@ -1,7 +1,8 @@
 #pragma once
 
 #include "BudgetPeriod.hpp"
-#include "Category.hpp"
+#include "stapik/domain/Category.hpp"
+#include "stapik/domain/YearMonth.hpp"
 
 #include <chrono>
 #include <deque>
@@ -16,14 +17,14 @@ class BudgetDocument
 public:
     using TimePoint = std::chrono::system_clock::time_point;
 
-    [[nodiscard]] const std::vector<Category>& categories() const { return m_categories; }
-    [[nodiscard]] const Category* findCategory(const std::string& categoryId) const;
-    void addCategory(Category category);
-    bool editCategory(const std::string& categoryId, Category updated);
+    [[nodiscard]] const std::vector<stapik::domain::Category>& categories() const { return m_categories; }
+    [[nodiscard]] const stapik::domain::Category* findCategory(const std::string& categoryId) const;
+    void addCategory(stapik::domain::Category category);
+    bool editCategory(const std::string& categoryId, stapik::domain::Category updated);
     void deleteCategory(const std::string& categoryId);
 
-    [[nodiscard]] const BudgetPeriod* findPeriod(int year, unsigned month) const;
-    [[nodiscard]] BudgetPeriod& periodFor(int year, unsigned month);
+    [[nodiscard]] const BudgetPeriod* findPeriod(const stapik::domain::YearMonth& month) const;
+    [[nodiscard]] BudgetPeriod& periodFor(const stapik::domain::YearMonth& month);
 
     [[nodiscard]] const std::string& currencyCode() const { return m_currencyCode; }
     void setCurrencyCode(std::string currencyCode) { m_currencyCode = std::move(currencyCode); }
@@ -40,7 +41,7 @@ public:
 private:
     static constexpr auto DEFAULT_CURRENCY_CODE = "PLN";
 
-    std::vector<Category> m_categories;
+    std::vector<stapik::domain::Category> m_categories;
     std::deque<BudgetPeriod> m_periods;
     std::string m_currencyCode = DEFAULT_CURRENCY_CODE;
     TimePoint m_lastUpdate{};

@@ -18,7 +18,7 @@ class BudgetGrid : public Gtk::Box
 public:
     explicit BudgetGrid();
 
-    void displayMonth(int year, unsigned month);
+    void displayMonth(const stapik::domain::YearMonth& month);
     void undo();
     void redo();
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
@@ -34,11 +34,11 @@ public:
     void addEntry(BudgetEntry entry);
     void editEntry(std::size_t index, BudgetEntry entry);
 
-    [[nodiscard]] const std::vector<Category>& getCategories() const;
+    [[nodiscard]] const std::vector<stapik::domain::Category>& getCategories() const;
     [[nodiscard]] const BudgetEntry* getEntry(std::size_t index) const;
 
-    void addCategory(Category category);
-    void editCategory(const std::string& categoryId, Category updated);
+    void addCategory(stapik::domain::Category category);
+    void editCategory(const std::string& categoryId, stapik::domain::Category updated);
     void deleteCategory(const std::string& categoryId);
 private:
     Gtk::ScrolledWindow m_scrolledWindow;
@@ -46,8 +46,7 @@ private:
 
     BudgetDocumentStore m_store;
     BudgetDocument m_document;
-    int m_currentYear;
-    unsigned m_currentMonth;
+    stapik::domain::YearMonth m_month;
 
     Glib::RefPtr<Gtk::SizeGroup> m_plannedSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;
@@ -64,7 +63,7 @@ private:
     void initLayout();
     [[nodiscard]] BudgetPeriod& currentPeriod();
     [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;
-    [[nodiscard]] Category categoryFor(const std::string& categoryId) const;
+    [[nodiscard]] stapik::domain::Category categoryFor(const std::string& categoryId) const;
     void populateRows();
     void appendRows(const BudgetPeriod& period);
     void commit();

@@ -2,23 +2,12 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
-#include <array>
-#include <format>
-
-namespace
-{
-    constexpr std::array<const char*, 12> MONTH_KEYS = {
-        "month.january", "month.february", "month.march", "month.april", "month.may", "month.june",
-        "month.july", "month.august", "month.september", "month.october", "month.november", "month.december"
-    };
-}
-
 BudgetNavBar::BudgetNavBar() : Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING)
 {
     initButtons();
     initLayout();
 
-    LocaleManager::instance().signalLocaleChanged().connect([this] { updateDisplay(m_lastYear, m_lastMonth); });
+    LocaleManager::instance().signalLocaleChanged().connect([this] { updateDisplay(m_displayedMonth); });
 }
 
 void BudgetNavBar::initButtons()
@@ -44,19 +33,10 @@ void BudgetNavBar::initLayout()
     m_currentLabel.set_halign(Gtk::Align::CENTER);
 }
 
-void BudgetNavBar::updateDisplay(const int year, const unsigned month)
+void BudgetNavBar::updateDisplay(const stapik::domain::YearMonth& month)
 {
-    m_lastYear = year;
-    m_lastMonth = month;
-    m_currentLabel.set_text(formatYearMonth(year, month));
-}
-
-std::string BudgetNavBar::formatYearMonth(const int year, const unsigned month)
-{
-    if (month < 1 || month > 12)
-        return {};
-
-    return std::format("{} {}", LocaleManager::instance().translate(MONTH_KEYS[month - 1]), year);
+    m_displayedMonth = month;
+    m_currentLabel.set_text(month.label(LocaleManager::instance()));
 }
 
 sigc::signal<void()>& BudgetNavBar::signalPrevMonth() { return m_signalPrevMonth; }

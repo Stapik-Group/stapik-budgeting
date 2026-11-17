@@ -16,8 +16,7 @@ public:
 private:
     static constexpr int BOTTOM_BAR_MARGIN = 10;
 
-    int m_currentYear;
-    unsigned m_currentMonth;
+    stapik::domain::YearMonth m_month;
 
     BudgetNavBar m_navBar;
     BudgetHeader m_header;

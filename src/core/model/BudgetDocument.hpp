@@ -2,6 +2,7 @@
 
 #include "BudgetPeriod.hpp"
 #include "stapik/domain/Category.hpp"
+#include "stapik/domain/Currency.hpp"
 #include "stapik/domain/YearMonth.hpp"
 
 #include <chrono>
@@ -17,6 +18,11 @@ class BudgetDocument
 public:
     using TimePoint = std::chrono::system_clock::time_point;
 
+    static constexpr auto DEFAULT_CURRENCY_CODE = "PLN";
+
+    BudgetDocument();
+    explicit BudgetDocument(stapik::domain::Currency currency);
+
     [[nodiscard]] const std::vector<stapik::domain::Category>& categories() const { return m_categories; }
     [[nodiscard]] const stapik::domain::Category* findCategory(const std::string& categoryId) const;
     void addCategory(stapik::domain::Category category);
@@ -26,8 +32,8 @@ public:
     [[nodiscard]] const BudgetPeriod* findPeriod(const stapik::domain::YearMonth& month) const;
     [[nodiscard]] BudgetPeriod& periodFor(const stapik::domain::YearMonth& month);
 
-    [[nodiscard]] const std::string& currencyCode() const { return m_currencyCode; }
-    void setCurrencyCode(std::string currencyCode) { m_currencyCode = std::move(currencyCode); }
+    [[nodiscard]] const stapik::domain::Currency& currency() const { return m_currency; }
+    void changeCurrency(const stapik::domain::Currency& currency);
 
     [[nodiscard]] TimePoint lastUpdate() const { return m_lastUpdate; }
     [[nodiscard]] std::optional<TimePoint> lastKnownCloudUpdate() const { return m_lastKnownCloudUpdate; }
@@ -39,11 +45,9 @@ public:
     [[nodiscard]] static BudgetDocument fromJson(const nlohmann::json& json);
 
 private:
-    static constexpr auto DEFAULT_CURRENCY_CODE = "PLN";
-
     std::vector<stapik::domain::Category> m_categories;
     std::deque<BudgetPeriod> m_periods;
-    std::string m_currencyCode = DEFAULT_CURRENCY_CODE;
+    stapik::domain::Currency m_currency;
     TimePoint m_lastUpdate{};
     std::optional<TimePoint> m_lastKnownCloudUpdate;
 };

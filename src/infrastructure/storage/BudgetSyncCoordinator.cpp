@@ -1,5 +1,7 @@
 #include "BudgetSyncCoordinator.hpp"
 
+#include "BudgetAmountsMigration.hpp"
+
 #include "stapik/cloud/CloudStorageException.hpp"
 #include "stapik/log/Log.hpp"
 #include "stapik/sync/SyncEnvelope.hpp"
@@ -11,7 +13,9 @@ std::optional<BudgetDocument> BudgetSyncCoordinator::fromCloudDocument(const Clo
     try
     {
         const auto envelope = stapik::sync::SyncEnvelope::fromJson(document.content);
-        return BudgetDocument::fromJson(envelope.payload)
+        auto payload = envelope.payload;
+        BudgetAmountsMigration::toMinorUnits(payload);
+        return BudgetDocument::fromJson(payload)
             .withLastUpdate(envelope.lastUpdate)
             .withLastKnownCloudUpdate(document.updatedAt);
     }

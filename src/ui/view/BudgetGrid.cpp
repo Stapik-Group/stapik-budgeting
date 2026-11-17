@@ -8,16 +8,16 @@
 #include "../../infrastructure/storage/BudgetSyncCoordinator.hpp"
 #include "../widget/BudgetRowWidget.hpp"
 
+#include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/log/Log.hpp"
 
 #include <algorithm>
 #include <chrono>
 #include <memory>
+#include <stdexcept>
 
 #include <gtkmm/widget.h>
-
-#include "../../core/currency/CurrencyManager.hpp"
 
 namespace
 {
@@ -34,15 +34,6 @@ BudgetGrid::BudgetGrid() :
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
-    CurrencyManager::instance().signalCurrencyChanged().connect([this]
-    {
-        if (m_syncingCurrency)
-            return;
-
-        m_document.setCurrencyCode(CurrencyManager::instance().getCurrency().code);
-        commit();
-        populateRows();
-    });
 }
 
 void BudgetGrid::initLayout()
@@ -104,8 +95,6 @@ void BudgetGrid::populateRows()
 
     if (const auto* period = findCurrentPeriod())
         appendRows(*period);
-
-    m_document.setCurrencyCode(CurrencyManager::instance().getCurrency().code);
 }
 
 void BudgetGrid::appendRows(const BudgetPeriod& period)
@@ -198,11 +187,50 @@ void BudgetGrid::commit()
     if (m_cloudClient != nullptr)
     {
         stapik::log::info("[Cloud] Saving in cloud...");
-        m_document = BudgetSyncCoordinator::pushLocalChange(m_document, *m_cloudClient);
+        replaceDocument(BudgetSyncCoordinator::pushLocalChange(m_document, *m_cloudClient));
         stapik::log::info("[Cloud] Saved in cloud.");
     }
 
     m_store.save(m_document);
+}
+
+void BudgetGrid::replaceDocument(BudgetDocument document)
+{
+    const auto currencyChanged = document.currency() != m_document.currency();
+    m_document = std::move(document);
+
+    if (!currencyChanged)
+        return;
+
+    m_history.clear();
+    m_signalCurrencyChanged.emit();
+}
+
+const stapik::domain::Currency& BudgetGrid::currency() const
+{
+    return m_document.currency();
+}
+
+void BudgetGrid::changeCurrency(const std::string& code)
+{
+    const auto* currency = stapik::domain::CurrencyCatalog::instance().find(code);
+    if (currency == nullptr || *currency == m_document.currency())
+        return;
+
+    try
+    {
+        m_document.changeCurrency(*currency);
+    }
+    catch (const std::overflow_error& error)
+    {
+        stapik::log::warning("Cannot change the currency to {}: {}", code, error.what());
+        return;
+    }
+
+    m_history.clear();
+    commit();
+    populateRows();
+    m_signalCurrencyChanged.emit();
 }
 
 void BudgetGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
@@ -216,11 +244,7 @@ void BudgetGrid::syncFromCloud()
     if (m_cloudClient == nullptr)
         return;
 
-    m_document = BudgetSyncCoordinator::resolveOnConnect(m_document, *m_cloudClient);
-
-    m_syncingCurrency = true;
-    CurrencyManager::instance().setCurrency(m_document.currencyCode());
-    m_syncingCurrency = false;
+    replaceDocument(BudgetSyncCoordinator::resolveOnConnect(m_document, *m_cloudClient));
 
     m_store.save(m_document);
     populateRows();
@@ -231,6 +255,7 @@ void BudgetGrid::retrySync()
     syncFromCloud();
 }
 
+sigc::signal<void()>& BudgetGrid::signalCurrencyChanged() { return m_signalCurrencyChanged; }
 sigc::signal<void()>& BudgetGrid::signalAddEntryRequested() { return m_signalAddEntryRequested; }
 sigc::signal<void(std::size_t)>& BudgetGrid::signalEditEntryRequested() { return m_signalEditEntryRequested; }
 

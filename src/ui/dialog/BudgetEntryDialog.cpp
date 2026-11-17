@@ -2,23 +2,26 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
-#include <algorithm>
-#include <format>
-#include <charconv>
-
-BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories) :
+BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories,
+    const stapik::domain::Currency& currency) :
     Dialog(LocaleManager::instance().translate("dialog.entry.new.title"), parent, true),
     m_categories(categories),
-    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING),
+    m_plannedAmountEntry(currency),
+    m_actualAmountEntry(currency)
 {
     initLayout();
     populateCategoryCombo(m_categories.empty() ? std::string{} : m_categories.front().id);
+    refreshAcceptable();
 }
 
-BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories, const BudgetEntry& existing) :
+BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories,
+    const stapik::domain::Currency& currency, const BudgetEntry& existing) :
     Dialog(LocaleManager::instance().translate("dialog.entry.edit.title"), parent, true),
     m_categories(categories),
-    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING),
+    m_plannedAmountEntry(currency),
+    m_actualAmountEntry(currency)
 {
     initLayout();
     populateCategoryCombo(existing.categoryId);
@@ -27,9 +30,11 @@ BudgetEntryDialog::BudgetEntryDialog(Window& parent, const std::vector<stapik::d
     m_nameEntry.set_text(existing.name);
 
     if (existing.plannedAmount.has_value())
-        m_plannedAmountEntry.set_text(formatForEntry(existing.plannedAmount.value()));
+        m_plannedAmountEntry.setAmount(existing.plannedAmount->minorUnits());
     if (existing.actualAmount.has_value())
-        m_actualAmountEntry.set_text(formatForEntry(existing.actualAmount.value()));
+        m_actualAmountEntry.setAmount(existing.actualAmount->minorUnits());
+
+    refreshAcceptable();
 }
 
 void BudgetEntryDialog::initLayout()
@@ -67,11 +72,9 @@ void BudgetEntryDialog::initLayout()
 
     m_plannedAmountLabel.set_text(loc.translate("dialog.entry.planned.label"));
     m_plannedAmountLabel.set_halign(Gtk::Align::START);
-    m_plannedAmountEntry.set_placeholder_text(loc.translate("dialog.entry.planned.placeholder"));
 
     m_actualAmountLabel.set_text(loc.translate("dialog.entry.actual.label"));
     m_actualAmountLabel.set_halign(Gtk::Align::START);
-    m_actualAmountEntry.set_placeholder_text(loc.translate("dialog.entry.actual.placeholder"));
 
     m_contentBox.set_margin(CONTENT_MARGIN);
     m_contentBox.append(m_typeLabel);
@@ -91,6 +94,10 @@ void BudgetEntryDialog::initLayout()
     add_button(loc.translate("dialog.button.ok"), Gtk::ResponseType::OK);
 
     set_default_response(Gtk::ResponseType::OK);
+    m_nameEntry.signal_changed().connect([this] { refreshAcceptable(); });
+    m_categoryCombo.signal_changed().connect([this] { refreshAcceptable(); });
+    m_plannedAmountEntry.signalAmountChanged().connect([this] { refreshAcceptable(); });
+    m_actualAmountEntry.signalAmountChanged().connect([this] { refreshAcceptable(); });
     m_nameEntry.set_activates_default(true);
     m_plannedAmountEntry.set_activates_default(true);
     m_actualAmountEntry.set_activates_default(true);
@@ -121,53 +128,30 @@ void BudgetEntryDialog::populateCategoryCombo(const std::string& selectedCategor
         m_categoryCombo.set_active(0);
 }
 
-std::optional<double> BudgetEntryDialog::parseAmount(const Glib::ustring& text)
+bool BudgetEntryDialog::isAcceptable() const
 {
-    auto raw = text.raw();
-    if (raw.empty())
-        return std::nullopt;
-
-    std::ranges::replace(raw, ',', '.');
-
-    // std::from_chars is locale-independent (always uses '.'), unlike std::stod,
-    // which follows the global C locale that GTK sets from the system locale
-    // (e.g. pl_PL, where std::stod would not accept '.' as a decimal separator).
-    double value{};
-    const auto* end = raw.data() + raw.size();
-    const auto [ptr, ec] = std::from_chars(raw.data(), end, value);
-
-    if (ec != std::errc{} || ptr != end)
-        return std::nullopt;
-
-    return value;
+    return !m_nameEntry.get_text().empty()
+        && !m_categoryCombo.get_active_id().empty()
+        && m_plannedAmountEntry.hasValidInput()
+        && m_actualAmountEntry.hasValidInput();
 }
 
-std::string BudgetEntryDialog::formatForEntry(const double value)
+void BudgetEntryDialog::refreshAcceptable()
 {
-    auto text = std::format("{:.2f}", value);
-
-    const char decimalSeparator = LocaleManager::instance().languageCode() == "en" ? '.' : ',';
-    std::ranges::replace(text, '.', decimalSeparator);
-
-    return text;
+    set_response_sensitive(Gtk::ResponseType::OK, isAcceptable());
 }
 
 std::optional<BudgetEntry> BudgetEntryDialog::getResult() const
 {
-    const auto name = m_nameEntry.get_text();
-    if (name.empty())
-        return std::nullopt;
-
-    const auto categoryId = m_categoryCombo.get_active_id();
-    if (categoryId.empty())
+    if (!isAcceptable())
         return std::nullopt;
 
     BudgetEntry entry;
-    entry.name = name;
-    entry.categoryId = categoryId;
+    entry.name = m_nameEntry.get_text();
+    entry.categoryId = m_categoryCombo.get_active_id();
     entry.type = getSelectedType();
-    entry.plannedAmount = parseAmount(m_plannedAmountEntry.get_text());
-    entry.actualAmount = parseAmount(m_actualAmountEntry.get_text());
+    entry.plannedAmount = m_plannedAmountEntry.money();
+    entry.actualAmount = m_actualAmountEntry.money();
 
     return entry;
 }

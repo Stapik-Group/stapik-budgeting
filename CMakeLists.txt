@@ -30,7 +30,8 @@ stapik_add_application(
         src/main.cpp
         src/core/model/BudgetPeriod.cpp
         src/core/model/BudgetDocument.cpp
-        src/core/util/AmountFormatter.cpp
+        src/core/model/ResolveCurrency.cpp
+        src/core/util/MoneyText.cpp
         src/core/command/BudgetCommand.cpp
         src/core/command/BudgetEntryCommandBase.cpp
         src/core/command/IndexedBudgetEntryCommand.cpp
@@ -39,10 +40,10 @@ stapik_add_application(
         src/core/command/EditEntryCommand.cpp
         src/core/command/MoveEntryCommand.cpp
         src/core/command/BudgetCommandHistory.cpp
-        src/core/currency/CurrencyManager.cpp
+        src/infrastructure/storage/BudgetAmountsMigration.cpp
         src/infrastructure/storage/BudgetDocumentStore.cpp
         src/infrastructure/storage/BudgetSyncCoordinator.cpp
-        src/infrastructure/storage/CurrencyCatalog.cpp
+        src/infrastructure/storage/LegacyCurrencyPreference.cpp
         src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp
         src/ui/widget/CategoryColorPickerWidget.cpp

@@ -5,6 +5,7 @@
 #include "../../infrastructure/storage/BudgetDocumentStore.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
+#include "stapik/domain/Currency.hpp"
 
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
@@ -24,6 +25,10 @@ public:
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
     void retrySync();
     void bindHeader(BudgetHeader& header) const;
+
+    [[nodiscard]] const stapik::domain::Currency& currency() const;
+    void changeCurrency(const std::string& code);
+    sigc::signal<void()>& signalCurrencyChanged();
 
     sigc::signal<void()>& signalAddEntryRequested();
     sigc::signal<void(std::size_t)>& signalEditEntryRequested();
@@ -57,8 +62,7 @@ private:
 
     sigc::signal<void()> m_signalAddEntryRequested;
     sigc::signal<void(std::size_t)> m_signalEditEntryRequested;
-
-    bool m_syncingCurrency = false;
+    sigc::signal<void()> m_signalCurrencyChanged;
 
     void initLayout();
     [[nodiscard]] BudgetPeriod& currentPeriod();
@@ -67,5 +71,6 @@ private:
     void populateRows();
     void appendRows(const BudgetPeriod& period);
     void commit();
+    void replaceDocument(BudgetDocument document);
     void syncFromCloud();
 };

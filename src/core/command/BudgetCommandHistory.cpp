@@ -29,6 +29,12 @@ void BudgetCommandHistory::redo()
     }
 }
 
+void BudgetCommandHistory::clear()
+{
+    m_undoStack.clear();
+    m_redoStack.clear();
+}
+
 bool BudgetCommandHistory::canUndo() const
 {
     return !m_undoStack.empty();

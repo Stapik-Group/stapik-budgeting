@@ -1,13 +1,13 @@
 #include "BudgetRowWidget.hpp"
 
-#include "../../core/util/AmountFormatter.hpp"
+#include "../../core/util/MoneyText.hpp"
 #include "../view/BudgetTableLayout.hpp"
 
 #include <gtkmm/gestureclick.h>
 #include <pangomm/layout.h>
 
 BudgetRowWidget::BudgetRowWidget(const BudgetEntry& entry, const stapik::domain::Category& category,
-    const double plannedRemaining, const double actualRemaining) :
+    const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining) :
     Box(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::COLUMN_SPACING),
     m_categoryChip(category),
     m_plannedGroup(Gtk::Orientation::HORIZONTAL, BudgetTableLayout::GROUP_INNER_SPACING),
@@ -18,7 +18,7 @@ BudgetRowWidget::BudgetRowWidget(const BudgetEntry& entry, const stapik::domain:
     initGesture();
 }
 
-void BudgetRowWidget::initLayout(const BudgetEntry& entry, const double plannedRemaining, const double actualRemaining)
+void BudgetRowWidget::initLayout(const BudgetEntry& entry, const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining)
 {
     using namespace BudgetTableLayout;
 
@@ -33,17 +33,17 @@ void BudgetRowWidget::initLayout(const BudgetEntry& entry, const double plannedR
     m_expenseLabel.add_css_class("budget-row-expense");
 
     m_plannedGroup.add_css_class("budget-group-planned");
-    m_plannedAmountLabel.set_text(AmountFormatter::format(entry.plannedAmount));
+    m_plannedAmountLabel.set_text(MoneyText::format(entry.plannedAmount));
     m_plannedAmountLabel.set_width_chars(AMOUNT_COLUMN_WIDTH_CHARS);
-    m_plannedRemainingLabel.set_text(AmountFormatter::format(plannedRemaining));
+    m_plannedRemainingLabel.set_text(MoneyText::format(plannedRemaining));
     m_plannedRemainingLabel.set_width_chars(REMAINING_COLUMN_WIDTH_CHARS);
     m_plannedGroup.append(m_plannedAmountLabel);
     m_plannedGroup.append(m_plannedRemainingLabel);
 
     m_actualGroup.add_css_class("budget-group-actual");
-    m_actualAmountLabel.set_text(AmountFormatter::format(entry.actualAmount));
+    m_actualAmountLabel.set_text(MoneyText::format(entry.actualAmount));
     m_actualAmountLabel.set_width_chars(AMOUNT_COLUMN_WIDTH_CHARS);
-    m_actualRemainingLabel.set_text(AmountFormatter::format(actualRemaining));
+    m_actualRemainingLabel.set_text(MoneyText::format(actualRemaining));
     m_actualRemainingLabel.set_width_chars(REMAINING_COLUMN_WIDTH_CHARS);
     m_actualGroup.append(m_actualAmountLabel);
     m_actualGroup.append(m_actualRemainingLabel);

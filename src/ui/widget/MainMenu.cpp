@@ -1,13 +1,20 @@
 #include "MainMenu.hpp"
 
-#include "../../core/currency/CurrencyManager.hpp"
-#include "../../infrastructure/storage/CurrencyCatalog.hpp"
+#include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/theme/ThemeManager.hpp"
 
+#include <array>
 #include <format>
+#include <string_view>
+
+namespace
+{
+    constexpr std::array<std::string_view, 3> MENU_CURRENCY_CODES{ "PLN", "EUR", "USD" };
+}
 
 MainMenu::MainMenu(Gtk::ApplicationWindow &window, BudgetGrid &budgetGrid) : m_window(window),
+    m_budgetGrid(budgetGrid),
     m_actionHandler(window, budgetGrid)
 {
     m_actionHandler.registerActions();
@@ -54,11 +61,15 @@ void MainMenu::buildModel()
     menuTheme->append(loc.translate("menu.settings.theme.modern"), "win.setTheme::modern");
 
     const auto menuCurrency = Gio::Menu::create();
-    for (const auto&[code, symbol] : CurrencyCatalog::instance().getCurrencies())
+    for (const auto code : MENU_CURRENCY_CODES)
     {
+        const auto* currency = stapik::domain::CurrencyCatalog::instance().find(code);
+        if (currency == nullptr)
+            continue;
+
         menuCurrency->append(
-            std::format("{} ({})", loc.translate(std::format("currency.{}", code)), code),
-            std::format("win.setCurrency::{}", code)
+            std::format("{} ({})", loc.translate(currency->nameKey()), currency->code),
+            std::format("win.setCurrency::{}", currency->code)
         );
     }
 
@@ -106,19 +117,20 @@ void MainMenu::initThemeAction() const
     m_window.add_action(action);
 }
 
-void MainMenu::initCurrencyAction() const
+void MainMenu::initCurrencyAction()
 {
-    const auto currentCurrency = CurrencyManager::instance().getCurrency().code;
+    m_currencyAction = Gio::SimpleAction::create_radio_string("setCurrency", m_budgetGrid.currency().code);
 
-    auto action = Gio::SimpleAction::create_radio_string("setCurrency", currentCurrency);
-
-    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
+    m_currencyAction->signal_activate().connect([this](const Glib::VariantBase& parameter)
     {
         const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
-
-        action->change_state(value);
-        CurrencyManager::instance().setCurrency(value);
+        m_budgetGrid.changeCurrency(value.raw());
     });
 
-    m_window.add_action(action);
+    m_budgetGrid.signalCurrencyChanged().connect([this]
+    {
+        m_currencyAction->change_state(Glib::ustring(m_budgetGrid.currency().code));
+    });
+
+    m_window.add_action(m_currencyAction);
 }

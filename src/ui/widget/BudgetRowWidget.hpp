@@ -7,12 +7,14 @@
 #include "../../core/model/BudgetEntry.hpp"
 
 #include "stapik/domain/Category.hpp"
+#include "stapik/domain/Money.hpp"
 #include "stapik/ui/widget/CategoryChip.hpp"
 
 class BudgetRowWidget : public Gtk::Box
 {
 public:
-    BudgetRowWidget(const BudgetEntry& entry, const stapik::domain::Category& category, double plannedRemaining, double actualRemaining);
+    BudgetRowWidget(const BudgetEntry& entry, const stapik::domain::Category& category,
+        const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining);
 
     sigc::signal<void()>& signalEditRequested();
     sigc::signal<void()>& signalDeleteRequested();
@@ -45,6 +47,6 @@ private:
     sigc::signal<void()> m_signalMoveUpRequested;
     sigc::signal<void()> m_signalMoveDownRequested;
 
-    void initLayout(const BudgetEntry& entry, double plannedRemaining, double actualRemaining);
+    void initLayout(const BudgetEntry& entry, const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining);
     void initGesture();
 };

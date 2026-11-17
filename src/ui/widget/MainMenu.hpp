@@ -3,6 +3,7 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/popovermenubar.h>
 #include <giomm/menu.h>
+#include <giomm/simpleaction.h>
 
 #include "../action/MenuActionHandler.hpp"
 #include "../view/BudgetGrid.hpp"
@@ -16,12 +17,14 @@ public:
 
 private:
     Gtk::ApplicationWindow& m_window;
+    BudgetGrid& m_budgetGrid;
     MenuActionHandler m_actionHandler;
+    Glib::RefPtr<Gio::SimpleAction> m_currencyAction;
     Glib::RefPtr<Gio::Menu> m_menuModel;
     Gtk::PopoverMenuBar m_menuBar;
 
     void buildModel();
     void initLanguageAction() const;
     void initThemeAction() const;
-    void initCurrencyAction() const;
+    void initCurrencyAction();
 };

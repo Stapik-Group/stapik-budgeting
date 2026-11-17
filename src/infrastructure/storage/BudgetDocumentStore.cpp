@@ -1,7 +1,11 @@
 #include "BudgetDocumentStore.hpp"
 
+#include "BudgetAmountsMigration.hpp"
+#include "LegacyCurrencyPreference.hpp"
+
 #include "../../AppInfo.hpp"
 
+#include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/log/Log.hpp"
 #include "stapik/storage/AppPaths.hpp"
 #include "stapik/storage/PathText.hpp"
@@ -13,7 +17,8 @@
 namespace
 {
     constexpr int LEGACY_SCHEMA_VERSION = 0;
-    constexpr int CURRENT_SCHEMA_VERSION = 1;
+    constexpr int WHOLE_AMOUNTS_SCHEMA_VERSION = 1;
+    constexpr int CURRENT_SCHEMA_VERSION = 2;
     constexpr int BACKUP_COUNT = 3;
 
     stapik::document::SchemaMigrator createMigrator()
@@ -27,7 +32,23 @@ namespace
             root = std::move(document);
         });
 
+        migrator.addStep(WHOLE_AMOUNTS_SCHEMA_VERSION, [](nlohmann::json& root)
+        {
+            BudgetAmountsMigration::toMinorUnits(root);
+        });
+
         return migrator;
+    }
+
+    BudgetDocument emptyDocument()
+    {
+        if (const auto code = LegacyCurrencyPreference::read())
+        {
+            if (const auto* currency = stapik::domain::CurrencyCatalog::instance().find(*code))
+                return BudgetDocument(*currency);
+        }
+
+        return {};
     }
 }
 
@@ -54,13 +75,13 @@ BudgetDocument BudgetDocumentStore::load() const
         case NewerVersion:
         case MigrationFailed:
             moveUnusableFileAside();
-            return {};
+            return emptyDocument();
         case Missing:
         case Corrupted:
-            return {};
+            return emptyDocument();
     }
 
-    return {};
+    return emptyDocument();
 }
 
 void BudgetDocumentStore::save(const BudgetDocument& document) const

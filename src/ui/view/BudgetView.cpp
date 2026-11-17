@@ -86,7 +86,7 @@ void BudgetView::showAddEntryDialog()
     if (parent == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories());
+    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), m_grid.currency());
 
     dialog->signal_response().connect([this, dialog](const int responseId)
     {
@@ -112,7 +112,7 @@ void BudgetView::showEditEntryDialog(const std::size_t index)
     if (existing == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), *existing);
+    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), m_grid.currency(), *existing);
 
     dialog->signal_response().connect([this, dialog, index](const int responseId)
     {

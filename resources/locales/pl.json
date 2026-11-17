@@ -54,9 +54,7 @@
   "dialog.entry.name.placeholder": "np. Prąd",
   "dialog.entry.category.label": "Kategoria",
   "dialog.entry.planned.label": "Planowana kwota (puste = brak)",
-  "dialog.entry.planned.placeholder": "np. 250,00",
   "dialog.entry.actual.label": "Wykonana kwota (puste = jeszcze nieopłacone)",
-  "dialog.entry.actual.placeholder": "np. 250,00",
 
   "dialog.categoriesManager.title": "Kategorie",
   "dialog.categoriesManager.button.add": "Dodaj kategorię",
@@ -78,9 +76,5 @@
   "cloud.connected.secondary": "Pomyślnie połączono z chmurą.",
   "cloud.failed.header": "Nie udało się połączyć",
 
-  "category.uncategorized": "Bez kategorii",
-
-  "currency.PLN": "Polski złoty",
-  "currency.EUR": "Euro",
-  "currency.USD": "Dolar amerykański"
+  "category.uncategorized": "Bez kategorii"
 }

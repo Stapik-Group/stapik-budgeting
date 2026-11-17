@@ -1,11 +1,15 @@
 #include "BudgetDocument.hpp"
 
+#include "BudgetAmountKeys.hpp"
+#include "ResolveCurrency.hpp"
+
 #include "stapik/domain/CategoryJson.hpp"
 #include "stapik/log/Log.hpp"
 #include "stapik/sync/Timestamp.hpp"
 #include "stapik/time/Clock.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <stdexcept>
 #include <utility>
 
@@ -13,6 +17,8 @@ namespace
 {
     using stapik::domain::Category;
     using stapik::domain::CategoryColor;
+    using stapik::domain::Currency;
+    using stapik::domain::Money;
     using stapik::domain::YearMonth;
 
     constexpr auto LEGACY_DEFAULT_COLOR_ID = "default";
@@ -60,14 +66,22 @@ namespace
         };
 
         if (entry.plannedAmount.has_value())
-            json["plannedAmount"] = entry.plannedAmount.value();
+            json[BudgetAmountKeys::PLANNED_AMOUNT_MINOR] = entry.plannedAmount->minorUnits();
         if (entry.actualAmount.has_value())
-            json["actualAmount"] = entry.actualAmount.value();
+            json[BudgetAmountKeys::ACTUAL_AMOUNT_MINOR] = entry.actualAmount->minorUnits();
 
         return json;
     }
 
-    BudgetEntry entryFromJson(const nlohmann::json& json)
+    std::optional<Money> optionalAmountFromJson(const nlohmann::json& json, const char* key, const Currency& currency)
+    {
+        if (!json.contains(key))
+            return std::nullopt;
+
+        return Money(json.at(key).get<std::int64_t>(), currency);
+    }
+
+    BudgetEntry entryFromJson(const nlohmann::json& json, const Currency& currency)
     {
         BudgetEntry entry;
         entry.name = json.at("name").get<std::string>();
@@ -76,10 +90,8 @@ namespace
             BudgetEntryType::Income :
             BudgetEntryType::Expense;
 
-        if (json.contains("plannedAmount"))
-            entry.plannedAmount = json.at("plannedAmount").get<double>();
-        if (json.contains("actualAmount"))
-            entry.actualAmount = json.at("actualAmount").get<double>();
+        entry.plannedAmount = optionalAmountFromJson(json, BudgetAmountKeys::PLANNED_AMOUNT_MINOR, currency);
+        entry.actualAmount = optionalAmountFromJson(json, BudgetAmountKeys::ACTUAL_AMOUNT_MINOR, currency);
 
         return entry;
     }
@@ -93,24 +105,34 @@ namespace
         return {
             { "year", period.getMonth().year() },
             { "month", period.getMonth().month() },
-            { "startingAmount", period.getStartingAmount() },
+            { BudgetAmountKeys::STARTING_AMOUNT_MINOR, period.getStartingAmount().minorUnits() },
             { "entries", entries }
         };
     }
 
-    BudgetPeriod periodFromJson(const nlohmann::json& json)
+    BudgetPeriod periodFromJson(const nlohmann::json& json, const Currency& currency)
     {
         const auto month = YearMonth::tryCreate(json.at("year").get<int>(), json.at("month").get<int>());
         if (!month)
             throw std::invalid_argument("The budget period has an invalid year or month");
 
-        BudgetPeriod period(*month, json.at("startingAmount").get<double>());
+        BudgetPeriod period(*month, Money(json.at(BudgetAmountKeys::STARTING_AMOUNT_MINOR).get<std::int64_t>(), currency));
 
         for (const auto& item : json.at("entries"))
-            period.addEntry(entryFromJson(item));
+            period.addEntry(entryFromJson(item, currency));
 
         return period;
     }
+}
+
+BudgetDocument::BudgetDocument() :
+    m_currency(resolveCurrency(DEFAULT_CURRENCY_CODE))
+{
+}
+
+BudgetDocument::BudgetDocument(stapik::domain::Currency currency) :
+    m_currency(std::move(currency))
+{
 }
 
 const stapik::domain::Category* BudgetDocument::findCategory(const std::string& categoryId) const
@@ -151,7 +173,17 @@ BudgetPeriod& BudgetDocument::periodFor(const stapik::domain::YearMonth& month)
     if (const auto it = std::ranges::find_if(m_periods, periodMatcher(month)); it != m_periods.end())
         return *it;
 
-    return m_periods.emplace_back(month, 0.0);
+    return m_periods.emplace_back(month, Money::zero(m_currency));
+}
+
+void BudgetDocument::changeCurrency(const stapik::domain::Currency& currency)
+{
+    auto periods = m_periods;
+    for (auto& period : periods)
+        period.changeCurrency(currency);
+
+    m_periods = std::move(periods);
+    m_currency = currency;
 }
 
 void BudgetDocument::touch()
@@ -186,22 +218,21 @@ nlohmann::json BudgetDocument::toJson() const
     return {
         { "categories", categories },
         { "periods", periods },
-        { "currency", m_currencyCode },
+        { "currency", m_currency.code },
         { "lastUpdate", stapik::sync::toIso8601(m_lastUpdate) }
     };
 }
 
 BudgetDocument BudgetDocument::fromJson(const nlohmann::json& json)
 {
-    BudgetDocument document;
+    const auto currency = resolveCurrency(json.value("currency", std::string{DEFAULT_CURRENCY_CODE}));
+    BudgetDocument document(currency);
 
     for (const auto& item : json.value("categories", nlohmann::json::array()))
         document.m_categories.push_back(categoryFromJson(item));
 
     for (const auto& item : json.value("periods", nlohmann::json::array()))
-        document.m_periods.push_back(periodFromJson(item));
-
-    document.m_currencyCode = json.value("currency", std::string{DEFAULT_CURRENCY_CODE});
+        document.m_periods.push_back(periodFromJson(item, currency));
 
     if (json.contains("lastUpdate"))
         document.m_lastUpdate = stapik::sync::fromIso8601(json.at("lastUpdate").get<std::string>());

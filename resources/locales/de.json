@@ -54,9 +54,7 @@
   "dialog.entry.name.placeholder": "z. B. Strom",
   "dialog.entry.category.label": "Kategorie",
   "dialog.entry.planned.label": "Geplanter Betrag (leer = keiner)",
-  "dialog.entry.planned.placeholder": "z. B. 250,00",
   "dialog.entry.actual.label": "Tatsächlicher Betrag (leer = noch nicht bezahlt)",
-  "dialog.entry.actual.placeholder": "z. B. 250,00",
 
   "dialog.categoriesManager.title": "Kategorien",
   "dialog.categoriesManager.button.add": "Kategorie hinzufügen",
@@ -74,9 +72,5 @@
   "dialog.connect.key.placeholder": "Schlüssel eingeben",
   "dialog.connect.button.connect": "Verbinden",
 
-  "category.uncategorized": "Ohne Kategorie",
-
-  "currency.PLN": "Złoty",
-  "currency.EUR": "Euro",
-  "currency.USD": "US-Dollar"
+  "category.uncategorized": "Ohne Kategorie"
 }

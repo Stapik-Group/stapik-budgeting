@@ -9,7 +9,7 @@ A desktop budgeting application for Linux, written in C++20 using GTK4/gtkmm. Tr
 * **Monthly view** — organize your budget by month and keep your financial entries in one place.
 * **Income and expenses** — track planned and actual amounts and see the remaining totals for the current month.
 * **Custom categories** — own categories, each with a customizable color.
-* **Multiple currencies** — choose from a catalog of currencies, with localized currency names and persistent selection.
+* **Multiple currencies** — the budget has its own currency, with localized currency names, and amounts are stored exactly as whole minor units.
 * **Cloud sync** — save and load your budget via an external API, compatible with a self-hosted server, with automatic conflict resolution based on timestamps.
 * **Multilingual UI** — Polish, English and German interface with instant switching.
 * **Auto-save** — budget data is saved locally after every change.
@@ -99,7 +99,7 @@ rm ~/.local/share/applications/pl.stapik.budgeting.desktop
 rm ~/.local/share/icons/hicolor/256x256/apps/pl.stapik.budgeting.png
 ```
 
-Uninstalling the application does not remove your budget data, cloud configuration, language preference, theme or currency preference stored in `~/.local/share/stapikbudgeting/`.
+Uninstalling the application does not remove your budget data, cloud configuration, language preference or theme stored in `~/.local/share/stapikbudgeting/`.
 
 ## Cloud Sync
 
@@ -107,7 +107,9 @@ The app supports synchronization via [Stapik Cloud](https://github.com/Stapik-Gr
 
 Once connected, the app compares the local budget and the cloud copy using a `lastUpdate` timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the older document is fully replaced.
 
-Budget data is saved locally after every change, and the app also attempts to push it to the cloud immediately. Changes to the selected currency are treated as budget changes and are synchronized as well.
+Budget data is saved locally after every change, and the app also attempts to push it to the cloud immediately. Changes to the budget currency are treated as budget changes and are synchronized as well.
+
+Amounts are stored as integer minor units, so the cloud copy written by this version cannot be read by version 1.0.0. Update every device that shares a budget.
 
 Writes use optimistic concurrency checking: if another device saved a newer version in the meantime, the write is rejected, the server's copy is fetched, and the app retries once against that version before falling back to accepting the server's version. If the cloud is unreachable, the change remains saved locally and will be retried on the next save. You can also trigger synchronization manually from **File → Sync**.
 
@@ -125,11 +127,11 @@ Budget data is stored locally at:
 ~/.local/share/stapikbudgeting/budget.json
 ```
 
-The document contains the budget categories, periods, currency code and `lastUpdate` timestamp used for cloud synchronization.
+The document contains the budget categories, periods, currency code and `lastUpdate` timestamp used for cloud synchronization. Amounts are whole minor units of the budget currency (for example grosze), and changing the currency re-expresses the same figures in the new currency without converting them.
 
 Every save is written atomically, so a crash can never leave a half-written file. The three previous versions are kept next to it as `budget.json.bak`, `budget.json.bak.2` and `budget.json.bak.3`. A file that cannot be read is never overwritten: it is moved aside as `budget.json.corrupt-<timestamp>` and the application starts with an empty budget.
 
-Files written by version 1.0.0 are upgraded automatically on the first start, and the original stays available as `budget.json.bak`. The data directory follows `XDG_DATA_HOME` and the `--data-dir` and `--portable` command line options.
+Files written by version 1.0.0 are upgraded automatically on the first start, with the amounts converted to minor units, and the original stays available as `budget.json.bak`. The data directory follows `XDG_DATA_HOME` and the `--data-dir` and `--portable` command line options.
 
 Other application data is stored at:
 
@@ -137,10 +139,9 @@ Other application data is stored at:
 ~/.local/share/stapikbudgeting/config.json
 ~/.local/share/stapikbudgeting/locale.txt
 ~/.local/share/stapikbudgeting/theme.txt
-~/.local/share/stapikbudgeting/currency.txt
 ```
 
-Cloud configuration, language, theme and currency preferences are kept separately from the synchronized budget document.
+Cloud configuration, language and theme preferences are kept separately from the synchronized budget document. The currency preference stored in `currency.txt` by version 1.0.0 is used as the currency of a newly created budget.
 
 ## Themes
 

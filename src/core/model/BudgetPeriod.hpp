@@ -2,20 +2,23 @@
 
 #include <cstddef>
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "BudgetEntry.hpp"
 
+#include "stapik/domain/Currency.hpp"
+#include "stapik/domain/Money.hpp"
 #include "stapik/domain/YearMonth.hpp"
 
 class BudgetPeriod
 {
 public:
-    BudgetPeriod(stapik::domain::YearMonth month, double startingAmount);
+    BudgetPeriod(stapik::domain::YearMonth month, stapik::domain::Money startingAmount);
 
     [[nodiscard]] const stapik::domain::YearMonth& getMonth() const { return m_month; }
-    [[nodiscard]] double getStartingAmount() const { return m_startingAmount; }
-    void setStartingAmount(const double startingAmount) { m_startingAmount = startingAmount; }
+    [[nodiscard]] const stapik::domain::Money& getStartingAmount() const { return m_startingAmount; }
+    void setStartingAmount(stapik::domain::Money startingAmount) { m_startingAmount = std::move(startingAmount); }
 
     [[nodiscard]] const std::vector<BudgetEntry>& getEntries() const { return m_entries; }
     void addEntry(BudgetEntry entry);
@@ -24,13 +27,15 @@ public:
     void replaceEntry(std::size_t index, BudgetEntry entry);
     void moveEntry(std::size_t fromIndex, std::size_t toIndex);
 
-    [[nodiscard]] std::vector<double> remainingPlanned() const;
-    [[nodiscard]] std::vector<double> remainingActual() const;
+    void changeCurrency(const stapik::domain::Currency& currency);
+
+    [[nodiscard]] std::vector<stapik::domain::Money> remainingPlanned() const;
+    [[nodiscard]] std::vector<stapik::domain::Money> remainingActual() const;
 
 private:
     stapik::domain::YearMonth m_month;
-    double m_startingAmount;
+    stapik::domain::Money m_startingAmount;
     std::vector<BudgetEntry> m_entries;
 
-    [[nodiscard]] std::vector<double> remainingFor(std::optional<double> BudgetEntry::* amountMember) const;
+    [[nodiscard]] std::vector<stapik::domain::Money> remainingFor(std::optional<stapik::domain::Money> BudgetEntry::* amountMember) const;
 };

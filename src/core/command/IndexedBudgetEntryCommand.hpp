@@ -7,6 +7,7 @@
 class IndexedBudgetEntryCommand : public BudgetEntryCommandBase
 {
 protected:
-    IndexedBudgetEntryCommand(BudgetPeriod& period, std::size_t entryIndex);
+    IndexedBudgetEntryCommand(BudgetDocument& document, stapik::domain::YearMonth month, std::size_t entryIndex);
+
     std::size_t m_entryIndex;
 };

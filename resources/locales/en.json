@@ -72,5 +72,13 @@
   "dialog.entry.type.expense": "Expense",
   "dialog.entry.type.income": "Income",
 
-  "category.uncategorized": "Uncategorized"
+  "category.uncategorized": "Uncategorized",
+
+  "command.entry.add": "Add entry",
+  "command.entry.edit": "Edit entry",
+  "command.entry.delete": "Delete entry",
+  "command.entry.move": "Move entry",
+  "command.category.add": "Add category",
+  "command.category.edit": "Edit category",
+  "command.category.delete": "Delete category"
 }

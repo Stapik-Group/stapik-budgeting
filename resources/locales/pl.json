@@ -76,5 +76,13 @@
   "cloud.connected.secondary": "Pomyślnie połączono z chmurą.",
   "cloud.failed.header": "Nie udało się połączyć",
 
-  "category.uncategorized": "Bez kategorii"
+  "category.uncategorized": "Bez kategorii",
+
+  "command.entry.add": "Dodanie pozycji",
+  "command.entry.edit": "Edycja pozycji",
+  "command.entry.delete": "Usunięcie pozycji",
+  "command.entry.move": "Przesunięcie pozycji",
+  "command.category.add": "Dodanie kategorii",
+  "command.category.edit": "Edycja kategorii",
+  "command.category.delete": "Usunięcie kategorii"
 }

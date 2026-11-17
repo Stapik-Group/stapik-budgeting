@@ -1,11 +1,16 @@
 #pragma once
 
-#include "BudgetCommand.hpp"
-#include "../model/BudgetPeriod.hpp"
+#include "BudgetDocumentCommand.hpp"
 
-class BudgetEntryCommandBase : public BudgetCommand
+#include "stapik/domain/YearMonth.hpp"
+
+class BudgetEntryCommandBase : public BudgetDocumentCommand
 {
 protected:
-    explicit BudgetEntryCommandBase(BudgetPeriod& period);
-    BudgetPeriod& m_period;
+    BudgetEntryCommandBase(BudgetDocument& document, stapik::domain::YearMonth month);
+
+    [[nodiscard]] BudgetPeriod& period() const;
+
+private:
+    stapik::domain::YearMonth m_month;
 };

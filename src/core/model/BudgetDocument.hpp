@@ -6,6 +6,7 @@
 #include "stapik/domain/YearMonth.hpp"
 
 #include <chrono>
+#include <cstddef>
 #include <deque>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -26,6 +27,7 @@ public:
     [[nodiscard]] const std::vector<stapik::domain::Category>& categories() const { return m_categories; }
     [[nodiscard]] const stapik::domain::Category* findCategory(const std::string& categoryId) const;
     void addCategory(stapik::domain::Category category);
+    void insertCategory(std::size_t index, stapik::domain::Category category);
     bool editCategory(const std::string& categoryId, stapik::domain::Category updated);
     void deleteCategory(const std::string& categoryId);
 

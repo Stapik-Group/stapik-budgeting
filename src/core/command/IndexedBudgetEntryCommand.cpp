@@ -1,5 +1,7 @@
 #include "IndexedBudgetEntryCommand.hpp"
 
-IndexedBudgetEntryCommand::IndexedBudgetEntryCommand(BudgetPeriod& period, const std::size_t entryIndex) :
-    BudgetEntryCommandBase(period),
-    m_entryIndex(entryIndex) {}
+IndexedBudgetEntryCommand::IndexedBudgetEntryCommand(BudgetDocument& document, const stapik::domain::YearMonth month, const std::size_t entryIndex) :
+    BudgetEntryCommandBase(document, month),
+    m_entryIndex(entryIndex)
+{
+}

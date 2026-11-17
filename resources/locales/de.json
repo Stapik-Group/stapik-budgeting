@@ -72,5 +72,13 @@
   "dialog.connect.key.placeholder": "Schlüssel eingeben",
   "dialog.connect.button.connect": "Verbinden",
 
-  "category.uncategorized": "Ohne Kategorie"
+  "category.uncategorized": "Ohne Kategorie",
+
+  "command.entry.add": "Eintrag hinzufügen",
+  "command.entry.edit": "Eintrag bearbeiten",
+  "command.entry.delete": "Eintrag löschen",
+  "command.entry.move": "Eintrag verschieben",
+  "command.category.add": "Kategorie hinzufügen",
+  "command.category.edit": "Kategorie bearbeiten",
+  "command.category.delete": "Kategorie löschen"
 }

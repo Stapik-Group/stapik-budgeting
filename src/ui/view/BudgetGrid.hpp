@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../core/command/BudgetCommandHistory.hpp"
 #include "../../core/model/BudgetDocument.hpp"
 #include "../../infrastructure/storage/BudgetDocumentStore.hpp"
 
 #include "stapik/cloud/CloudStorageClient.hpp"
+#include "stapik/command/UndoStack.hpp"
 #include "stapik/domain/Currency.hpp"
 
 #include <gtkmm/box.h>
@@ -25,6 +25,8 @@ public:
     void setCloudClient(std::unique_ptr<CloudStorageClient> client);
     void retrySync();
     void bindHeader(BudgetHeader& header) const;
+
+    [[nodiscard]] stapik::command::UndoStack& undoStack() { return m_history; }
 
     [[nodiscard]] const stapik::domain::Currency& currency() const;
     void changeCurrency(const std::string& code);
@@ -57,7 +59,7 @@ private:
     Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actionsSizeGroup;
 
-    BudgetCommandHistory m_history;
+    stapik::command::UndoStack m_history;
     std::unique_ptr<CloudStorageClient> m_cloudClient;
 
     sigc::signal<void()> m_signalAddEntryRequested;

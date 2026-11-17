@@ -1,8 +1,11 @@
 #include "BudgetGrid.hpp"
 #include "BudgetHeader.hpp"
 
+#include "../../core/command/AddCategoryCommand.hpp"
 #include "../../core/command/AddEntryCommand.hpp"
+#include "../../core/command/DeleteCategoryCommand.hpp"
 #include "../../core/command/DeleteEntryCommand.hpp"
+#include "../../core/command/EditCategoryCommand.hpp"
 #include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/command/MoveEntryCommand.hpp"
 #include "../../infrastructure/storage/BudgetSyncCoordinator.hpp"
@@ -126,7 +129,7 @@ void BudgetGrid::appendRows(const BudgetPeriod& period)
 
 void BudgetGrid::deleteEntryAt(const std::size_t index)
 {
-    m_history.execute(std::make_unique<DeleteEntryCommand>(currentPeriod(), index));
+    m_history.execute(std::make_unique<DeleteEntryCommand>(m_document, m_month, index));
     commit();
     populateRows();
 }
@@ -136,46 +139,49 @@ void BudgetGrid::moveEntryUp(const std::size_t index)
     if (index == 0)
         return;
 
-    m_history.execute(std::make_unique<MoveEntryCommand>(currentPeriod(), index, index - 1));
+    m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index - 1));
     commit();
     populateRows();
 }
 
 void BudgetGrid::moveEntryDown(const std::size_t index)
 {
-    auto& period = currentPeriod();
-    if (index + 1 >= period.getEntries().size())
+    if (index + 1 >= currentPeriod().getEntries().size())
         return;
 
-    m_history.execute(std::make_unique<MoveEntryCommand>(period, index, index + 1));
+    m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index + 1));
     commit();
     populateRows();
 }
 
 void BudgetGrid::addEntry(BudgetEntry entry)
 {
-    m_history.execute(std::make_unique<AddEntryCommand>(currentPeriod(), std::move(entry)));
+    m_history.execute(std::make_unique<AddEntryCommand>(m_document, m_month, std::move(entry)));
     commit();
     populateRows();
 }
 
 void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
 {
-    m_history.execute(std::make_unique<EditEntryCommand>(currentPeriod(), index, std::move(entry)));
+    m_history.execute(std::make_unique<EditEntryCommand>(m_document, m_month, index, std::move(entry)));
     commit();
     populateRows();
 }
 
 void BudgetGrid::undo()
 {
-    m_history.undo();
+    if (!m_history.undo())
+        return;
+
     commit();
     populateRows();
 }
 
 void BudgetGrid::redo()
 {
-    m_history.redo();
+    if (!m_history.redo())
+        return;
+
     commit();
     populateRows();
 }
@@ -197,13 +203,14 @@ void BudgetGrid::commit()
 void BudgetGrid::replaceDocument(BudgetDocument document)
 {
     const auto currencyChanged = document.currency() != m_document.currency();
+    const auto contentReplaced = currencyChanged || document.lastUpdate() != m_document.lastUpdate();
     m_document = std::move(document);
 
-    if (!currencyChanged)
-        return;
+    if (contentReplaced)
+        m_history.clear();
 
-    m_history.clear();
-    m_signalCurrencyChanged.emit();
+    if (currencyChanged)
+        m_signalCurrencyChanged.emit();
 }
 
 const stapik::domain::Currency& BudgetGrid::currency() const
@@ -276,22 +283,26 @@ const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
 
 void BudgetGrid::addCategory(stapik::domain::Category category)
 {
-    m_document.addCategory(std::move(category));
+    m_history.execute(std::make_unique<AddCategoryCommand>(m_document, std::move(category)));
     commit();
 }
 
 void BudgetGrid::editCategory(const std::string& categoryId, stapik::domain::Category updated)
 {
-    if (!m_document.editCategory(categoryId, std::move(updated)))
+    if (m_document.findCategory(categoryId) == nullptr)
         return;
 
+    m_history.execute(std::make_unique<EditCategoryCommand>(m_document, categoryId, std::move(updated)));
     commit();
     populateRows();
 }
 
 void BudgetGrid::deleteCategory(const std::string& categoryId)
 {
-    m_document.deleteCategory(categoryId);
+    if (m_document.findCategory(categoryId) == nullptr)
+        return;
+
+    m_history.execute(std::make_unique<DeleteCategoryCommand>(m_document, categoryId));
     commit();
     populateRows();
 }

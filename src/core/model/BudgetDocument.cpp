@@ -146,6 +146,14 @@ void BudgetDocument::addCategory(stapik::domain::Category category)
     m_categories.push_back(std::move(category));
 }
 
+void BudgetDocument::insertCategory(const std::size_t index, stapik::domain::Category category)
+{
+    if (index > m_categories.size())
+        throw std::out_of_range("BudgetDocument::insertCategory: index out of range");
+
+    m_categories.insert(m_categories.begin() + static_cast<std::ptrdiff_t>(index), std::move(category));
+}
+
 bool BudgetDocument::editCategory(const std::string& categoryId, stapik::domain::Category updated)
 {
     const auto it = std::ranges::find(m_categories, categoryId, &stapik::domain::Category::id);

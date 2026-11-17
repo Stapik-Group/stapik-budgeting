@@ -32,14 +32,16 @@ stapik_add_application(
         src/core/model/BudgetDocument.cpp
         src/core/model/ResolveCurrency.cpp
         src/core/util/MoneyText.cpp
-        src/core/command/BudgetCommand.cpp
+        src/core/command/BudgetDocumentCommand.cpp
         src/core/command/BudgetEntryCommandBase.cpp
         src/core/command/IndexedBudgetEntryCommand.cpp
         src/core/command/AddEntryCommand.cpp
         src/core/command/DeleteEntryCommand.cpp
         src/core/command/EditEntryCommand.cpp
         src/core/command/MoveEntryCommand.cpp
-        src/core/command/BudgetCommandHistory.cpp
+        src/core/command/AddCategoryCommand.cpp
+        src/core/command/EditCategoryCommand.cpp
+        src/core/command/DeleteCategoryCommand.cpp
         src/infrastructure/storage/BudgetAmountsMigration.cpp
         src/infrastructure/storage/BudgetDocumentStore.cpp
         src/infrastructure/storage/BudgetSyncCoordinator.cpp

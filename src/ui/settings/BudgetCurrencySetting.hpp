@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../view/BudgetGrid.hpp"
+#include "../../app/BudgetController.hpp"
 
 #include "stapik/settings/ObservableSetting.hpp"
 #include "stapik/ui/settings/SettingsLayout.hpp"
@@ -11,7 +11,7 @@
 class BudgetCurrencySetting
 {
 public:
-    explicit BudgetCurrencySetting(BudgetGrid& budgetGrid);
+    explicit BudgetCurrencySetting(BudgetController& controller);
 
     BudgetCurrencySetting(const BudgetCurrencySetting&) = delete;
     BudgetCurrencySetting& operator=(const BudgetCurrencySetting&) = delete;
@@ -21,6 +21,6 @@ public:
 private:
     [[nodiscard]] static std::vector<stapik::ui::ChoiceOption<std::string>> currencyOptions();
 
-    BudgetGrid& m_budgetGrid;
+    BudgetController& m_controller;
     stapik::settings::ObservableSetting<std::string> m_setting;
 };

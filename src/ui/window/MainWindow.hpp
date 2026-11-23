@@ -8,6 +8,7 @@
 #include "CloudNotifications.hpp"
 #include "../widget/MainMenu.hpp"
 #include "../view/BudgetView.hpp"
+#include "../../app/BudgetController.hpp"
 
 class MainWindow : public Gtk::ApplicationWindow
 {
@@ -19,6 +20,7 @@ private:
     static constexpr int DEFAULT_WIDTH = 1280;
     static constexpr int DEFAULT_HEIGHT = 800;
 
+    BudgetController m_controller;
     Gtk::Box m_mainBox;
     BudgetView m_budgetView;
     MainMenu m_mainMenu;

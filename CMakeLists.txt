@@ -28,6 +28,7 @@ stapik_add_application(
         PACKAGING_DIRECTORY packaging
         SOURCES
         src/main.cpp
+        src/app/BudgetController.cpp
         src/core/model/BudgetPeriod.cpp
         src/core/model/BudgetAmountsMigration.cpp
         src/core/model/BudgetDocument.cpp

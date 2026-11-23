@@ -7,9 +7,9 @@
 
 #include "../dialog/CategoriesManagerDialog.hpp"
 
-MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid):
+MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetController& controller):
     m_window(window),
-    m_budgetGrid(budgetGrid) {}
+    m_controller(controller) {}
 
 void MenuActionHandler::registerActions()
 {
@@ -18,27 +18,27 @@ void MenuActionHandler::registerActions()
     m_syncAction = m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
     m_disconnectAction = m_window.add_action("disconnect", sigc::mem_fun(*this, &MenuActionHandler::onActionDisconnect));
 
-    m_budgetGrid.cloud().signalStatusChanged().connect([this](stapik::sync::SyncStatus) { refreshCloudActions(); });
+    m_controller.cloud().signalStatusChanged().connect([this](stapik::sync::SyncStatus) { refreshCloudActions(); });
     refreshCloudActions();
 }
 
 void MenuActionHandler::refreshCloudActions() const
 {
-    const auto connected = m_budgetGrid.cloud().isConnected();
+    const auto connected = m_controller.cloud().isConnected();
     m_syncAction->set_enabled(connected);
     m_disconnectAction->set_enabled(connected);
 }
 
 void MenuActionHandler::onActionManageCategories() const
 {
-    auto* dialog = new CategoriesManagerDialog(m_window, m_budgetGrid);
+    auto* dialog = new CategoriesManagerDialog(m_window, m_controller);
     dialog->signal_hide().connect([dialog] { delete dialog; });
     dialog->show();
 }
 
 void MenuActionHandler::onActionConnect() const
 {
-    showConnectDialog(m_window, m_budgetGrid.cloud().config(), [this](const CloudStorageConfig& config)
+    showConnectDialog(m_window, m_controller.cloud().config(), [this](const CloudStorageConfig& config)
     {
         applyCloudConfig(config);
     });
@@ -48,7 +48,7 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
 {
     const auto& loc = LocaleManager::instance();
 
-    if (m_budgetGrid.connectToCloud(config))
+    if (m_controller.connectToCloud(config))
     {
         stapik::log::info("[Cloud] Connected: {}", config.apiUrl);
         showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
@@ -61,10 +61,10 @@ void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
 
 void MenuActionHandler::onActionSync() const
 {
-    m_budgetGrid.syncWithCloud();
+    m_controller.syncWithCloud();
 }
 
 void MenuActionHandler::onActionDisconnect() const
 {
-    m_budgetGrid.cloud().disconnect();
+    m_controller.cloud().disconnect();
 }

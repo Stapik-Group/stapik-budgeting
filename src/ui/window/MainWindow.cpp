@@ -4,8 +4,9 @@
 
 MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
-    m_mainMenu(*this, m_budgetView.getBudgetGrid(), themes),
-    m_cloudNotifications(*this, m_budgetView.getBudgetGrid().cloud())
+    m_budgetView(m_controller),
+    m_mainMenu(*this, m_controller, themes),
+    m_cloudNotifications(*this, m_controller.cloud())
 {
     init();
     initLayout();
@@ -29,7 +30,7 @@ void MainWindow::flushCloudOnClose()
 {
     signal_close_request().connect([this]
     {
-        m_budgetView.getBudgetGrid().cloud().flushAndWait();
+        m_controller.cloud().flushAndWait();
         return false;
     }, false);
 }

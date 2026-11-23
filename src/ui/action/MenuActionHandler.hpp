@@ -2,19 +2,19 @@
 #include <gtkmm/applicationwindow.h>
 #include <giomm/simpleaction.h>
 
-#include "../view/BudgetGrid.hpp"
+#include "../../app/BudgetController.hpp"
 #include "stapik/cloud/CloudStorageConfig.hpp"
 
 class MenuActionHandler
 {
 public:
-    explicit MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid);
+    explicit MenuActionHandler(Gtk::ApplicationWindow& window, BudgetController& controller);
     ~MenuActionHandler() = default;
 
     void registerActions();
 private:
     Gtk::ApplicationWindow& m_window;
-    BudgetGrid& m_budgetGrid;
+    BudgetController& m_controller;
     Glib::RefPtr<Gio::SimpleAction> m_syncAction;
     Glib::RefPtr<Gio::SimpleAction> m_disconnectAction;
 

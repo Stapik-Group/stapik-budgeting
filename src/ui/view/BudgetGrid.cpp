@@ -1,24 +1,9 @@
 #include "BudgetGrid.hpp"
 #include "BudgetHeader.hpp"
 
-#include "../../core/command/AddCategoryCommand.hpp"
-#include "../../core/command/AddEntryCommand.hpp"
-#include "../../core/command/DeleteCategoryCommand.hpp"
-#include "../../core/command/DeleteEntryCommand.hpp"
-#include "../../core/command/EditCategoryCommand.hpp"
-#include "../../core/command/EditEntryCommand.hpp"
-#include "../../core/command/MoveEntryCommand.hpp"
 #include "../widget/BudgetRowWidget.hpp"
-#include "../../AppInfo.hpp"
 
-#include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
-#include "stapik/log/Log.hpp"
-
-#include <algorithm>
-#include <chrono>
-#include <memory>
-#include <stdexcept>
 
 #include <gtkmm/widget.h>
 
@@ -30,23 +15,17 @@ namespace
     constexpr auto EMPTY_STATE_ICON = "view-list-symbolic";
 }
 
-BudgetGrid::BudgetGrid() :
+BudgetGrid::BudgetGrid(BudgetController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_controller(controller),
     m_emptyState(EMPTY_STATE_ICON, "view.empty.title"),
-    m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING),
-    m_document(m_store.load()),
-    m_month(stapik::domain::YearMonth::current()),
-    m_cloud(stapik::sync::defaultCloudSessionHooks(BUDGET_FILENAME))
+    m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING)
 {
     initLayout();
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
-    m_history.signalChanged().connect(sigc::mem_fun(*this, &BudgetGrid::onHistoryChanged));
-    m_cloud.signalDocumentReplaced().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudDocumentReplaced));
-    m_cloud.signalBaselineChanged().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudBaselineChanged));
-
-    syncWithCloud();
+    m_controller.signalChanged().connect([this] { populateRows(); });
 }
 
 void BudgetGrid::initLayout()
@@ -82,31 +61,9 @@ void BudgetGrid::bindHeader(BudgetHeader& header) const
     m_actionsSizeGroup->add_widget(header.getActionsSpacer());
 }
 
-BudgetPeriod& BudgetGrid::currentPeriod()
-{
-    return m_document.periodFor(m_month);
-}
-
-const BudgetPeriod* BudgetGrid::findCurrentPeriod() const
-{
-    return m_document.findPeriod(m_month);
-}
-
-stapik::domain::Category BudgetGrid::categoryFor(const std::string& categoryId) const
-{
-    if (const auto* category = m_document.findCategory(categoryId))
-        return *category;
-
-    return stapik::domain::Category{
-        .id = {},
-        .name = LocaleManager::instance().translate("category.uncategorized"),
-        .color = stapik::domain::CategoryColor::Gray
-    };
-}
-
 void BudgetGrid::displayMonth(const stapik::domain::YearMonth& month)
 {
-    m_month = month;
+    m_controller.setMonth(month);
     populateRows();
 }
 
@@ -115,7 +72,7 @@ void BudgetGrid::populateRows()
     while (auto* child = m_rowsBox.get_first_child())
         m_rowsBox.remove(*child);
 
-    const auto* period = findCurrentPeriod();
+    const auto* period = m_controller.currentPeriod();
     const auto hasRows = period != nullptr && !period->getEntries().empty();
 
     if (hasRows)
@@ -133,7 +90,7 @@ void BudgetGrid::appendRows(const BudgetPeriod& period)
     for (std::size_t i = 0; i < entries.size(); ++i)
     {
         const auto& entry = entries[i];
-        const auto& category = categoryFor(entry.categoryId);
+        const auto& category = m_controller.categoryFor(entry.categoryId);
 
         auto* row = Gtk::make_managed<BudgetRowWidget>(entry, category, plannedRemaining[i], actualRemaining[i]);
         row->add_css_class(i % 2 == 0 ? "budget-row-even" : "budget-row-odd");
@@ -143,178 +100,13 @@ void BudgetGrid::appendRows(const BudgetPeriod& period)
         m_actionsSizeGroup->add_widget(row->getActionsBox());
 
         row->signalEditRequested().connect([this, i] { m_signalEditEntryRequested.emit(i); });
-        row->signalDeleteRequested().connect([this, i] { deleteEntryAt(i); });
-        row->signalMoveUpRequested().connect([this, i] { moveEntryUp(i); });
-        row->signalMoveDownRequested().connect([this, i] { moveEntryDown(i); });
+        row->signalDeleteRequested().connect([this, i] { m_controller.deleteEntryAt(i); });
+        row->signalMoveUpRequested().connect([this, i] { m_controller.moveEntryUp(i); });
+        row->signalMoveDownRequested().connect([this, i] { m_controller.moveEntryDown(i); });
 
         m_rowsBox.append(*row);
     }
 }
 
-void BudgetGrid::deleteEntryAt(const std::size_t index)
-{
-    if (!hasEntryAt(index))
-        return;
-
-    m_history.execute(std::make_unique<DeleteEntryCommand>(m_document, m_month, index));
-}
-
-void BudgetGrid::moveEntryUp(const std::size_t index)
-{
-    if (index == 0 || !hasEntryAt(index))
-        return;
-
-    m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index - 1));
-}
-
-void BudgetGrid::moveEntryDown(const std::size_t index)
-{
-    if (!hasEntryAt(index + 1))
-        return;
-
-    m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index + 1));
-}
-
-void BudgetGrid::addEntry(BudgetEntry entry)
-{
-    m_history.execute(std::make_unique<AddEntryCommand>(m_document, m_month, std::move(entry)));
-}
-
-void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
-{
-    if (!hasEntryAt(index))
-        return;
-
-    m_history.execute(std::make_unique<EditEntryCommand>(m_document, m_month, index, std::move(entry)));
-}
-
-void BudgetGrid::onHistoryChanged()
-{
-    if (m_historySilenced)
-        return;
-
-    commit();
-    populateRows();
-}
-
-void BudgetGrid::clearHistory()
-{
-    m_historySilenced = true;
-    m_history.clear();
-    m_historySilenced = false;
-}
-
-void BudgetGrid::commit()
-{
-    m_document.touch();
-    m_store.save(m_document);
-    m_cloud.pushChange(m_document);
-}
-
-void BudgetGrid::replaceDocument(BudgetDocument document)
-{
-    const auto currencyChanged = document.currency() != m_document.currency();
-    const auto contentReplaced = currencyChanged || document.lastUpdate() != m_document.lastUpdate();
-    m_document = std::move(document);
-
-    if (contentReplaced)
-        clearHistory();
-
-    if (currencyChanged)
-        m_signalCurrencyChanged.emit();
-}
-
-const stapik::domain::Currency& BudgetGrid::currency() const
-{
-    return m_document.currency();
-}
-
-void BudgetGrid::changeCurrency(const std::string& code)
-{
-    const auto* currency = stapik::domain::CurrencyCatalog::instance().find(code);
-    if (currency == nullptr || *currency == m_document.currency())
-        return;
-
-    try
-    {
-        m_document.changeCurrency(*currency);
-    }
-    catch (const std::overflow_error& error)
-    {
-        stapik::log::warning("Cannot change the currency to {}: {}", code, error.what());
-        return;
-    }
-
-    clearHistory();
-    commit();
-    populateRows();
-    m_signalCurrencyChanged.emit();
-}
-
-bool BudgetGrid::connectToCloud(const CloudStorageConfig& config)
-{
-    return m_cloud.connectWith(config, m_document);
-}
-
-void BudgetGrid::syncWithCloud()
-{
-    m_cloud.syncNow(m_document);
-}
-
-void BudgetGrid::onCloudDocumentReplaced(const BudgetDocument& document)
-{
-    replaceDocument(document);
-    m_store.save(m_document);
-    populateRows();
-}
-
-void BudgetGrid::onCloudBaselineChanged(const BudgetDocument::TimePoint baseline)
-{
-    m_document = m_document.withLastKnownCloudUpdate(baseline);
-}
-
-bool BudgetGrid::hasEntryAt(const std::size_t index) const
-{
-    const auto* period = findCurrentPeriod();
-    return period != nullptr && index < period->getEntries().size();
-}
-
-sigc::signal<void()>& BudgetGrid::signalCurrencyChanged() { return m_signalCurrencyChanged; }
 sigc::signal<void()>& BudgetGrid::signalAddEntryRequested() { return m_signalAddEntryRequested; }
 sigc::signal<void(std::size_t)>& BudgetGrid::signalEditEntryRequested() { return m_signalEditEntryRequested; }
-
-const std::vector<stapik::domain::Category>& BudgetGrid::getCategories() const
-{
-    return m_document.categories();
-}
-
-const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
-{
-    const auto* period = findCurrentPeriod();
-    if (period == nullptr)
-        return nullptr;
-
-    const auto& entries = period->getEntries();
-    return index < entries.size() ? &entries[index] : nullptr;
-}
-
-void BudgetGrid::addCategory(stapik::domain::Category category)
-{
-    m_history.execute(std::make_unique<AddCategoryCommand>(m_document, std::move(category)));
-}
-
-void BudgetGrid::editCategory(const std::string& categoryId, stapik::domain::Category updated)
-{
-    if (m_document.findCategory(categoryId) == nullptr)
-        return;
-
-    m_history.execute(std::make_unique<EditCategoryCommand>(m_document, categoryId, std::move(updated)));
-}
-
-void BudgetGrid::deleteCategory(const std::string& categoryId)
-{
-    if (m_document.findCategory(categoryId) == nullptr)
-        return;
-
-    m_history.execute(std::make_unique<DeleteCategoryCommand>(m_document, categoryId));
-}

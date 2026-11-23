@@ -12,12 +12,12 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/stack.h>
 
-class BudgetGrid;
+class BudgetController;
 
 class CategoriesManagerDialog : public Gtk::Dialog
 {
 public:
-    CategoriesManagerDialog(Window& parent, BudgetGrid& grid);
+    CategoriesManagerDialog(Window& parent, BudgetController& controller);
 
 private:
     static constexpr int CONTENT_SPACING = 8;
@@ -25,7 +25,7 @@ private:
     static constexpr int DEFAULT_WIDTH = 460;
     static constexpr int DEFAULT_HEIGHT = 420;
 
-    BudgetGrid& m_grid;
+    BudgetController& m_controller;
 
     Gtk::Box m_contentBox;
     SectionHeader m_header;

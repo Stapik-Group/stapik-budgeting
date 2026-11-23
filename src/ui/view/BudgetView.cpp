@@ -6,9 +6,11 @@
 
 #include <gtkmm/window.h>
 
-BudgetView::BudgetView() :
+BudgetView::BudgetView(BudgetController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_controller(controller),
     m_navBar(stapik::domain::YearMonth::current()),
+    m_grid(controller),
     m_bottomBar(Gtk::Orientation::HORIZONTAL, 0)
 {
     initLayout();
@@ -58,7 +60,7 @@ void BudgetView::initNavigation()
 
     m_addEntryButton.signal_clicked().connect([this] { showAddEntryDialog(); });
     m_grid.signalAddEntryRequested().connect([this] { showAddEntryDialog(); });
-    m_grid.cloud().signalStatusChanged().connect([this](const stapik::sync::SyncStatus) { refreshSyncStatus(); });
+    m_controller.cloud().signalStatusChanged().connect([this](const stapik::sync::SyncStatus) { refreshSyncStatus(); });
     m_grid.signalEditEntryRequested().connect([this](const std::size_t index) { showEditEntryDialog(index); });
 }
 
@@ -69,13 +71,8 @@ void BudgetView::refreshView()
 
 void BudgetView::refreshSyncStatus()
 {
-    m_syncStatus.set_visible(m_grid.cloud().isConnected());
-    m_syncStatus.setStatus(m_grid.cloud().status());
-}
-
-BudgetGrid& BudgetView::getBudgetGrid()
-{
-    return m_grid;
+    m_syncStatus.set_visible(m_controller.cloud().isConnected());
+    m_syncStatus.setStatus(m_controller.cloud().status());
 }
 
 void BudgetView::showAddEntryDialog()
@@ -84,14 +81,14 @@ void BudgetView::showAddEntryDialog()
     if (parent == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), m_grid.currency());
+    auto* dialog = new BudgetEntryDialog(*parent, m_controller.getCategories(), m_controller.currency());
 
     dialog->signal_response().connect([this, dialog](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
         {
             if (auto result = dialog->getResult(); result.has_value())
-                m_grid.addEntry(std::move(result.value()));
+                m_controller.addEntry(std::move(result.value()));
         }
         dialog->hide();
     });
@@ -106,18 +103,18 @@ void BudgetView::showEditEntryDialog(const std::size_t index)
     if (parent == nullptr)
         return;
 
-    const auto* existing = m_grid.getEntry(index);
+    const auto* existing = m_controller.getEntry(index);
     if (existing == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), m_grid.currency(), *existing);
+    auto* dialog = new BudgetEntryDialog(*parent, m_controller.getCategories(), m_controller.currency(), *existing);
 
     dialog->signal_response().connect([this, dialog, index](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
         {
             if (auto result = dialog->getResult(); result.has_value())
-                m_grid.editEntry(index, std::move(result.value()));
+                m_controller.editEntry(index, std::move(result.value()));
         }
         dialog->hide();
     });

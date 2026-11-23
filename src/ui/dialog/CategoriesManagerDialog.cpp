@@ -1,7 +1,7 @@
 #include "CategoriesManagerDialog.hpp"
 
 #include "CategoryDialog.hpp"
-#include "../view/BudgetGrid.hpp"
+#include "../../app/BudgetController.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/ui/widget/CategoryChip.hpp"
 
@@ -37,9 +37,9 @@ namespace
     }
 }
 
-CategoriesManagerDialog::CategoriesManagerDialog(Window& parent, BudgetGrid& grid) :
+CategoriesManagerDialog::CategoriesManagerDialog(Window& parent, BudgetController& controller) :
     Dialog(LocaleManager::instance().translate("dialog.categoriesManager.title"), parent, true),
-    m_grid(grid),
+    m_controller(controller),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING),
     m_header("dialog.categoriesManager.section"),
     m_emptyState(EMPTY_STATE_ICON, "dialog.categoriesManager.empty.title"),
@@ -112,7 +112,7 @@ void CategoriesManagerDialog::initLayout()
 void CategoriesManagerDialog::refreshList()
 {
     std::vector<Glib::RefPtr<CategoryItem>> items;
-    for (const auto& category : m_grid.getCategories())
+    for (const auto& category : m_controller.getCategories())
         items.push_back(CategoryItem::create(category));
 
     m_list.setItems(items);
@@ -140,7 +140,7 @@ void CategoriesManagerDialog::deleteSelected()
     if (item == nullptr)
         return;
 
-    m_grid.deleteCategory(item->category().id);
+    m_controller.deleteCategory(item->category().id);
     refreshList();
 }
 
@@ -154,7 +154,7 @@ void CategoriesManagerDialog::showAddCategoryDialog()
         {
             if (auto result = dialog->getResult(); result.has_value())
             {
-                m_grid.addCategory(std::move(result.value()));
+                m_controller.addCategory(std::move(result.value()));
                 refreshList();
             }
         }
@@ -167,7 +167,7 @@ void CategoriesManagerDialog::showAddCategoryDialog()
 
 void CategoriesManagerDialog::showEditCategoryDialog(const std::string& categoryId)
 {
-    const auto& categories = m_grid.getCategories();
+    const auto& categories = m_controller.getCategories();
     const auto it = std::ranges::find(categories, categoryId, &stapik::domain::Category::id);
 
     if (it == categories.end())
@@ -181,7 +181,7 @@ void CategoriesManagerDialog::showEditCategoryDialog(const std::string& category
         {
             if (auto result = dialog->getResult(); result.has_value())
             {
-                m_grid.editCategory(categoryId, std::move(result.value()));
+                m_controller.editCategory(categoryId, std::move(result.value()));
                 refreshList();
             }
         }

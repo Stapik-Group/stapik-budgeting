@@ -2,7 +2,7 @@
 
 #include "../action/MenuActionHandler.hpp"
 #include "../settings/BudgetCurrencySetting.hpp"
-#include "../view/BudgetGrid.hpp"
+#include "../../app/BudgetController.hpp"
 
 #include "stapik/theme/ThemeRegistry.hpp"
 #include "stapik/ui/menu/StandardMenu.hpp"
@@ -13,7 +13,7 @@
 class MainMenu
 {
 public:
-    MainMenu(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid, const stapik::theme::ThemeRegistry& themes);
+    MainMenu(Gtk::ApplicationWindow& window, BudgetController& controller, const stapik::theme::ThemeRegistry& themes);
 
     [[nodiscard]] Gtk::PopoverMenuBar& getMenuBar();
 

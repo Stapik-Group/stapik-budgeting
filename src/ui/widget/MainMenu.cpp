@@ -4,19 +4,19 @@
 
 namespace
 {
-    StandardMenuOptions menuOptions(BudgetGrid& budgetGrid, const stapik::theme::ThemeRegistry& themes)
+    StandardMenuOptions menuOptions(BudgetController& controller, const stapik::theme::ThemeRegistry& themes)
     {
         StandardMenuOptions options;
         options.themes = &themes;
-        options.undoStack = &budgetGrid.undoStack();
+        options.undoStack = &controller.undoStack();
         return options;
     }
 }
 
-MainMenu::MainMenu(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid, const stapik::theme::ThemeRegistry& themes) :
-    m_currencySetting(budgetGrid),
-    m_menu(window, menuOptions(budgetGrid, themes)),
-    m_actionHandler(window, budgetGrid)
+MainMenu::MainMenu(Gtk::ApplicationWindow& window, BudgetController& controller, const stapik::theme::ThemeRegistry& themes) :
+    m_currencySetting(controller),
+    m_menu(window, menuOptions(controller, themes)),
+    m_actionHandler(window, controller)
 {
     m_actionHandler.registerActions();
     m_currencySetting.addTo(m_menu.settings());

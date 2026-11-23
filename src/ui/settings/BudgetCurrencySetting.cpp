@@ -8,21 +8,21 @@
 #include <algorithm>
 #include <format>
 
-BudgetCurrencySetting::BudgetCurrencySetting(BudgetGrid& budgetGrid) :
-    m_budgetGrid(budgetGrid),
-    m_setting(stapik::settings::appSettingsStore(stapik::app::AppContext::instance().info().internalName), "currency", budgetGrid.currency().code)
+BudgetCurrencySetting::BudgetCurrencySetting(BudgetController& controller) :
+    m_controller(controller),
+    m_setting(stapik::settings::appSettingsStore(stapik::app::AppContext::instance().info().internalName), "currency", controller.currency().code)
 {
-    m_setting.set(m_budgetGrid.currency().code);
+    m_setting.set(m_controller.currency().code);
 
     m_setting.signalChanged().connect([this](const std::string& code)
     {
-        m_budgetGrid.changeCurrency(code);
-        m_setting.set(m_budgetGrid.currency().code);
+        m_controller.changeCurrency(code);
+        m_setting.set(m_controller.currency().code);
     });
 
-    m_budgetGrid.signalCurrencyChanged().connect([this]
+    m_controller.signalCurrencyChanged().connect([this]
     {
-        m_setting.set(m_budgetGrid.currency().code);
+        m_setting.set(m_controller.currency().code);
     });
 }
 

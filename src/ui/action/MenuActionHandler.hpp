@@ -19,8 +19,6 @@ private:
     Glib::RefPtr<Gio::SimpleAction> m_disconnectAction;
 
     void refreshCloudActions() const;
-    void onActionUndo() const;
-    void onActionRedo() const;
     void onActionManageCategories() const;
     void onActionConnect() const;
     void onActionSync() const;

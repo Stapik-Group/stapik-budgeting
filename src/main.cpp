@@ -4,6 +4,7 @@
 #include "stapik/app/StapikApplication.hpp"
 #include "stapik/app/version.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
 
 #include <string>
 
@@ -23,6 +24,8 @@ int main(const int argc, char *argv[])
 
     const auto app = stapik::app::StapikApplication::create(appInfo, options);
 
+    StandardMenu::installShortcuts(*app);
+
     app->signal_activate().connect([&app]
     {
         if (const auto windows = app->get_windows(); !windows.empty())
@@ -31,7 +34,7 @@ int main(const int argc, char *argv[])
             return;
         }
 
-        auto* window = new MainWindow();
+        auto* window = new MainWindow(app->themes());
         deleteOnHide(window);
         app->add_window(*window);
         window->present();

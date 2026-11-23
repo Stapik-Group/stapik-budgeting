@@ -21,8 +21,6 @@ public:
     explicit BudgetGrid();
 
     void displayMonth(const stapik::domain::YearMonth& month);
-    void undo();
-    void redo();
     bool connectToCloud(const CloudStorageConfig& config);
     void syncWithCloud();
     [[nodiscard]] stapik::sync::CloudSession<BudgetDocument>& cloud() { return m_cloud; }
@@ -62,6 +60,7 @@ private:
     Glib::RefPtr<Gtk::SizeGroup> m_actionsSizeGroup;
 
     stapik::command::UndoStack m_history;
+    bool m_historySilenced = false;
     stapik::sync::CloudSession<BudgetDocument> m_cloud;
 
     sigc::signal<void()> m_signalAddEntryRequested;
@@ -75,6 +74,8 @@ private:
     void populateRows();
     void appendRows(const BudgetPeriod& period);
     void commit();
+    void onHistoryChanged();
+    void clearHistory();
     void replaceDocument(BudgetDocument document);
     void onCloudDocumentReplaced(const BudgetDocument& document);
     void onCloudBaselineChanged(BudgetDocument::TimePoint baseline);

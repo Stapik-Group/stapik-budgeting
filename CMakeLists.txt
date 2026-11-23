@@ -47,6 +47,7 @@ stapik_add_application(
         src/infrastructure/storage/LegacyCurrencyPreference.cpp
         src/ui/widget/BudgetRowWidget.cpp
         src/ui/widget/CategoryColorPickerWidget.cpp
+        src/ui/settings/BudgetCurrencySetting.cpp
         src/ui/widget/MainMenu.cpp
         src/ui/dialog/CategoryDialog.cpp
         src/ui/dialog/BudgetEntryDialog.cpp

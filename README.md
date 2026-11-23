@@ -13,7 +13,7 @@ A desktop budgeting application for Linux, written in C++20 using GTK4/gtkmm. Tr
 * **Cloud sync** — save and load your budget via an external API, compatible with a self-hosted server, with automatic conflict resolution based on timestamps.
 * **Multilingual UI** — Polish, English and German interface with instant switching.
 * **Auto-save** — budget data is saved locally after every change.
-* **Three themes** — Classic, Modern and Classic Pink, switchable live from the menu.
+* **Five themes** — Classic, Modern, Classic Pink, Dark and Neoclassic, switchable live from the settings window.
 * **Retro aesthetic** — the Classic theme features the original old-school look with raised controls, blue accents and grey cells.
 
 ## Dependencies
@@ -135,19 +135,23 @@ Other application data is stored at:
 
 ```text
 ~/.local/share/stapikbudgeting/config.json
-~/.local/share/stapikbudgeting/locale.txt
-~/.local/share/stapikbudgeting/theme.txt
+~/.local/share/stapikbudgeting/settings.json
 ```
 
-Cloud configuration, language and theme preferences are kept separately from the synchronized budget document. The currency preference stored in `currency.txt` by version 1.0.0 is used as the currency of a newly created budget.
+Cloud configuration and the preferences (language, theme, font) are kept separately from the synchronized budget document. Preferences from earlier versions (`locale.txt`, `theme.txt`) are imported on the first start. The currency preference stored in `currency.txt` by version 1.0.0 is used as the currency of a newly created budget.
+
+## Settings
+
+**Settings → Settings…** opens one window with the language, the theme, the font and the currency of the budget. Every change is applied and saved at once. The Edit menu shows what Undo and Redo will do, for example "Undo Delete entry", and the usual shortcuts work: `Ctrl+Z`, `Ctrl+Shift+Z` and `Ctrl+Q`.
 
 ## Themes
 
-Switch between three themes from **Settings → Theme**:
+Choose a theme in the settings window:
 
 * **Classic** — the original retro look with raised controls, blue accents and grey cells.
 * **Modern** — a clean, flat and minimal appearance.
 * **Classic Pink** — the retro aesthetic with a pink color palette.
+* **Dark** and **Neoclassic** — themes shared by all Stapik applications.
 
 The theme applies instantly and is remembered between launches.
 
@@ -164,7 +168,7 @@ The theme applies instantly and is remembered between launches.
 * [x] Cloud sync with conflict resolution
 * [x] Auto-save
 * [x] `.deb` package for easier distribution
-* [x] Multiple themes (Classic / Modern / Classic Pink)
+* [x] Multiple themes (Classic / Modern / Classic Pink / Dark / Neoclassic)
 * [ ] Import from an existing spreadsheet (CSV/XLSX)
 * [ ] Budget statistics and charts
 * [ ] Flatpak package

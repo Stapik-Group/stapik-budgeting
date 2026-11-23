@@ -1,23 +1,6 @@
 {
-  "menu.file": "Plik",
-  "menu.file.connect": "Połącz z chmurą",
-  "menu.file.sync": "Synchronizuj",
   "menu.file.disconnect": "Rozłącz z chmurą",
-  "menu.file.quit": "Wyjście",
-  "menu.edit": "Edycja",
-  "menu.edit.undo": "Cofnij",
-  "menu.edit.redo": "Ponów",
   "menu.edit.manageCategories": "Kategorie…",
-  "menu.settings": "Ustawienia",
-  "menu.settings.currency": "Waluta",
-  "menu.settings.language": "Język",
-  "menu.settings.language.pl": "Polski",
-  "menu.settings.language.en": "Angielski",
-  "menu.settings.language.de": "Niemiecki",
-  "menu.settings.theme": "Motyw",
-  "menu.settings.theme.classic": "Klasyczny",
-  "menu.settings.theme.classicPink": "Klasyczny różowy",
-  "menu.settings.theme.modern": "Nowoczesny",
 
   "view.toolbar.addEntry": "+ Dodaj pozycję",
   "view.header.category": "Kategoria",
@@ -66,7 +49,6 @@
   "dialog.entry.type.label": "Typ",
   "dialog.entry.type.expense": "Wydatek",
   "dialog.entry.type.income": "Wpływ",
-
 
   "cloud.connected": "Połączono",
   "cloud.connected.secondary": "Pomyślnie połączono z chmurą.",

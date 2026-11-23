@@ -3,6 +3,8 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
 
+#include "stapik/theme/ThemeRegistry.hpp"
+
 #include "CloudNotifications.hpp"
 #include "../widget/MainMenu.hpp"
 #include "../view/BudgetView.hpp"
@@ -10,7 +12,7 @@
 class MainWindow : public Gtk::ApplicationWindow
 {
 public:
-    explicit MainWindow();
+    explicit MainWindow(const stapik::theme::ThemeRegistry& themes);
     ~MainWindow() override = default;
 
 private:

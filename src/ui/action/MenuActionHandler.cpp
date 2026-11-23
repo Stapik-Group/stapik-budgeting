@@ -13,8 +13,6 @@ MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid&
 
 void MenuActionHandler::registerActions()
 {
-    m_window.add_action("undo", sigc::mem_fun(*this, &MenuActionHandler::onActionUndo));
-    m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
     m_window.add_action("manageCategories", sigc::mem_fun(*this, &MenuActionHandler::onActionManageCategories));
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
     m_syncAction = m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
@@ -29,16 +27,6 @@ void MenuActionHandler::refreshCloudActions() const
     const auto connected = m_budgetGrid.cloud().isConnected();
     m_syncAction->set_enabled(connected);
     m_disconnectAction->set_enabled(connected);
-}
-
-void MenuActionHandler::onActionUndo() const
-{
-    m_budgetGrid.undo();
-}
-
-void MenuActionHandler::onActionRedo() const
-{
-    m_budgetGrid.redo();
 }
 
 void MenuActionHandler::onActionManageCategories() const

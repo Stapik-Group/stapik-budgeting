@@ -1,30 +1,26 @@
 #pragma once
 
+#include "../action/MenuActionHandler.hpp"
+#include "../settings/BudgetCurrencySetting.hpp"
+#include "../view/BudgetGrid.hpp"
+
+#include "stapik/theme/ThemeRegistry.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
+
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/popovermenubar.h>
-#include <giomm/menu.h>
-#include <giomm/simpleaction.h>
-
-#include "../action/MenuActionHandler.hpp"
-#include "../view/BudgetGrid.hpp"
 
 class MainMenu
 {
 public:
-    explicit MainMenu(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid);
-    ~MainMenu() = default;
-    Gtk::PopoverMenuBar& getMenuBar();
+    MainMenu(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid, const stapik::theme::ThemeRegistry& themes);
+
+    [[nodiscard]] Gtk::PopoverMenuBar& getMenuBar();
 
 private:
-    Gtk::ApplicationWindow& m_window;
-    BudgetGrid& m_budgetGrid;
-    MenuActionHandler m_actionHandler;
-    Glib::RefPtr<Gio::SimpleAction> m_currencyAction;
-    Glib::RefPtr<Gio::Menu> m_menuModel;
-    Gtk::PopoverMenuBar m_menuBar;
+    void addBudgetItems();
 
-    void buildModel();
-    void initLanguageAction() const;
-    void initThemeAction() const;
-    void initCurrencyAction();
+    BudgetCurrencySetting m_currencySetting;
+    StandardMenu m_menu;
+    MenuActionHandler m_actionHandler;
 };

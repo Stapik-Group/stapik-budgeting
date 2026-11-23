@@ -1,23 +1,6 @@
 {
-  "menu.file": "File",
-  "menu.file.connect": "Connect to cloud",
-  "menu.file.sync": "Sync",
   "menu.file.disconnect": "Disconnect from cloud",
-  "menu.file.quit": "Exit",
-  "menu.edit": "Edit",
-  "menu.edit.undo": "Undo",
-  "menu.edit.redo": "Redo",
   "menu.edit.manageCategories": "Categories…",
-  "menu.settings": "Settings",
-  "menu.settings.currency": "Currency",
-  "menu.settings.language": "Language",
-  "menu.settings.language.pl": "Polish",
-  "menu.settings.language.en": "English",
-  "menu.settings.language.de": "German",
-  "menu.settings.theme": "Theme",
-  "menu.settings.theme.classic": "Classic",
-  "menu.settings.theme.classicPink": "Classic Pink",
-  "menu.settings.theme.modern": "Modern",
 
   "view.toolbar.addEntry": "+ Add entry",
   "view.header.category": "Category",
@@ -42,7 +25,6 @@
 
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Cancel",
-
 
   "dialog.category.new.title": "New category",
   "dialog.category.edit.title": "Edit category",

@@ -38,6 +38,7 @@ BudgetGrid::BudgetGrid() :
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
+    m_history.signalChanged().connect(sigc::mem_fun(*this, &BudgetGrid::onHistoryChanged));
     m_cloud.signalDocumentReplaced().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudDocumentReplaced));
     m_cloud.signalBaselineChanged().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudBaselineChanged));
 
@@ -138,8 +139,6 @@ void BudgetGrid::deleteEntryAt(const std::size_t index)
         return;
 
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_document, m_month, index));
-    commit();
-    populateRows();
 }
 
 void BudgetGrid::moveEntryUp(const std::size_t index)
@@ -148,8 +147,6 @@ void BudgetGrid::moveEntryUp(const std::size_t index)
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index - 1));
-    commit();
-    populateRows();
 }
 
 void BudgetGrid::moveEntryDown(const std::size_t index)
@@ -158,15 +155,11 @@ void BudgetGrid::moveEntryDown(const std::size_t index)
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index + 1));
-    commit();
-    populateRows();
 }
 
 void BudgetGrid::addEntry(BudgetEntry entry)
 {
     m_history.execute(std::make_unique<AddEntryCommand>(m_document, m_month, std::move(entry)));
-    commit();
-    populateRows();
 }
 
 void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
@@ -175,26 +168,22 @@ void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
         return;
 
     m_history.execute(std::make_unique<EditEntryCommand>(m_document, m_month, index, std::move(entry)));
-    commit();
-    populateRows();
 }
 
-void BudgetGrid::undo()
+void BudgetGrid::onHistoryChanged()
 {
-    if (!m_history.undo())
+    if (m_historySilenced)
         return;
 
     commit();
     populateRows();
 }
 
-void BudgetGrid::redo()
+void BudgetGrid::clearHistory()
 {
-    if (!m_history.redo())
-        return;
-
-    commit();
-    populateRows();
+    m_historySilenced = true;
+    m_history.clear();
+    m_historySilenced = false;
 }
 
 void BudgetGrid::commit()
@@ -211,7 +200,7 @@ void BudgetGrid::replaceDocument(BudgetDocument document)
     m_document = std::move(document);
 
     if (contentReplaced)
-        m_history.clear();
+        clearHistory();
 
     if (currencyChanged)
         m_signalCurrencyChanged.emit();
@@ -238,7 +227,7 @@ void BudgetGrid::changeCurrency(const std::string& code)
         return;
     }
 
-    m_history.clear();
+    clearHistory();
     commit();
     populateRows();
     m_signalCurrencyChanged.emit();
@@ -294,7 +283,6 @@ const BudgetEntry* BudgetGrid::getEntry(const std::size_t index) const
 void BudgetGrid::addCategory(stapik::domain::Category category)
 {
     m_history.execute(std::make_unique<AddCategoryCommand>(m_document, std::move(category)));
-    commit();
 }
 
 void BudgetGrid::editCategory(const std::string& categoryId, stapik::domain::Category updated)
@@ -303,8 +291,6 @@ void BudgetGrid::editCategory(const std::string& categoryId, stapik::domain::Cat
         return;
 
     m_history.execute(std::make_unique<EditCategoryCommand>(m_document, categoryId, std::move(updated)));
-    commit();
-    populateRows();
 }
 
 void BudgetGrid::deleteCategory(const std::string& categoryId)
@@ -313,6 +299,4 @@ void BudgetGrid::deleteCategory(const std::string& categoryId)
         return;
 
     m_history.execute(std::make_unique<DeleteCategoryCommand>(m_document, categoryId));
-    commit();
-    populateRows();
 }

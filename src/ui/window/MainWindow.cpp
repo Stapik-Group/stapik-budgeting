@@ -2,9 +2,9 @@
 
 #include "stapik/app/version.hpp"
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
-    m_mainMenu(*this, m_budgetView.getBudgetGrid()),
+    m_mainMenu(*this, m_budgetView.getBudgetGrid(), themes),
     m_cloudNotifications(*this, m_budgetView.getBudgetGrid().cloud())
 {
     init();

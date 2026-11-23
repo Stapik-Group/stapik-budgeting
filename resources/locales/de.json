@@ -1,23 +1,6 @@
 {
-  "menu.file": "Datei",
-  "menu.file.connect": "Mit Cloud verbinden",
-  "menu.file.sync": "Synchronisieren",
   "menu.file.disconnect": "Von der Cloud trennen",
-  "menu.file.quit": "Beenden",
-  "menu.edit": "Bearbeiten",
-  "menu.edit.undo": "Rückgängig",
-  "menu.edit.redo": "Wiederholen",
   "menu.edit.manageCategories": "Kategorien…",
-  "menu.settings": "Einstellungen",
-  "menu.settings.currency": "Währung",
-  "menu.settings.language": "Sprache",
-  "menu.settings.language.pl": "Polnisch",
-  "menu.settings.language.en": "Englisch",
-  "menu.settings.language.de": "Deutsch",
-  "menu.settings.theme": "Thema",
-  "menu.settings.theme.classic": "Klassisch",
-  "menu.settings.theme.classicPink": "Klassisch Pink",
-  "menu.settings.theme.modern": "Modern",
 
   "view.toolbar.addEntry": "+ Position hinzufügen",
   "view.header.category": "Kategorie",
@@ -66,7 +49,6 @@
   "dialog.entry.type.label": "Typ",
   "dialog.entry.type.expense": "Ausgabe",
   "dialog.entry.type.income": "Einnahme",
-
 
   "category.uncategorized": "Ohne Kategorie",
 

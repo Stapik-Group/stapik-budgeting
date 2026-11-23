@@ -41,6 +41,8 @@ target_link_libraries(stapikbudgeting_tests PRIVATE
         GTest::gtest_main
 )
 
+target_include_directories(stapikbudgeting_tests PRIVATE ${BUDGETING_SOURCES})
+
 target_compile_options(stapikbudgeting_tests PRIVATE -Wall -Wextra -Wpedantic)
 
 gtest_discover_tests(stapikbudgeting_tests)

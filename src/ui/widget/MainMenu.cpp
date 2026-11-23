@@ -1,6 +1,7 @@
 #include "MainMenu.hpp"
 
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/storage/AppPaths.hpp"
 
 namespace
 {
@@ -8,6 +9,7 @@ namespace
     {
         StandardMenuOptions options;
         options.themes = &themes;
+        options.tutorialDirectory = AppPaths::resourcesDir() / "tutorial";
         options.undoStack = &controller.undoStack();
         return options;
     }

@@ -13,6 +13,7 @@ A desktop budgeting application for Linux, written in C++20 using GTK4/gtkmm. Tr
 * **Cloud sync** — save and load your budget via an external API, compatible with a self-hosted server, with automatic conflict resolution based on timestamps.
 * **Multilingual UI** — Polish, English and German interface with instant switching.
 * **Auto-save** — budget data is saved locally after every change.
+* **Built-in tutorial** — **Help → Tutorial** (`F1`) in Polish, English and German.
 * **Five themes** — Classic, Modern, Classic Pink, Dark and Neoclassic, switchable live from the settings window.
 * **Retro aesthetic** — the Classic theme features the original old-school look with raised controls, blue accents and grey cells.
 

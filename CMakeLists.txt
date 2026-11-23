@@ -67,3 +67,9 @@ stapik_add_application(
         src/ui/window/CloudNotifications.cpp
         src/ui/window/MainWindow.cpp
         LINK_LIBRARIES PkgConfig::GTKMM nlohmann_json::nlohmann_json)
+
+option(BUILD_TESTING "Build the unit tests" OFF)
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

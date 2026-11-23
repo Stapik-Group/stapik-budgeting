@@ -43,6 +43,10 @@
   "dialog.entry.actual.label": "Wykonana kwota (puste = jeszcze nieopłacone)",
 
   "dialog.categoriesManager.title": "Kategorie",
+  "dialog.categoriesManager.section": "Twoje kategorie",
+  "dialog.categoriesManager.column.name": "Kategoria",
+  "dialog.categoriesManager.empty.title": "Brak kategorii",
+  "dialog.categoriesManager.empty.description": "Dodaj kategorię, aby grupować przychody i wydatki.",
   "dialog.categoriesManager.button.add": "Dodaj kategorię",
   "dialog.categoriesManager.button.edit": "Edytuj",
   "dialog.categoriesManager.button.delete": "Usuń",

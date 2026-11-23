@@ -43,6 +43,10 @@
   "dialog.entry.actual.label": "Tatsächlicher Betrag (leer = noch nicht bezahlt)",
 
   "dialog.categoriesManager.title": "Kategorien",
+  "dialog.categoriesManager.section": "Deine Kategorien",
+  "dialog.categoriesManager.column.name": "Kategorie",
+  "dialog.categoriesManager.empty.title": "Keine Kategorien",
+  "dialog.categoriesManager.empty.description": "Füge eine Kategorie hinzu, um Einnahmen und Ausgaben zu gruppieren.",
   "dialog.categoriesManager.button.add": "Kategorie hinzufügen",
   "dialog.categoriesManager.button.edit": "Bearbeiten",
   "dialog.categoriesManager.button.delete": "Löschen",

@@ -43,6 +43,10 @@
   "dialog.entry.actual.label": "Actual amount (empty = not paid yet)",
 
   "dialog.categoriesManager.title": "Categories",
+  "dialog.categoriesManager.section": "Your categories",
+  "dialog.categoriesManager.column.name": "Category",
+  "dialog.categoriesManager.empty.title": "No categories",
+  "dialog.categoriesManager.empty.description": "Add a category to group your income and expenses.",
   "dialog.categoriesManager.button.add": "Add category",
   "dialog.categoriesManager.button.edit": "Edit",
   "dialog.categoriesManager.button.delete": "Delete",

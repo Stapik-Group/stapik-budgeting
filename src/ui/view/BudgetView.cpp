@@ -8,13 +8,14 @@
 
 BudgetView::BudgetView() :
     Box(Gtk::Orientation::VERTICAL, 0),
-    m_month(stapik::domain::YearMonth::current()),
+    m_navBar(stapik::domain::YearMonth::current()),
     m_bottomBar(Gtk::Orientation::HORIZONTAL, 0)
 {
     initLayout();
     initBottomBar();
     initNavigation();
     refreshView();
+    refreshSyncStatus();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { updateLabels(); });
 }
@@ -34,12 +35,15 @@ void BudgetView::initLayout()
 
 void BudgetView::initBottomBar()
 {
-    m_bottomBar.set_halign(Gtk::Align::END);
     m_bottomBar.set_margin(BOTTOM_BAR_MARGIN);
+
+    m_syncStatus.set_hexpand(true);
+    m_syncStatus.set_valign(Gtk::Align::CENTER);
 
     m_addEntryButton.add_css_class("suggested-action");
     updateLabels();
 
+    m_bottomBar.append(m_syncStatus);
     m_bottomBar.append(m_addEntryButton);
 }
 
@@ -50,29 +54,23 @@ void BudgetView::updateLabels()
 
 void BudgetView::initNavigation()
 {
-    m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &BudgetView::navigatePrevMonth));
-    m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &BudgetView::navigateNextMonth));
+    m_navBar.signalMonthChanged().connect(sigc::mem_fun(*this, &BudgetView::refreshView));
 
     m_addEntryButton.signal_clicked().connect([this] { showAddEntryDialog(); });
+    m_grid.signalAddEntryRequested().connect([this] { showAddEntryDialog(); });
+    m_grid.cloud().signalStatusChanged().connect([this](const stapik::sync::SyncStatus) { refreshSyncStatus(); });
     m_grid.signalEditEntryRequested().connect([this](const std::size_t index) { showEditEntryDialog(index); });
-}
-
-void BudgetView::navigatePrevMonth()
-{
-    m_month = m_month.previous();
-    refreshView();
-}
-
-void BudgetView::navigateNextMonth()
-{
-    m_month = m_month.next();
-    refreshView();
 }
 
 void BudgetView::refreshView()
 {
-    m_navBar.updateDisplay(m_month);
-    m_grid.displayMonth(m_month);
+    m_grid.displayMonth(m_navBar.month());
+}
+
+void BudgetView::refreshSyncStatus()
+{
+    m_syncStatus.set_visible(m_grid.cloud().isConnected());
+    m_syncStatus.setStatus(m_grid.cloud().status());
 }
 
 BudgetGrid& BudgetView::getBudgetGrid()

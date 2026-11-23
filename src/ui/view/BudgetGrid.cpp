@@ -25,10 +25,14 @@
 namespace
 {
     constexpr int ROWS_BOX_SPACING = 2;
+    constexpr auto ROWS_PAGE = "rows";
+    constexpr auto EMPTY_PAGE = "empty";
+    constexpr auto EMPTY_STATE_ICON = "view-list-symbolic";
 }
 
 BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_emptyState(EMPTY_STATE_ICON, "view.empty.title"),
     m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING),
     m_document(m_store.load()),
     m_month(stapik::domain::YearMonth::current()),
@@ -59,7 +63,16 @@ void BudgetGrid::initLayout()
     m_scrolledWindow.set_vexpand(true);
     m_scrolledWindow.set_child(m_rowsBox);
 
-    append(m_scrolledWindow);
+    m_emptyState.setDescriptionKey("view.empty.description");
+    m_emptyState.setActionKey("view.toolbar.addEntry");
+    m_emptyState.signalAction().connect([this] { m_signalAddEntryRequested.emit(); });
+
+    m_stack.set_hexpand(true);
+    m_stack.set_vexpand(true);
+    m_stack.add(m_scrolledWindow, ROWS_PAGE);
+    m_stack.add(m_emptyState, EMPTY_PAGE);
+
+    append(m_stack);
 }
 
 void BudgetGrid::bindHeader(BudgetHeader& header) const
@@ -102,8 +115,13 @@ void BudgetGrid::populateRows()
     while (auto* child = m_rowsBox.get_first_child())
         m_rowsBox.remove(*child);
 
-    if (const auto* period = findCurrentPeriod())
+    const auto* period = findCurrentPeriod();
+    const auto hasRows = period != nullptr && !period->getEntries().empty();
+
+    if (hasRows)
         appendRows(*period);
+
+    m_stack.set_visible_child(hasRows ? ROWS_PAGE : EMPTY_PAGE);
 }
 
 void BudgetGrid::appendRows(const BudgetPeriod& period)

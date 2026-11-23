@@ -3,6 +3,8 @@
   "menu.edit.manageCategories": "Kategorie…",
 
   "view.toolbar.addEntry": "+ Dodaj pozycję",
+  "view.empty.title": "Brak pozycji w tym miesiącu",
+  "view.empty.description": "Dodaj pierwszy przychód lub wydatek, aby zacząć planować ten miesiąc.",
   "view.header.category": "Kategoria",
   "view.header.expense": "Wydatek",
   "view.header.planned": "Planowany",

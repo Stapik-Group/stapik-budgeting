@@ -1,13 +1,11 @@
 #include "BudgetNavBar.hpp"
 
-#include "stapik/locale/LocaleManager.hpp"
-
-BudgetNavBar::BudgetNavBar() : Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING)
+BudgetNavBar::BudgetNavBar(const stapik::domain::YearMonth& month) :
+    Box(Gtk::Orientation::HORIZONTAL, BOX_SPACING),
+    m_monthPicker(month)
 {
     initButtons();
     initLayout();
-
-    LocaleManager::instance().signalLocaleChanged().connect([this] { updateDisplay(m_displayedMonth); });
 }
 
 void BudgetNavBar::initButtons()
@@ -15,8 +13,8 @@ void BudgetNavBar::initButtons()
     m_btnPrevMonth.set_label("◀");
     m_btnNextMonth.set_label("▶");
 
-    m_btnPrevMonth.signal_clicked().connect([this] { m_signalPrevMonth.emit(); });
-    m_btnNextMonth.signal_clicked().connect([this] { m_signalNextMonth.emit(); });
+    m_btnPrevMonth.signal_clicked().connect([this] { m_monthPicker.setMonth(m_monthPicker.month().previous()); });
+    m_btnNextMonth.signal_clicked().connect([this] { m_monthPicker.setMonth(m_monthPicker.month().next()); });
 }
 
 void BudgetNavBar::initLayout()
@@ -25,19 +23,19 @@ void BudgetNavBar::initLayout()
     set_halign(Gtk::Align::CENTER);
     set_margin(BOX_MARGIN);
 
+    m_monthPicker.set_size_request(PICKER_MIN_WIDTH, -1);
+
     append(m_btnPrevMonth);
-    append(m_currentLabel);
+    append(m_monthPicker);
     append(m_btnNextMonth);
-
-    m_currentLabel.set_width_chars(LABEL_WIDTH_CHARS);
-    m_currentLabel.set_halign(Gtk::Align::CENTER);
 }
 
-void BudgetNavBar::updateDisplay(const stapik::domain::YearMonth& month)
+const stapik::domain::YearMonth& BudgetNavBar::month() const
 {
-    m_displayedMonth = month;
-    m_currentLabel.set_text(month.label(LocaleManager::instance()));
+    return m_monthPicker.month();
 }
 
-sigc::signal<void()>& BudgetNavBar::signalPrevMonth() { return m_signalPrevMonth; }
-sigc::signal<void()>& BudgetNavBar::signalNextMonth() { return m_signalNextMonth; }
+sigc::signal<void()>& BudgetNavBar::signalMonthChanged()
+{
+    return m_monthPicker.signalMonthChanged();
+}

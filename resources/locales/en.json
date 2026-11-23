@@ -3,6 +3,8 @@
   "menu.edit.manageCategories": "Categories…",
 
   "view.toolbar.addEntry": "+ Add entry",
+  "view.empty.title": "No entries this month",
+  "view.empty.description": "Add your first income or expense to start planning this month.",
   "view.header.category": "Category",
   "view.header.expense": "Expense",
   "view.header.planned": "Planned",

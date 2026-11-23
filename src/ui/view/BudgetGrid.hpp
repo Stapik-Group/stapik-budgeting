@@ -11,9 +11,12 @@
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/sizegroup.h>
+#include <gtkmm/stack.h>
 #include <memory>
 
 #include "BudgetHeader.hpp"
+
+#include "stapik/ui/widget/EmptyState.hpp"
 
 class BudgetGrid : public Gtk::Box
 {
@@ -48,7 +51,9 @@ public:
     void editCategory(const std::string& categoryId, stapik::domain::Category updated);
     void deleteCategory(const std::string& categoryId);
 private:
+    Gtk::Stack m_stack;
     Gtk::ScrolledWindow m_scrolledWindow;
+    EmptyState m_emptyState;
     Box m_rowsBox;
 
     BudgetDocumentStore m_store;

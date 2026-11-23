@@ -1,17 +1,11 @@
 #include "MenuActionHandler.hpp"
 
-#include "../../AppInfo.hpp"
-
-#include "stapik/cloud/CloudStorageException.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 #include "stapik/log/Log.hpp"
-#include "stapik/storage/CloudStorageConfigStorage.hpp"
 #include "stapik/ui/dialog/ConnectDialog.hpp"
 #include "stapik/ui/dialog/DialogUtils.hpp"
 
 #include "../dialog/CategoriesManagerDialog.hpp"
-
-#include <tuple>
 
 MenuActionHandler::MenuActionHandler(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid):
     m_window(window),
@@ -23,7 +17,18 @@ void MenuActionHandler::registerActions()
     m_window.add_action("redo", sigc::mem_fun(*this, &MenuActionHandler::onActionRedo));
     m_window.add_action("manageCategories", sigc::mem_fun(*this, &MenuActionHandler::onActionManageCategories));
     m_window.add_action("connect", sigc::mem_fun(*this, &MenuActionHandler::onActionConnect));
-    m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
+    m_syncAction = m_window.add_action("sync", sigc::mem_fun(*this, &MenuActionHandler::onActionSync));
+    m_disconnectAction = m_window.add_action("disconnect", sigc::mem_fun(*this, &MenuActionHandler::onActionDisconnect));
+
+    m_budgetGrid.cloud().signalStatusChanged().connect([this](stapik::sync::SyncStatus) { refreshCloudActions(); });
+    refreshCloudActions();
+}
+
+void MenuActionHandler::refreshCloudActions() const
+{
+    const auto connected = m_budgetGrid.cloud().isConnected();
+    m_syncAction->set_enabled(connected);
+    m_disconnectAction->set_enabled(connected);
 }
 
 void MenuActionHandler::onActionUndo() const
@@ -45,53 +50,33 @@ void MenuActionHandler::onActionManageCategories() const
 
 void MenuActionHandler::onActionConnect() const
 {
-    auto* dialog = new ConnectDialog(m_window);
-
-    if (const auto config = CloudStorageConfigStorage::load(APP_NAME); config.has_value())
-        dialog->prefillConfig(config.value());
-
-    dialog->signal_response().connect([this, dialog](const int responseId)
+    showConnectDialog(m_window, m_budgetGrid.cloud().config(), [this](const CloudStorageConfig& config)
     {
-        if (responseId == Gtk::ResponseType::OK)
-        {
-            if (const auto result = dialog->getResult(); result.has_value())
-                handleConnectResult(result.value());
-        }
-        dialog->hide();
+        applyCloudConfig(config);
     });
-
-    dialog->signal_hide().connect([dialog] { delete dialog; });
-    dialog->show();
-}
-
-void MenuActionHandler::handleConnectResult(const CloudStorageConfig& config) const
-{
-    CloudStorageConfigStorage::save(config, APP_NAME);
-    applyCloudConfig(config);
 }
 
 void MenuActionHandler::applyCloudConfig(const CloudStorageConfig& config) const
 {
     const auto& loc = LocaleManager::instance();
 
-    try
+    if (m_budgetGrid.connectToCloud(config))
     {
-        auto client = std::make_unique<CloudStorageClient>(config, BUDGET_FILENAME);
-        std::ignore = client->loadDocument();
-
-        m_budgetGrid.setCloudClient(std::move(client));
-
         stapik::log::info("[Cloud] Connected: {}", config.apiUrl);
         showMessageDialog(m_window, loc.translate("cloud.connected"), loc.translate("cloud.connected.secondary"));
+        return;
     }
-    catch (const CloudStorageException& e)
-    {
-        stapik::log::warning("[Cloud] Cloud connection error: {}", e.what());
-        showMessageDialog(m_window, loc.translate("cloud.failed.header"), e.what());
-    }
+
+    stapik::log::warning("[Cloud] Cannot connect to {}", config.apiUrl);
+    showMessageDialog(m_window, loc.translate("cloud.failed.header"), loc.translate("cloud.failed.secondary"));
 }
 
 void MenuActionHandler::onActionSync() const
 {
-    m_budgetGrid.retrySync();
+    m_budgetGrid.syncWithCloud();
+}
+
+void MenuActionHandler::onActionDisconnect() const
+{
+    m_budgetGrid.cloud().disconnect();
 }

@@ -1,8 +1,8 @@
 #include "BudgetAmountsMigration.hpp"
 
-#include "../../core/model/BudgetAmountKeys.hpp"
-#include "../../core/model/BudgetDocument.hpp"
-#include "../../core/model/ResolveCurrency.hpp"
+#include "BudgetAmountKeys.hpp"
+#include "BudgetDocument.hpp"
+#include "ResolveCurrency.hpp"
 
 #include "stapik/domain/Money.hpp"
 

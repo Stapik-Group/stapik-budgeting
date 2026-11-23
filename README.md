@@ -103,21 +103,19 @@ Uninstalling the application does not remove your budget data, cloud configurati
 
 ## Cloud Sync
 
-The app supports synchronization via [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) 1.2.0 or newer. Go to **File → Connect**, enter the server URL and API key. If a connection is already configured, the app reconnects automatically on startup.
+The app supports synchronization via [Stapik Cloud](https://github.com/Stapik-Group/stapik-cloud) 1.2.0 or newer. Go to **File → Connect**, enter the server URL and API key, and optionally an end-to-end encryption passphrase. If a connection is already configured, the app reconnects automatically on startup. **File → Disconnect** forgets the connection, the API key and the passphrase; the local budget is not touched.
 
-Once connected, the app compares the local budget and the cloud copy using a `lastUpdate` timestamp and keeps whichever one is newer, overwriting the other **as a whole document**. There is no field-level or entry-level merging — if both copies changed since the last sync, the older document is fully replaced.
+Synchronization runs in the background, so the window never waits for the network. Every change is saved locally first and sent to the cloud shortly afterwards. When the server is unreachable, the change stays in the local file and is retried with growing delays. You can also trigger a synchronization manually from **File → Sync**, and pending changes are sent when the window is closed.
 
-Budget data is saved locally after every change, and the app also attempts to push it to the cloud immediately. Changes to the budget currency are treated as budget changes and are synchronized as well.
+On connecting, the app compares the local budget and the cloud copy by their `lastUpdate` timestamps and keeps the newer one, replacing the other **as a whole document**. There is no field-level or entry-level merging. If another device saved in the meantime, the cloud rejects the write, the app fetches the server's copy and either accepts it or retries once, depending on which one is newer.
+
+With an end-to-end encryption passphrase the server only sees encrypted data. Without the passphrase the data cannot be recovered, so enter the same one on every device. The app warns when the API key is about to expire and when the cloud refuses a sync for a reason that retrying cannot fix (a rejected key, a wrong passphrase, a document that is too large or unreadable).
 
 Amounts are stored as integer minor units, so the cloud copy written by this version cannot be read by version 1.0.0. Update every device that shares a budget.
-
-Writes use optimistic concurrency checking: if another device saved a newer version in the meantime, the write is rejected, the server's copy is fetched, and the app retries once against that version before falling back to accepting the server's version. If the cloud is unreachable, the change remains saved locally and will be retried on the next save. You can also trigger synchronization manually from **File → Sync**.
 
 **Caution for multi-device use:** because conflict resolution operates on the whole document, editing the budget offline on two different machines before either one reconnects can cause one set of changes to be discarded. Stapik Cloud keeps a version history of every write, so a discarded document is not permanently lost, but the application does not currently expose a way to browse or restore previous versions. If you use the app on multiple devices, synchronize regularly to avoid overwriting your own changes.
 
 The app communicates with the Stapik Cloud `/documents/{slotKey}` endpoint using an `x-api-key` header.
-
-If you're upgrading from an app version that used an older, incompatible cloud protocol, the app detects this automatically on first launch and clears the saved connection. You will need to reconnect once via **File → Connect**.
 
 ## Data Storage
 

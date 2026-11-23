@@ -3,9 +3,10 @@
 #include "../../core/model/BudgetDocument.hpp"
 #include "../../infrastructure/storage/BudgetDocumentStore.hpp"
 
-#include "stapik/cloud/CloudStorageClient.hpp"
+#include "stapik/cloud/CloudStorageConfig.hpp"
 #include "stapik/command/UndoStack.hpp"
 #include "stapik/domain/Currency.hpp"
+#include "stapik/sync/CloudSession.hpp"
 
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
@@ -22,8 +23,9 @@ public:
     void displayMonth(const stapik::domain::YearMonth& month);
     void undo();
     void redo();
-    void setCloudClient(std::unique_ptr<CloudStorageClient> client);
-    void retrySync();
+    bool connectToCloud(const CloudStorageConfig& config);
+    void syncWithCloud();
+    [[nodiscard]] stapik::sync::CloudSession<BudgetDocument>& cloud() { return m_cloud; }
     void bindHeader(BudgetHeader& header) const;
 
     [[nodiscard]] stapik::command::UndoStack& undoStack() { return m_history; }
@@ -60,7 +62,7 @@ private:
     Glib::RefPtr<Gtk::SizeGroup> m_actionsSizeGroup;
 
     stapik::command::UndoStack m_history;
-    std::unique_ptr<CloudStorageClient> m_cloudClient;
+    stapik::sync::CloudSession<BudgetDocument> m_cloud;
 
     sigc::signal<void()> m_signalAddEntryRequested;
     sigc::signal<void(std::size_t)> m_signalEditEntryRequested;
@@ -74,5 +76,7 @@ private:
     void appendRows(const BudgetPeriod& period);
     void commit();
     void replaceDocument(BudgetDocument document);
-    void syncFromCloud();
+    void onCloudDocumentReplaced(const BudgetDocument& document);
+    void onCloudBaselineChanged(BudgetDocument::TimePoint baseline);
+    [[nodiscard]] bool hasEntryAt(std::size_t index) const;
 };

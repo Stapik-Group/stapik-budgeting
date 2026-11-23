@@ -2,6 +2,7 @@
   "menu.file": "Plik",
   "menu.file.connect": "Połącz z chmurą",
   "menu.file.sync": "Synchronizuj",
+  "menu.file.disconnect": "Rozłącz z chmurą",
   "menu.file.quit": "Wyjście",
   "menu.edit": "Edycja",
   "menu.edit.undo": "Cofnij",
@@ -66,15 +67,17 @@
   "dialog.entry.type.expense": "Wydatek",
   "dialog.entry.type.income": "Wpływ",
 
-  "dialog.connect.title": "Połącz z chmurą",
-  "dialog.connect.url.label": "Adres API",
-  "dialog.connect.key.label": "Klucz API",
-  "dialog.connect.key.placeholder": "Wprowadź klucz",
-  "dialog.connect.button.connect": "Połącz",
 
   "cloud.connected": "Połączono",
   "cloud.connected.secondary": "Pomyślnie połączono z chmurą.",
   "cloud.failed.header": "Nie udało się połączyć",
+  "cloud.failed.secondary": "Sprawdź adres API i klucz.",
+  "cloud.apiKeyExpiring.header": "Klucz API wygasa",
+  "cloud.syncFailed.header": "Synchronizacja nie powiodła się",
+  "cloud.syncFailed.authRejected": "Chmura odrzuciła klucz API. Połącz się ponownie z ważnym kluczem.",
+  "cloud.syncFailed.decryptionFailed": "Nie udało się odszyfrować danych z chmury. Sprawdź hasło szyfrowania end-to-end.",
+  "cloud.syncFailed.documentTooLarge": "Budżet jest zbyt duży, aby zapisać go w chmurze.",
+  "cloud.syncFailed.remoteUnreadable": "Kopii budżetu w chmurze nie da się odczytać w tej wersji. Lokalne dane zostały zachowane, a chmura nie została zmieniona.",
 
   "category.uncategorized": "Bez kategorii",
 

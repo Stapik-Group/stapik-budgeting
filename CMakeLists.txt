@@ -29,6 +29,7 @@ stapik_add_application(
         SOURCES
         src/main.cpp
         src/core/model/BudgetPeriod.cpp
+        src/core/model/BudgetAmountsMigration.cpp
         src/core/model/BudgetDocument.cpp
         src/core/model/ResolveCurrency.cpp
         src/core/util/MoneyText.cpp
@@ -42,11 +43,8 @@ stapik_add_application(
         src/core/command/AddCategoryCommand.cpp
         src/core/command/EditCategoryCommand.cpp
         src/core/command/DeleteCategoryCommand.cpp
-        src/infrastructure/storage/BudgetAmountsMigration.cpp
         src/infrastructure/storage/BudgetDocumentStore.cpp
-        src/infrastructure/storage/BudgetSyncCoordinator.cpp
         src/infrastructure/storage/LegacyCurrencyPreference.cpp
-        src/infrastructure/network/CloudSchemaMigrationGuard.cpp
         src/ui/widget/BudgetRowWidget.cpp
         src/ui/widget/CategoryColorPickerWidget.cpp
         src/ui/widget/MainMenu.cpp
@@ -58,5 +56,6 @@ stapik_add_application(
         src/ui/view/BudgetGrid.cpp
         src/ui/view/BudgetView.cpp
         src/ui/action/MenuActionHandler.cpp
+        src/ui/window/CloudNotifications.cpp
         src/ui/window/MainWindow.cpp
         LINK_LIBRARIES PkgConfig::GTKMM nlohmann_json::nlohmann_json)

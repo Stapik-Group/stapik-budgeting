@@ -1,16 +1,15 @@
 #include "MainWindow.hpp"
 
-#include "../../AppInfo.hpp"
 #include "stapik/app/version.hpp"
-#include "stapik/storage/CloudStorageConfigStorage.hpp"
 
 MainWindow::MainWindow() :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
-    m_mainMenu(*this, m_budgetView.getBudgetGrid())
+    m_mainMenu(*this, m_budgetView.getBudgetGrid()),
+    m_cloudNotifications(*this, m_budgetView.getBudgetGrid().cloud())
 {
     init();
     initLayout();
-    initCloud();
+    flushCloudOnClose();
 }
 
 void MainWindow::init()
@@ -26,12 +25,11 @@ void MainWindow::initLayout()
     m_mainBox.append(m_budgetView);
 }
 
-void MainWindow::initCloud()
+void MainWindow::flushCloudOnClose()
 {
-    const auto config = CloudStorageConfigStorage::load(APP_NAME);
-    if (!config.has_value())
-        return;
-
-    m_budgetView.getBudgetGrid().setCloudClient(
-        std::make_unique<CloudStorageClient>(config.value(), BUDGET_FILENAME));
+    signal_close_request().connect([this]
+    {
+        m_budgetView.getBudgetGrid().cloud().flushAndWait();
+        return false;
+    }, false);
 }

@@ -3,6 +3,7 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
 
+#include "CloudNotifications.hpp"
 #include "../widget/MainMenu.hpp"
 #include "../view/BudgetView.hpp"
 
@@ -19,8 +20,9 @@ private:
     Gtk::Box m_mainBox;
     BudgetView m_budgetView;
     MainMenu m_mainMenu;
+    CloudNotifications m_cloudNotifications;
 
     void init();
     void initLayout();
-    void initCloud();
+    void flushCloudOnClose();
 };

@@ -8,8 +8,8 @@
 #include "../../core/command/EditCategoryCommand.hpp"
 #include "../../core/command/EditEntryCommand.hpp"
 #include "../../core/command/MoveEntryCommand.hpp"
-#include "../../infrastructure/storage/BudgetSyncCoordinator.hpp"
 #include "../widget/BudgetRowWidget.hpp"
+#include "../../AppInfo.hpp"
 
 #include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
@@ -31,12 +31,17 @@ BudgetGrid::BudgetGrid() :
     Box(Gtk::Orientation::VERTICAL, 0),
     m_rowsBox(Gtk::Orientation::VERTICAL, ROWS_BOX_SPACING),
     m_document(m_store.load()),
-    m_month(stapik::domain::YearMonth::current())
+    m_month(stapik::domain::YearMonth::current()),
+    m_cloud(stapik::sync::defaultCloudSessionHooks(BUDGET_FILENAME))
 {
     initLayout();
     populateRows();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { populateRows(); });
+    m_cloud.signalDocumentReplaced().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudDocumentReplaced));
+    m_cloud.signalBaselineChanged().connect(sigc::mem_fun(*this, &BudgetGrid::onCloudBaselineChanged));
+
+    syncWithCloud();
 }
 
 void BudgetGrid::initLayout()
@@ -129,6 +134,9 @@ void BudgetGrid::appendRows(const BudgetPeriod& period)
 
 void BudgetGrid::deleteEntryAt(const std::size_t index)
 {
+    if (!hasEntryAt(index))
+        return;
+
     m_history.execute(std::make_unique<DeleteEntryCommand>(m_document, m_month, index));
     commit();
     populateRows();
@@ -136,7 +144,7 @@ void BudgetGrid::deleteEntryAt(const std::size_t index)
 
 void BudgetGrid::moveEntryUp(const std::size_t index)
 {
-    if (index == 0)
+    if (index == 0 || !hasEntryAt(index))
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index - 1));
@@ -146,7 +154,7 @@ void BudgetGrid::moveEntryUp(const std::size_t index)
 
 void BudgetGrid::moveEntryDown(const std::size_t index)
 {
-    if (index + 1 >= currentPeriod().getEntries().size())
+    if (!hasEntryAt(index + 1))
         return;
 
     m_history.execute(std::make_unique<MoveEntryCommand>(m_document, m_month, index, index + 1));
@@ -163,6 +171,9 @@ void BudgetGrid::addEntry(BudgetEntry entry)
 
 void BudgetGrid::editEntry(const std::size_t index, BudgetEntry entry)
 {
+    if (!hasEntryAt(index))
+        return;
+
     m_history.execute(std::make_unique<EditEntryCommand>(m_document, m_month, index, std::move(entry)));
     commit();
     populateRows();
@@ -189,15 +200,8 @@ void BudgetGrid::redo()
 void BudgetGrid::commit()
 {
     m_document.touch();
-
-    if (m_cloudClient != nullptr)
-    {
-        stapik::log::info("[Cloud] Saving in cloud...");
-        replaceDocument(BudgetSyncCoordinator::pushLocalChange(m_document, *m_cloudClient));
-        stapik::log::info("[Cloud] Saved in cloud.");
-    }
-
     m_store.save(m_document);
+    m_cloud.pushChange(m_document);
 }
 
 void BudgetGrid::replaceDocument(BudgetDocument document)
@@ -240,26 +244,32 @@ void BudgetGrid::changeCurrency(const std::string& code)
     m_signalCurrencyChanged.emit();
 }
 
-void BudgetGrid::setCloudClient(std::unique_ptr<CloudStorageClient> client)
+bool BudgetGrid::connectToCloud(const CloudStorageConfig& config)
 {
-    m_cloudClient = std::move(client);
-    syncFromCloud();
+    return m_cloud.connectWith(config, m_document);
 }
 
-void BudgetGrid::syncFromCloud()
+void BudgetGrid::syncWithCloud()
 {
-    if (m_cloudClient == nullptr)
-        return;
+    m_cloud.syncNow(m_document);
+}
 
-    replaceDocument(BudgetSyncCoordinator::resolveOnConnect(m_document, *m_cloudClient));
-
+void BudgetGrid::onCloudDocumentReplaced(const BudgetDocument& document)
+{
+    replaceDocument(document);
     m_store.save(m_document);
     populateRows();
 }
 
-void BudgetGrid::retrySync()
+void BudgetGrid::onCloudBaselineChanged(const BudgetDocument::TimePoint baseline)
 {
-    syncFromCloud();
+    m_document = m_document.withLastKnownCloudUpdate(baseline);
+}
+
+bool BudgetGrid::hasEntryAt(const std::size_t index) const
+{
+    const auto* period = findCurrentPeriod();
+    return period != nullptr && index < period->getEntries().size();
 }
 
 sigc::signal<void()>& BudgetGrid::signalCurrencyChanged() { return m_signalCurrencyChanged; }

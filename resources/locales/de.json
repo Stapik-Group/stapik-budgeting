@@ -2,6 +2,7 @@
   "menu.file": "Datei",
   "menu.file.connect": "Mit Cloud verbinden",
   "menu.file.sync": "Synchronisieren",
+  "menu.file.disconnect": "Von der Cloud trennen",
   "menu.file.quit": "Beenden",
   "menu.edit": "Bearbeiten",
   "menu.edit.undo": "Rückgängig",
@@ -66,11 +67,6 @@
   "dialog.entry.type.expense": "Ausgabe",
   "dialog.entry.type.income": "Einnahme",
 
-  "dialog.connect.title": "Mit Cloud verbinden",
-  "dialog.connect.url.label": "API-URL",
-  "dialog.connect.key.label": "API-Schlüssel",
-  "dialog.connect.key.placeholder": "Schlüssel eingeben",
-  "dialog.connect.button.connect": "Verbinden",
 
   "category.uncategorized": "Ohne Kategorie",
 
@@ -80,5 +76,13 @@
   "command.entry.move": "Eintrag verschieben",
   "command.category.add": "Kategorie hinzufügen",
   "command.category.edit": "Kategorie bearbeiten",
-  "command.category.delete": "Kategorie löschen"
+  "command.category.delete": "Kategorie löschen",
+
+  "cloud.failed.secondary": "Prüfen Sie die API-Adresse und den Schlüssel.",
+  "cloud.apiKeyExpiring.header": "API-Schlüssel läuft ab",
+  "cloud.syncFailed.header": "Synchronisierung fehlgeschlagen",
+  "cloud.syncFailed.authRejected": "Die Cloud hat den API-Schlüssel abgelehnt. Verbinden Sie sich erneut mit einem gültigen Schlüssel.",
+  "cloud.syncFailed.decryptionFailed": "Die Daten in der Cloud konnten nicht entschlüsselt werden. Prüfen Sie die Passphrase der Ende-zu-Ende-Verschlüsselung.",
+  "cloud.syncFailed.documentTooLarge": "Das Budget ist zu groß für die Cloud.",
+  "cloud.syncFailed.remoteUnreadable": "Das Budget in der Cloud kann von dieser Version nicht gelesen werden. Ihre lokalen Daten bleiben erhalten, die Cloud wurde nicht verändert."
 }

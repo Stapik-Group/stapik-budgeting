@@ -1,9 +1,9 @@
 #include "BudgetDocumentStore.hpp"
 
-#include "BudgetAmountsMigration.hpp"
 #include "LegacyCurrencyPreference.hpp"
 
 #include "../../AppInfo.hpp"
+#include "../../core/model/BudgetAmountsMigration.hpp"
 
 #include "stapik/domain/CurrencyCatalog.hpp"
 #include "stapik/log/Log.hpp"

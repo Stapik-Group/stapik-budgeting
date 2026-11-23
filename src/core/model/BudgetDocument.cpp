@@ -1,6 +1,7 @@
 #include "BudgetDocument.hpp"
 
 #include "BudgetAmountKeys.hpp"
+#include "BudgetAmountsMigration.hpp"
 #include "ResolveCurrency.hpp"
 
 #include "stapik/domain/CategoryJson.hpp"
@@ -231,8 +232,11 @@ nlohmann::json BudgetDocument::toJson() const
     };
 }
 
-BudgetDocument BudgetDocument::fromJson(const nlohmann::json& json)
+BudgetDocument BudgetDocument::fromJson(const nlohmann::json& stored)
 {
+    auto json = stored;
+    BudgetAmountsMigration::toMinorUnits(json);
+
     const auto currency = resolveCurrency(json.value("currency", std::string{DEFAULT_CURRENCY_CODE}));
     BudgetDocument document(currency);
 

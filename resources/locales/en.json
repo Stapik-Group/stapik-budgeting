@@ -2,6 +2,7 @@
   "menu.file": "File",
   "menu.file.connect": "Connect to cloud",
   "menu.file.sync": "Sync",
+  "menu.file.disconnect": "Disconnect from cloud",
   "menu.file.quit": "Exit",
   "menu.edit": "Edit",
   "menu.edit.undo": "Undo",
@@ -42,11 +43,6 @@
   "dialog.button.ok": "OK",
   "dialog.button.cancel": "Cancel",
 
-  "dialog.connect.title": "Connect to cloud",
-  "dialog.connect.url.label": "API URL",
-  "dialog.connect.key.label": "API key",
-  "dialog.connect.key.placeholder": "Enter key",
-  "dialog.connect.button.connect": "Connect",
 
   "dialog.category.new.title": "New category",
   "dialog.category.edit.title": "Edit category",
@@ -80,5 +76,13 @@
   "command.entry.move": "Move entry",
   "command.category.add": "Add category",
   "command.category.edit": "Edit category",
-  "command.category.delete": "Delete category"
+  "command.category.delete": "Delete category",
+
+  "cloud.failed.secondary": "Check the API address and key.",
+  "cloud.apiKeyExpiring.header": "API key expiring",
+  "cloud.syncFailed.header": "Sync failed",
+  "cloud.syncFailed.authRejected": "The cloud rejected the API key. Connect again with a valid key.",
+  "cloud.syncFailed.decryptionFailed": "The data in the cloud could not be decrypted. Check the end-to-end encryption passphrase.",
+  "cloud.syncFailed.documentTooLarge": "The budget is too large to be stored in the cloud.",
+  "cloud.syncFailed.remoteUnreadable": "The budget in the cloud cannot be read by this version. Your local data is kept and the cloud was not changed."
 }

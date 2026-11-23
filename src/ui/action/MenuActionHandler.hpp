@@ -1,5 +1,6 @@
 #pragma once
 #include <gtkmm/applicationwindow.h>
+#include <giomm/simpleaction.h>
 
 #include "../view/BudgetGrid.hpp"
 #include "stapik/cloud/CloudStorageConfig.hpp"
@@ -14,13 +15,16 @@ public:
 private:
     Gtk::ApplicationWindow& m_window;
     BudgetGrid& m_budgetGrid;
+    Glib::RefPtr<Gio::SimpleAction> m_syncAction;
+    Glib::RefPtr<Gio::SimpleAction> m_disconnectAction;
 
+    void refreshCloudActions() const;
     void onActionUndo() const;
     void onActionRedo() const;
     void onActionManageCategories() const;
     void onActionConnect() const;
     void onActionSync() const;
+    void onActionDisconnect() const;
 
-    void handleConnectResult(const CloudStorageConfig& config) const;
     void applyCloudConfig(const CloudStorageConfig& config) const;
 };

@@ -4,22 +4,20 @@
 
 #include "stapik/locale/LocaleManager.hpp"
 
-#include <chrono>
 #include <gtkmm/window.h>
 
-BudgetView::BudgetView() :
+BudgetView::BudgetView(BudgetController& controller) :
     Box(Gtk::Orientation::VERTICAL, 0),
+    m_controller(controller),
+    m_navBar(stapik::domain::YearMonth::current()),
+    m_grid(controller),
     m_bottomBar(Gtk::Orientation::HORIZONTAL, 0)
 {
-    const auto today = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
-    const std::chrono::year_month_day ymd{today};
-    m_currentYear = static_cast<int>(ymd.year());
-    m_currentMonth = static_cast<unsigned>(ymd.month());
-
     initLayout();
     initBottomBar();
     initNavigation();
     refreshView();
+    refreshSyncStatus();
 
     LocaleManager::instance().signalLocaleChanged().connect([this] { updateLabels(); });
 }
@@ -39,12 +37,15 @@ void BudgetView::initLayout()
 
 void BudgetView::initBottomBar()
 {
-    m_bottomBar.set_halign(Gtk::Align::END);
     m_bottomBar.set_margin(BOTTOM_BAR_MARGIN);
+
+    m_syncStatus.set_hexpand(true);
+    m_syncStatus.set_valign(Gtk::Align::CENTER);
 
     m_addEntryButton.add_css_class("suggested-action");
     updateLabels();
 
+    m_bottomBar.append(m_syncStatus);
     m_bottomBar.append(m_addEntryButton);
 }
 
@@ -55,50 +56,23 @@ void BudgetView::updateLabels()
 
 void BudgetView::initNavigation()
 {
-    m_navBar.signalPrevMonth().connect(sigc::mem_fun(*this, &BudgetView::navigatePrevMonth));
-    m_navBar.signalNextMonth().connect(sigc::mem_fun(*this, &BudgetView::navigateNextMonth));
+    m_navBar.signalMonthChanged().connect(sigc::mem_fun(*this, &BudgetView::refreshView));
 
     m_addEntryButton.signal_clicked().connect([this] { showAddEntryDialog(); });
+    m_grid.signalAddEntryRequested().connect([this] { showAddEntryDialog(); });
+    m_controller.cloud().signalStatusChanged().connect([this](const stapik::sync::SyncStatus) { refreshSyncStatus(); });
     m_grid.signalEditEntryRequested().connect([this](const std::size_t index) { showEditEntryDialog(index); });
-}
-
-void BudgetView::navigatePrevMonth()
-{
-    if (m_currentMonth == 1)
-    {
-        m_currentMonth = 12;
-        --m_currentYear;
-    }
-    else
-    {
-        --m_currentMonth;
-    }
-    refreshView();
-}
-
-void BudgetView::navigateNextMonth()
-{
-    if (m_currentMonth == 12)
-    {
-        m_currentMonth = 1;
-        ++m_currentYear;
-    }
-    else
-    {
-        ++m_currentMonth;
-    }
-    refreshView();
 }
 
 void BudgetView::refreshView()
 {
-    m_navBar.updateDisplay(m_currentYear, m_currentMonth);
-    m_grid.displayMonth(m_currentYear, m_currentMonth);
+    m_grid.displayMonth(m_navBar.month());
 }
 
-BudgetGrid& BudgetView::getBudgetGrid()
+void BudgetView::refreshSyncStatus()
 {
-    return m_grid;
+    m_syncStatus.set_visible(m_controller.cloud().isConnected());
+    m_syncStatus.setStatus(m_controller.cloud().status());
 }
 
 void BudgetView::showAddEntryDialog()
@@ -107,14 +81,14 @@ void BudgetView::showAddEntryDialog()
     if (parent == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories());
+    auto* dialog = new BudgetEntryDialog(*parent, m_controller.getCategories(), m_controller.currency());
 
     dialog->signal_response().connect([this, dialog](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
         {
             if (auto result = dialog->getResult(); result.has_value())
-                m_grid.addEntry(std::move(result.value()));
+                m_controller.addEntry(std::move(result.value()));
         }
         dialog->hide();
     });
@@ -129,18 +103,18 @@ void BudgetView::showEditEntryDialog(const std::size_t index)
     if (parent == nullptr)
         return;
 
-    const auto* existing = m_grid.getEntry(index);
+    const auto* existing = m_controller.getEntry(index);
     if (existing == nullptr)
         return;
 
-    auto* dialog = new BudgetEntryDialog(*parent, m_grid.getCategories(), *existing);
+    auto* dialog = new BudgetEntryDialog(*parent, m_controller.getCategories(), m_controller.currency(), *existing);
 
     dialog->signal_response().connect([this, dialog, index](const int responseId)
     {
         if (responseId == Gtk::ResponseType::OK)
         {
             if (auto result = dialog->getResult(); result.has_value())
-                m_grid.editEntry(index, std::move(result.value()));
+                m_controller.editEntry(index, std::move(result.value()));
         }
         dialog->hide();
     });

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stapik/domain/Money.hpp"
+
 #include <optional>
 #include <string>
 
@@ -14,6 +16,6 @@ struct BudgetEntry
     std::string name;
     std::string categoryId;
     BudgetEntryType type = BudgetEntryType::Expense;
-    std::optional<double> plannedAmount;
-    std::optional<double> actualAmount;
+    std::optional<stapik::domain::Money> plannedAmount;
+    std::optional<stapik::domain::Money> actualAmount;
 };

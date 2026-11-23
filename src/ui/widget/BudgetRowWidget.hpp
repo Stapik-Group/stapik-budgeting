@@ -5,12 +5,16 @@
 #include <gtkmm/label.h>
 
 #include "../../core/model/BudgetEntry.hpp"
-#include "../../core/model/Category.hpp"
+
+#include "stapik/domain/Category.hpp"
+#include "stapik/domain/Money.hpp"
+#include "stapik/ui/widget/CategoryChip.hpp"
 
 class BudgetRowWidget : public Gtk::Box
 {
 public:
-    BudgetRowWidget(const BudgetEntry& entry, const Category& category, double plannedRemaining, double actualRemaining);
+    BudgetRowWidget(const BudgetEntry& entry, const stapik::domain::Category& category,
+        const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining);
 
     sigc::signal<void()>& signalEditRequested();
     sigc::signal<void()>& signalDeleteRequested();
@@ -21,7 +25,7 @@ public:
     Widget& getActualGroup() { return m_actualGroup; }
     Widget& getActionsBox() { return m_actionsBox; }
 private:
-    Gtk::Label m_categoryLabel;
+    CategoryChip m_categoryChip;
     Gtk::Label m_expenseLabel;
 
     Gtk::Box m_plannedGroup;
@@ -43,6 +47,6 @@ private:
     sigc::signal<void()> m_signalMoveUpRequested;
     sigc::signal<void()> m_signalMoveDownRequested;
 
-    void initLayout(const BudgetEntry& entry, const Category& category, double plannedRemaining, double actualRemaining);
+    void initLayout(const BudgetEntry& entry, const stapik::domain::Money& plannedRemaining, const stapik::domain::Money& actualRemaining);
     void initGesture();
 };

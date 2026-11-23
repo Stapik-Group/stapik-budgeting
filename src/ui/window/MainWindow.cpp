@@ -1,20 +1,21 @@
 #include "MainWindow.hpp"
 
-#include "../../AppInfo.hpp"
-#include "stapik/storage/CloudStorageConfigStorage.hpp"
+#include "stapik/app/version.hpp"
 
-MainWindow::MainWindow() :
+MainWindow::MainWindow(const stapik::theme::ThemeRegistry& themes) :
     m_mainBox(Gtk::Orientation::VERTICAL, 0),
-    m_mainMenu(*this, m_budgetView.getBudgetGrid())
+    m_budgetView(m_controller),
+    m_mainMenu(*this, m_controller, themes),
+    m_cloudNotifications(*this, m_controller.cloud())
 {
     init();
     initLayout();
-    initCloud();
+    flushCloudOnClose();
 }
 
 void MainWindow::init()
 {
-    set_title(WINDOW_TITLE);
+    set_title(std::string{stapik::app::build::DISPLAY_NAME});
     set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     set_child(m_mainBox);
 }
@@ -25,12 +26,11 @@ void MainWindow::initLayout()
     m_mainBox.append(m_budgetView);
 }
 
-void MainWindow::initCloud()
+void MainWindow::flushCloudOnClose()
 {
-    const auto config = CloudStorageConfigStorage::load(APP_NAME);
-    if (!config.has_value())
-        return;
-
-    m_budgetView.getBudgetGrid().setCloudClient(
-        std::make_unique<CloudStorageClient>(config.value(), BUDGET_FILENAME));
+    signal_close_request().connect([this]
+    {
+        m_controller.cloud().flushAndWait();
+        return false;
+    }, false);
 }

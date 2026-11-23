@@ -3,25 +3,30 @@
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/box.h>
 
+#include "stapik/theme/ThemeRegistry.hpp"
+
+#include "CloudNotifications.hpp"
 #include "../widget/MainMenu.hpp"
 #include "../view/BudgetView.hpp"
+#include "../../app/BudgetController.hpp"
 
 class MainWindow : public Gtk::ApplicationWindow
 {
 public:
-    explicit MainWindow();
+    explicit MainWindow(const stapik::theme::ThemeRegistry& themes);
     ~MainWindow() override = default;
 
 private:
     static constexpr int DEFAULT_WIDTH = 1280;
     static constexpr int DEFAULT_HEIGHT = 800;
-    static constexpr auto WINDOW_TITLE = "Stapik Budgeting";
 
+    BudgetController m_controller;
     Gtk::Box m_mainBox;
     BudgetView m_budgetView;
     MainMenu m_mainMenu;
+    CloudNotifications m_cloudNotifications;
 
     void init();
     void initLayout();
-    void initCloud();
+    void flushCloudOnClose();
 };

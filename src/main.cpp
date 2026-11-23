@@ -1,29 +1,44 @@
-#include <gtkmm.h>
-
 #include "AppInfo.hpp"
-#include "stapik/locale/LocaleManager.hpp"
-#include "stapik/storage/AppPaths.hpp"
-#include "stapik/theme/ThemeManager.hpp"
-#include "stapik/ui/style/AppStyleProvider.hpp"
 #include "ui/window/MainWindow.hpp"
+
+#include "stapik/app/StapikApplication.hpp"
+#include "stapik/app/version.hpp"
+#include "stapik/ui/dialog/DialogUtils.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
+
+#include <string>
 
 int main(const int argc, char *argv[])
 {
-    const auto app = Gtk::Application::create("pl.stapik.budgeting");
+    const stapik::app::AppInfo appInfo{
+        .applicationId = APPLICATION_ID,
+        .internalName = std::string{stapik::app::build::NAME},
+        .displayName = std::string{stapik::app::build::DISPLAY_NAME},
+        .version = std::string{stapik::app::build::VERSION},
+        .author = APP_AUTHOR,
+        .repositoryUrl = APP_REPOSITORY_URL
+    };
 
-    AppStyleProvider styleProvider(AppPaths::resourcesDir());
+    stapik::app::StapikApplicationOptions options;
+    options.checkForUpdates = true;
 
-    app->signal_activate().connect([&]
+    const auto app = stapik::app::StapikApplication::create(appInfo, options);
+
+    StandardMenu::installShortcuts(*app);
+
+    app->signal_activate().connect([&app]
     {
-        LocaleManager::instance(APP_NAME);
+        if (const auto windows = app->get_windows(); !windows.empty())
+        {
+            windows.front()->present();
+            return;
+        }
 
-        styleProvider.apply(ThemeManager::instance(APP_NAME).getTheme());
-        ThemeManager::instance().signalThemeChanged().connect(
-            [&styleProvider] { styleProvider.apply(ThemeManager::instance().getTheme()); });
-
-        auto* window = new MainWindow();
+        auto* window = new MainWindow(app->themes());
+        deleteOnHide(window);
         app->add_window(*window);
-        window->show();
+        window->present();
     });
+
     return app->run(argc, argv);
 }

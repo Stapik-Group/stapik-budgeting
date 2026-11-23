@@ -1,80 +1,147 @@
 #include "CategoriesManagerDialog.hpp"
 
 #include "CategoryDialog.hpp"
-#include "../view/BudgetGrid.hpp"
-#include "../../core/util/CategoryColorUtils.hpp"
-
+#include "../../app/BudgetController.hpp"
 #include "stapik/locale/LocaleManager.hpp"
+#include "stapik/ui/widget/CategoryChip.hpp"
 
 #include <algorithm>
-#include <gtkmm/label.h>
+#include <gtkmm/columnviewcolumn.h>
+#include <gtkmm/listitem.h>
+#include <gtkmm/signallistitemfactory.h>
 
-CategoriesManagerDialog::CategoriesManagerDialog(Window& parent, BudgetGrid& grid) :
-    Dialog(LocaleManager::instance().translate("dialog.categoriesManager.title"), parent, true),
-    m_grid(grid),
-    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
+namespace
 {
+    constexpr auto LIST_PAGE = "list";
+    constexpr auto EMPTY_PAGE = "empty";
+    constexpr auto EMPTY_STATE_ICON = "view-list-symbolic";
+
+    Glib::RefPtr<Gtk::SignalListItemFactory> createChipFactory()
+    {
+        const auto factory = Gtk::SignalListItemFactory::create();
+
+        factory->signal_setup().connect([](const Glib::RefPtr<Gtk::ListItem>& listItem)
+        {
+            listItem->set_child(*Gtk::make_managed<CategoryChip>(stapik::domain::Category{}));
+        });
+
+        factory->signal_bind().connect([](const Glib::RefPtr<Gtk::ListItem>& listItem)
+        {
+            const auto item = std::dynamic_pointer_cast<CategoryItem>(listItem->get_item());
+            auto* chip = dynamic_cast<CategoryChip*>(listItem->get_child());
+            if (item && chip)
+                chip->setCategory(item->category());
+        });
+
+        return factory;
+    }
+}
+
+CategoriesManagerDialog::CategoriesManagerDialog(Window& parent, BudgetController& controller) :
+    Dialog(LocaleManager::instance().translate("dialog.categoriesManager.title"), parent, true),
+    m_controller(controller),
+    m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING),
+    m_header("dialog.categoriesManager.section"),
+    m_emptyState(EMPTY_STATE_ICON, "dialog.categoriesManager.empty.title"),
+    m_buttonsBox(Gtk::Orientation::HORIZONTAL, CONTENT_SPACING)
+{
+    initList();
+    initButtons();
     initLayout();
     refreshList();
 
     signal_response().connect([this](int) { hide(); });
 }
 
-void CategoriesManagerDialog::initLayout()
+void CategoriesManagerDialog::initList()
 {
     const auto& loc = LocaleManager::instance();
 
-    m_scrolledWindow.set_child(m_listBox);
-    m_scrolledWindow.set_vexpand(true);
+    auto column = Gtk::ColumnViewColumn::create(loc.translate("dialog.categoriesManager.column.name"), createChipFactory());
+    column->set_expand(true);
+    m_list.columnView().append_column(column);
+
+    m_list.setSearchText([](const CategoryItem& item) { return item.category().name; });
+    m_list.signalSelectionChanged().connect([this] { refreshButtons(); });
+    m_list.signalActivated().connect([this](const Glib::RefPtr<CategoryItem>&) { editSelected(); });
+
+    m_searchEntry.signalQueryChanged().connect([this] { m_list.setQuery(m_searchEntry.query()); });
+
+    m_emptyState.setDescriptionKey("dialog.categoriesManager.empty.description");
+
+    m_stack.set_vexpand(true);
+    m_stack.add(m_list, LIST_PAGE);
+    m_stack.add(m_emptyState, EMPTY_PAGE);
+}
+
+void CategoriesManagerDialog::initButtons()
+{
+    const auto& loc = LocaleManager::instance();
 
     m_addButton.set_label(loc.translate("dialog.categoriesManager.button.add"));
+    m_addButton.add_css_class("suggested-action");
     m_addButton.signal_clicked().connect([this] { showAddCategoryDialog(); });
 
+    m_editButton.set_label(loc.translate("dialog.categoriesManager.button.edit"));
+    m_editButton.signal_clicked().connect([this] { editSelected(); });
+
+    m_deleteButton.set_label(loc.translate("dialog.categoriesManager.button.delete"));
+    m_deleteButton.signal_clicked().connect([this] { deleteSelected(); });
+
+    m_buttonsBox.set_halign(Gtk::Align::END);
+    m_buttonsBox.append(m_editButton);
+    m_buttonsBox.append(m_deleteButton);
+}
+
+void CategoriesManagerDialog::initLayout()
+{
+    m_header.addAction(m_addButton);
+
     m_contentBox.set_margin(CONTENT_MARGIN);
-    m_contentBox.append(m_scrolledWindow);
-    m_contentBox.append(m_addButton);
+    m_contentBox.append(m_header);
+    m_contentBox.append(m_searchEntry);
+    m_contentBox.append(m_stack);
+    m_contentBox.append(m_buttonsBox);
 
     get_content_area()->append(m_contentBox);
 
-    add_button(loc.translate("dialog.categoriesManager.button.close"), Gtk::ResponseType::CLOSE);
+    add_button(LocaleManager::instance().translate("dialog.categoriesManager.button.close"), Gtk::ResponseType::CLOSE);
     set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 }
 
 void CategoriesManagerDialog::refreshList()
 {
-    const auto& loc = LocaleManager::instance();
+    std::vector<Glib::RefPtr<CategoryItem>> items;
+    for (const auto& category : m_controller.getCategories())
+        items.push_back(CategoryItem::create(category));
 
-    while (auto* child = m_listBox.get_first_child())
-        m_listBox.remove(*child);
+    m_list.setItems(items);
+    m_stack.set_visible_child(items.empty() ? EMPTY_PAGE : LIST_PAGE);
+    m_searchEntry.set_sensitive(!items.empty());
+    refreshButtons();
+}
 
-    for (const auto&[id, name, color] : m_grid.getCategories())
-    {
-        auto* row = Gtk::make_managed<Gtk::Box>(Gtk::Orientation::HORIZONTAL, CONTENT_SPACING);
+void CategoriesManagerDialog::refreshButtons()
+{
+    const auto hasSelection = m_list.selectedItem() != nullptr;
+    m_editButton.set_sensitive(hasSelection);
+    m_deleteButton.set_sensitive(hasSelection);
+}
 
-        auto* nameLabel = Gtk::make_managed<Gtk::Label>(name);
-        nameLabel->set_hexpand(true);
-        nameLabel->set_halign(Gtk::Align::FILL);
-        nameLabel->set_xalign(0.0f);
-        nameLabel->add_css_class(CategoryColorUtils::toCssClass(color));
+void CategoriesManagerDialog::editSelected()
+{
+    if (const auto item = m_list.selectedItem())
+        showEditCategoryDialog(item->category().id);
+}
 
-        const auto& categoryId = id;
+void CategoriesManagerDialog::deleteSelected()
+{
+    const auto item = m_list.selectedItem();
+    if (item == nullptr)
+        return;
 
-        auto* editButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.edit"));
-        editButton->signal_clicked().connect([this, categoryId] { showEditCategoryDialog(categoryId); });
-
-        auto* deleteButton = Gtk::make_managed<Gtk::Button>(loc.translate("dialog.categoriesManager.button.delete"));
-        deleteButton->signal_clicked().connect([this, categoryId]
-        {
-            m_grid.deleteCategory(categoryId);
-            refreshList();
-        });
-
-        row->append(*nameLabel);
-        row->append(*editButton);
-        row->append(*deleteButton);
-
-        m_listBox.append(*row);
-    }
+    m_controller.deleteCategory(item->category().id);
+    refreshList();
 }
 
 void CategoriesManagerDialog::showAddCategoryDialog()
@@ -87,7 +154,7 @@ void CategoriesManagerDialog::showAddCategoryDialog()
         {
             if (auto result = dialog->getResult(); result.has_value())
             {
-                m_grid.addCategory(std::move(result.value()));
+                m_controller.addCategory(std::move(result.value()));
                 refreshList();
             }
         }
@@ -100,11 +167,8 @@ void CategoriesManagerDialog::showAddCategoryDialog()
 
 void CategoriesManagerDialog::showEditCategoryDialog(const std::string& categoryId)
 {
-    const auto& categories = m_grid.getCategories();
-    const auto it = std::ranges::find_if(categories, [&categoryId](const Category& category)
-    {
-        return category.id == categoryId;
-    });
+    const auto& categories = m_controller.getCategories();
+    const auto it = std::ranges::find(categories, categoryId, &stapik::domain::Category::id);
 
     if (it == categories.end())
         return;
@@ -117,7 +181,7 @@ void CategoriesManagerDialog::showEditCategoryDialog(const std::string& category
         {
             if (auto result = dialog->getResult(); result.has_value())
             {
-                m_grid.editCategory(categoryId, std::move(result.value()));
+                m_controller.editCategory(categoryId, std::move(result.value()));
                 refreshList();
             }
         }

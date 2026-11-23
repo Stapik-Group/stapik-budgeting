@@ -2,27 +2,26 @@
 
 #include <gtkmm/box.h>
 #include <gtkmm/togglebutton.h>
-#include <array>
+#include <vector>
 
-#include "../../core/model/CategoryColor.hpp"
+#include "stapik/domain/CategoryColor.hpp"
 
 class CategoryColorPickerWidget : public Gtk::Box
 {
 public:
     CategoryColorPickerWidget();
-    void setSelectedColor(CategoryColor color);
-    [[nodiscard]] CategoryColor getSelectedColor() const;
-    sigc::signal<void(CategoryColor)>& signalColorSelected();
+    void setSelectedColor(stapik::domain::CategoryColor color);
+    [[nodiscard]] stapik::domain::CategoryColor getSelectedColor() const;
+    sigc::signal<void(stapik::domain::CategoryColor)>& signalColorSelected();
 
 private:
     static constexpr int SWATCH_SPACING = 4;
     static constexpr int SWATCH_SIZE = 20;
-    static constexpr std::size_t SWATCH_COUNT = 10;
 
-    std::array<Gtk::ToggleButton, SWATCH_COUNT> m_swatches;
-    CategoryColor m_selected = CategoryColor::Default;
-    sigc::signal<void(CategoryColor)> m_signalColorSelected;
+    std::vector<Gtk::ToggleButton*> m_swatches;
+    stapik::domain::CategoryColor m_selected = stapik::domain::CategoryColor::Gray;
+    sigc::signal<void(stapik::domain::CategoryColor)> m_signalColorSelected;
 
     void initLayout();
-    void selectColor(CategoryColor color);
+    void selectColor(stapik::domain::CategoryColor color);
 };

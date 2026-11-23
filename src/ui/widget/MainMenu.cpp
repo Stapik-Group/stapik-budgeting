@@ -1,133 +1,66 @@
 #include "MainMenu.hpp"
 
-#include "../../core/currency/CurrencyManager.hpp"
-#include "../../infrastructure/storage/CurrencyCatalog.hpp"
 #include "stapik/locale/LocaleManager.hpp"
-#include "stapik/theme/ThemeManager.hpp"
+#include "stapik/storage/AppPaths.hpp"
 
-#include <format>
+namespace
+{
+    StandardMenuOptions menuOptions(BudgetController& controller, const stapik::theme::ThemeRegistry& themes)
+    {
+        StandardMenuOptions options;
+        options.themes = &themes;
+        options.tutorialDirectory = AppPaths::resourcesDir() / "tutorial";
+        options.undoStack = &controller.undoStack();
+        return options;
+    }
+}
 
-MainMenu::MainMenu(Gtk::ApplicationWindow &window, BudgetGrid &budgetGrid) : m_window(window),
-    m_actionHandler(window, budgetGrid)
+MainMenu::MainMenu(Gtk::ApplicationWindow& window, BudgetController& controller, const stapik::theme::ThemeRegistry& themes) :
+    m_currencySetting(controller),
+    m_menu(window, menuOptions(controller, themes)),
+    m_actionHandler(window, controller),
+    m_restoreBackup(window, controller),
+    m_archive(window, controller),
+    m_monthExport(window, controller)
 {
     m_actionHandler.registerActions();
-    initLanguageAction();
-    initThemeAction();
-    initCurrencyAction();
-    buildModel();
-    LocaleManager::instance().signalLocaleChanged().connect([this] { buildModel(); });
+    m_restoreBackup.registerActions();
+    m_archive.registerActions();
+    m_monthExport.registerActions();
+    m_currencySetting.addTo(m_menu.settings());
+    addBudgetItems();
 }
 
-Gtk::PopoverMenuBar &MainMenu::getMenuBar()
+Gtk::PopoverMenuBar& MainMenu::getMenuBar()
 {
-    return m_menuBar;
+    return m_menu.menuBar();
 }
 
-void MainMenu::buildModel()
+void MainMenu::addBudgetItems()
 {
-    auto const &loc = LocaleManager::instance();
-
-    m_menuModel = Gio::Menu::create();
-
-    const auto menuFile = Gio::Menu::create();
-    menuFile->append(loc.translate("menu.file.connect"), "win.connect");
-    menuFile->append(loc.translate("menu.file.sync"), "win.sync");
-    menuFile->append(loc.translate("menu.file.quit"), "win.quit");
-    m_menuModel->append_submenu(loc.translate("menu.file"), menuFile);
-
-    const auto menuEdit = Gio::Menu::create();
-    menuEdit->append(loc.translate("menu.edit.undo"), "win.undo");
-    menuEdit->append(loc.translate("menu.edit.redo"), "win.redo");
-    const auto menuEditCategories = Gio::Menu::create();
-    menuEditCategories->append(loc.translate("menu.edit.manageCategories"), "win.manageCategories");
-    menuEdit->append_section(menuEditCategories);
-    m_menuModel->append_submenu(loc.translate("menu.edit"), menuEdit);
-
-    const auto menuLanguage = Gio::Menu::create();
-    menuLanguage->append(loc.translate("menu.settings.language.pl"), "win.setLanguage::pl");
-    menuLanguage->append(loc.translate("menu.settings.language.en"), "win.setLanguage::en");
-    menuLanguage->append(loc.translate("menu.settings.language.de"), "win.setLanguage::de");
-
-    const auto menuTheme = Gio::Menu::create();
-    menuTheme->append(loc.translate("menu.settings.theme.classic"), "win.setTheme::classic");
-    menuTheme->append(loc.translate("menu.settings.theme.classicPink"), "win.setTheme::classic-pink");
-    menuTheme->append(loc.translate("menu.settings.theme.modern"), "win.setTheme::modern");
-
-    const auto menuCurrency = Gio::Menu::create();
-    for (const auto&[code, symbol] : CurrencyCatalog::instance().getCurrencies())
+    m_menu.addToMenu(StandardMenu::Target::File, [](Gio::Menu& menu)
     {
-        menuCurrency->append(
-            std::format("{} ({})", loc.translate(std::format("currency.{}", code)), code),
-            std::format("win.setCurrency::{}", code)
-        );
-    }
+        const auto& loc = LocaleManager::instance();
+        menu.append(loc.translate("menu.file.disconnect"), "win.disconnect");
 
-    const auto menuSettings = Gio::Menu::create();
-    menuSettings->append_submenu(loc.translate("menu.settings.language"), menuLanguage);
-    menuSettings->append_submenu(loc.translate("menu.settings.theme"), menuTheme);
-    menuSettings->append_submenu(loc.translate("menu.settings.currency"), menuCurrency);
-    m_menuModel->append_submenu(loc.translate("menu.settings"), menuSettings);
+        const auto backupSection = Gio::Menu::create();
+        backupSection->append(loc.translate("menu.file.restoreBackup"), "win.restoreBackup");
+        backupSection->append(loc.translate("menu.file.exportArchive"), "win.exportArchive");
+        backupSection->append(loc.translate("menu.file.importArchive"), "win.importArchive");
+        menu.append_section(backupSection);
 
-    m_menuBar.set_menu_model(m_menuModel);
-}
-
-void MainMenu::initLanguageAction() const
-{
-    const auto initialLocale = LocaleManager::instance().getLocale();
-    std::string initialValue = "pl";
-    if (initialLocale == Locale::EN) initialValue = "en";
-    else if (initialLocale == Locale::DE) initialValue = "de";
-
-    auto action = Gio::SimpleAction::create_radio_string("setLanguage", initialValue);
-
-    action->signal_activate().connect([action](const Glib::VariantBase &parameter)
-    {
-        using enum Locale;
-        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring> >(parameter).get();
-
-        action->change_state(value);
-
-        if (value == "pl") LocaleManager::instance().setLocale(PL);
-        else if (value == "en") LocaleManager::instance().setLocale(EN);
-        else if (value == "de") LocaleManager::instance().setLocale(DE);
+        const auto exportSection = Gio::Menu::create();
+        exportSection->append(loc.translate("menu.file.exportMonthCsv"), "win.exportMonthCsv");
+        exportSection->append(loc.translate("menu.file.exportMonthPdf"), "win.exportMonthPdf");
+        exportSection->append(loc.translate("menu.file.printMonth"), "win.printMonth");
+        menu.append_section(exportSection);
     });
 
-    m_window.add_action(action);
-}
-
-void MainMenu::initThemeAction() const
-{
-    const auto currentTheme = ThemeManager::instance().getTheme();
-    std::string initialValue = "classic";
-    if (currentTheme == Theme::Modern) initialValue = "modern";
-    else if (currentTheme == Theme::ClassicPink) initialValue = "classic-pink";
-
-    auto action = Gio::SimpleAction::create_radio_string("setTheme", initialValue);
-    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
+    m_menu.addToMenu(StandardMenu::Target::Edit, [](Gio::Menu& menu)
     {
-        using enum Theme;
-        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
-        action->change_state(value);
-        if (value == "modern") ThemeManager::instance().setTheme(Modern);
-        else if (value == "classic-pink") ThemeManager::instance().setTheme(ClassicPink);
-        else ThemeManager::instance().setTheme(Classic);
+        const auto& loc = LocaleManager::instance();
+        const auto categoriesSection = Gio::Menu::create();
+        categoriesSection->append(loc.translate("menu.edit.manageCategories"), "win.manageCategories");
+        menu.append_section(categoriesSection);
     });
-    m_window.add_action(action);
-}
-
-void MainMenu::initCurrencyAction() const
-{
-    const auto currentCurrency = CurrencyManager::instance().getCurrency().code;
-
-    auto action = Gio::SimpleAction::create_radio_string("setCurrency", currentCurrency);
-
-    action->signal_activate().connect([action](const Glib::VariantBase& parameter)
-    {
-        const auto value = Glib::VariantBase::cast_dynamic<Glib::Variant<Glib::ustring>>(parameter).get();
-
-        action->change_state(value);
-        CurrencyManager::instance().setCurrency(value);
-    });
-
-    m_window.add_action(action);
 }

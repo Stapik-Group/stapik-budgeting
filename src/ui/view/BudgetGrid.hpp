@@ -1,74 +1,43 @@
 #pragma once
 
-#include "../../core/command/BudgetCommandHistory.hpp"
-#include "../../infrastructure/storage/BudgetStorage.hpp"
+#include "../../app/BudgetController.hpp"
 
-#include "stapik/cloud/CloudStorageClient.hpp"
+#include "BudgetHeader.hpp"
+
+#include "stapik/ui/widget/EmptyState.hpp"
 
 #include <gtkmm/box.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/sizegroup.h>
-#include <memory>
-
-#include "BudgetHeader.hpp"
+#include <gtkmm/stack.h>
 
 class BudgetGrid : public Gtk::Box
 {
 public:
-    explicit BudgetGrid();
+    explicit BudgetGrid(BudgetController& controller);
 
-    void displayMonth(int year, unsigned month);
-    void undo();
-    void redo();
-    void setCloudClient(std::unique_ptr<CloudStorageClient> client);
-    void retrySync();
+    void displayMonth(const stapik::domain::YearMonth& month);
     void bindHeader(BudgetHeader& header) const;
 
     sigc::signal<void()>& signalAddEntryRequested();
     sigc::signal<void(std::size_t)>& signalEditEntryRequested();
 
-    void deleteEntryAt(std::size_t index);
-    void moveEntryUp(std::size_t index);
-    void moveEntryDown(std::size_t index);
-    void addEntry(BudgetEntry entry);
-    void editEntry(std::size_t index, BudgetEntry entry);
-
-    [[nodiscard]] const std::vector<Category>& getCategories() const;
-    [[nodiscard]] const BudgetEntry* getEntry(std::size_t index) const;
-
-    void addCategory(Category category);
-    void editCategory(const std::string& categoryId, Category updated);
-    void deleteCategory(const std::string& categoryId);
 private:
-    Gtk::ScrolledWindow m_scrolledWindow;
-    Box m_rowsBox;
+    BudgetController& m_controller;
 
-    std::vector<Category> m_categories;
-    std::vector<BudgetPeriod> m_periods;
-    int m_currentYear;
-    unsigned m_currentMonth;
-    std::chrono::system_clock::time_point m_lastUpdate{};
-    std::optional<std::chrono::system_clock::time_point> m_lastKnownCloudUpdate;
-    std::string m_currencyCode;
+    Gtk::Stack m_stack;
+    Gtk::ScrolledWindow m_scrolledWindow;
+    EmptyState m_emptyState;
+    Box m_rowsBox;
 
     Glib::RefPtr<Gtk::SizeGroup> m_plannedSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actualSizeGroup;
     Glib::RefPtr<Gtk::SizeGroup> m_actionsSizeGroup;
 
-    BudgetCommandHistory m_history;
-    std::unique_ptr<CloudStorageClient> m_cloudClient;
-
     sigc::signal<void()> m_signalAddEntryRequested;
     sigc::signal<void(std::size_t)> m_signalEditEntryRequested;
 
-    bool m_syncingCurrency = false;
-
     void initLayout();
-    [[nodiscard]] BudgetPeriod& currentPeriod();
-    [[nodiscard]] const BudgetPeriod* findCurrentPeriod() const;
-    [[nodiscard]] Category categoryFor(const std::string& categoryId) const;
     void populateRows();
-    void saveSnapshot();
-    void syncFromCloud();
-    void touchLastUpdate();
+    void appendRows(const BudgetPeriod& period);
 };

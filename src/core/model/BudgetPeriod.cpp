@@ -1,12 +1,22 @@
 #include "BudgetPeriod.hpp"
 
+#include "RestateIn.hpp"
+
 #include <stdexcept>
 #include <utility>
 
-BudgetPeriod::BudgetPeriod(const int year, const unsigned month, const double startingAmount) :
-    m_year(year),
+namespace
+{
+    void restateAmount(std::optional<stapik::domain::Money>& amount, const stapik::domain::Currency& currency)
+    {
+        if (amount.has_value())
+            amount = restateIn(*amount, currency);
+    }
+}
+
+BudgetPeriod::BudgetPeriod(const stapik::domain::YearMonth month, stapik::domain::Money startingAmount) :
     m_month(month),
-    m_startingAmount(startingAmount)
+    m_startingAmount(std::move(startingAmount))
 {
 }
 
@@ -52,26 +62,42 @@ void BudgetPeriod::moveEntry(const std::size_t fromIndex, const std::size_t toIn
     m_entries.insert(m_entries.begin() + static_cast<std::ptrdiff_t>(toIndex), std::move(entry));
 }
 
-std::vector<double> BudgetPeriod::remainingPlanned() const
+void BudgetPeriod::changeCurrency(const stapik::domain::Currency& currency)
+{
+    m_startingAmount = restateIn(m_startingAmount, currency);
+
+    for (auto& entry : m_entries)
+    {
+        restateAmount(entry.plannedAmount, currency);
+        restateAmount(entry.actualAmount, currency);
+    }
+}
+
+std::vector<stapik::domain::Money> BudgetPeriod::remainingPlanned() const
 {
     return remainingFor(&BudgetEntry::plannedAmount);
 }
 
-std::vector<double> BudgetPeriod::remainingActual() const
+std::vector<stapik::domain::Money> BudgetPeriod::remainingActual() const
 {
     return remainingFor(&BudgetEntry::actualAmount);
 }
 
-std::vector<double> BudgetPeriod::remainingFor(std::optional<double> BudgetEntry::* const amountMember) const
+std::vector<stapik::domain::Money> BudgetPeriod::remainingFor(std::optional<stapik::domain::Money> BudgetEntry::* const amountMember) const
 {
-    std::vector<double> remaining;
+    std::vector<stapik::domain::Money> remaining;
     remaining.reserve(m_entries.size());
 
-    double runningTotal = m_startingAmount;
+    auto runningTotal = m_startingAmount;
     for (const auto& entry : m_entries)
     {
         if (const auto& amount = entry.*amountMember; amount.has_value())
-            runningTotal += entry.type == BudgetEntryType::Income ? amount.value() : -amount.value();
+        {
+            if (entry.type == BudgetEntryType::Income)
+                runningTotal += *amount;
+            else
+                runningTotal -= *amount;
+        }
         remaining.push_back(runningTotal);
     }
     return remaining;

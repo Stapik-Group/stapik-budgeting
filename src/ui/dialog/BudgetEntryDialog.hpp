@@ -11,13 +11,18 @@
 #include <gtkmm/togglebutton.h>
 
 #include "../../core/model/BudgetEntry.hpp"
-#include "../../core/model/Category.hpp"
+
+#include "stapik/domain/Category.hpp"
+#include "stapik/domain/Currency.hpp"
+#include "stapik/ui/widget/MoneyEntry.hpp"
 
 class BudgetEntryDialog : public Gtk::Dialog
 {
 public:
-    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories);
-    BudgetEntryDialog(Window& parent, const std::vector<Category>& categories, const BudgetEntry& existing);
+    BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories,
+        const stapik::domain::Currency& currency);
+    BudgetEntryDialog(Window& parent, const std::vector<stapik::domain::Category>& categories,
+        const stapik::domain::Currency& currency, const BudgetEntry& existing);
 
     [[nodiscard]] std::optional<BudgetEntry> getResult() const;
 
@@ -26,7 +31,7 @@ private:
     static constexpr int CONTENT_MARGIN = 16;
     static constexpr int DEFAULT_WIDTH = 400;
 
-    const std::vector<Category>& m_categories;
+    const std::vector<stapik::domain::Category>& m_categories;
 
     Gtk::Box m_contentBox;
     Gtk::Label m_typeLabel;
@@ -39,16 +44,15 @@ private:
     Gtk::Label m_categoryLabel;
     Gtk::ComboBoxText m_categoryCombo;
     Gtk::Label m_plannedAmountLabel;
-    Gtk::Entry m_plannedAmountEntry;
+    MoneyEntry m_plannedAmountEntry;
     Gtk::Label m_actualAmountLabel;
-    Gtk::Entry m_actualAmountEntry;
+    MoneyEntry m_actualAmountEntry;
 
     void initLayout();
     void populateCategoryCombo(const std::string& selectedCategoryId);
     void selectType(BudgetEntryType type);
+    void refreshAcceptable();
 
     [[nodiscard]] BudgetEntryType getSelectedType() const;
-
-    [[nodiscard]] static std::optional<double> parseAmount(const Glib::ustring& text);
-    [[nodiscard]] static std::string formatForEntry(double value);
+    [[nodiscard]] bool isAcceptable() const;
 };

@@ -1,33 +1,50 @@
 #pragma once
 
+#include "../model/CategoryItem.hpp"
+
+#include "stapik/ui/list/ListColumnView.hpp"
+#include "stapik/ui/widget/EmptyState.hpp"
+#include "stapik/ui/widget/SearchEntry.hpp"
+#include "stapik/ui/widget/SectionHeader.hpp"
+
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
 #include <gtkmm/dialog.h>
-#include <gtkmm/listbox.h>
-#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/stack.h>
 
-class BudgetGrid;
+class BudgetController;
 
 class CategoriesManagerDialog : public Gtk::Dialog
 {
 public:
-    CategoriesManagerDialog(Window& parent, BudgetGrid& grid);
+    CategoriesManagerDialog(Window& parent, BudgetController& controller);
 
 private:
     static constexpr int CONTENT_SPACING = 8;
     static constexpr int CONTENT_MARGIN = 16;
-    static constexpr int DEFAULT_WIDTH = 420;
-    static constexpr int DEFAULT_HEIGHT = 360;
+    static constexpr int DEFAULT_WIDTH = 460;
+    static constexpr int DEFAULT_HEIGHT = 420;
 
-    BudgetGrid& m_grid;
+    BudgetController& m_controller;
 
     Gtk::Box m_contentBox;
-    Gtk::ScrolledWindow m_scrolledWindow;
-    Gtk::ListBox m_listBox;
+    SectionHeader m_header;
+    SearchEntry m_searchEntry;
+    stapik::ui::ListColumnView<CategoryItem> m_list;
+    EmptyState m_emptyState;
+    Gtk::Stack m_stack;
+    Gtk::Box m_buttonsBox;
     Gtk::Button m_addButton;
+    Gtk::Button m_editButton;
+    Gtk::Button m_deleteButton;
 
     void initLayout();
+    void initList();
+    void initButtons();
     void refreshList();
+    void refreshButtons();
+    void editSelected();
+    void deleteSelected();
     void showAddCategoryDialog();
     void showEditCategoryDialog(const std::string& categoryId);
 };

@@ -1,5 +1,6 @@
 #include "CategoryDialog.hpp"
 
+#include "stapik/domain/IdGenerator.hpp"
 #include "stapik/locale/LocaleManager.hpp"
 
 CategoryDialog::CategoryDialog(Window& parent) :
@@ -9,7 +10,7 @@ CategoryDialog::CategoryDialog(Window& parent) :
     initLayout();
 }
 
-CategoryDialog::CategoryDialog(Window& parent, const Category& existing) :
+CategoryDialog::CategoryDialog(Window& parent, const stapik::domain::Category& existing) :
     Dialog(LocaleManager::instance().translate("dialog.category.edit.title"), parent, true),
     m_existingId(existing.id),
     m_contentBox(Gtk::Orientation::VERTICAL, CONTENT_SPACING)
@@ -46,14 +47,15 @@ void CategoryDialog::initLayout()
     set_default_size(DEFAULT_WIDTH, -1);
 }
 
-std::optional<Category> CategoryDialog::getResult() const
+std::optional<stapik::domain::Category> CategoryDialog::getResult() const
 {
     const auto name = m_nameEntry.get_text();
     if (name.empty())
         return std::nullopt;
 
-    if (m_existingId.has_value())
-        return Category{ .id = m_existingId.value(), .name = name, .color = m_colorPicker.getSelectedColor() };
-
-    return Category::create(name, m_colorPicker.getSelectedColor());
+    return stapik::domain::Category{
+        .id = m_existingId.value_or(stapik::domain::generateId()),
+        .name = name,
+        .color = m_colorPicker.getSelectedColor()
+    };
 }

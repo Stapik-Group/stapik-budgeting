@@ -1,27 +1,32 @@
 #pragma once
 
+#include "../action/ArchiveActions.hpp"
+#include "../action/MenuActionHandler.hpp"
+#include "../action/MonthExportActions.hpp"
+#include "../action/RestoreBackupAction.hpp"
+#include "../settings/BudgetCurrencySetting.hpp"
+#include "../../app/BudgetController.hpp"
+
+#include "stapik/theme/ThemeRegistry.hpp"
+#include "stapik/ui/menu/StandardMenu.hpp"
+
 #include <gtkmm/applicationwindow.h>
 #include <gtkmm/popovermenubar.h>
-#include <giomm/menu.h>
-
-#include "../action/MenuActionHandler.hpp"
-#include "../view/BudgetGrid.hpp"
 
 class MainMenu
 {
 public:
-    explicit MainMenu(Gtk::ApplicationWindow& window, BudgetGrid& budgetGrid);
-    ~MainMenu() = default;
-    Gtk::PopoverMenuBar& getMenuBar();
+    MainMenu(Gtk::ApplicationWindow& window, BudgetController& controller, const stapik::theme::ThemeRegistry& themes);
+
+    [[nodiscard]] Gtk::PopoverMenuBar& getMenuBar();
 
 private:
-    Gtk::ApplicationWindow& m_window;
-    MenuActionHandler m_actionHandler;
-    Glib::RefPtr<Gio::Menu> m_menuModel;
-    Gtk::PopoverMenuBar m_menuBar;
+    void addBudgetItems();
 
-    void buildModel();
-    void initLanguageAction() const;
-    void initThemeAction() const;
-    void initCurrencyAction() const;
+    BudgetCurrencySetting m_currencySetting;
+    StandardMenu m_menu;
+    MenuActionHandler m_actionHandler;
+    RestoreBackupAction m_restoreBackup;
+    ArchiveActions m_archive;
+    MonthExportActions m_monthExport;
 };

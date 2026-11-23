@@ -1,17 +1,27 @@
 #include "AddEntryCommand.hpp"
 
+#include "stapik/locale/LocaleManager.hpp"
+
 #include <utility>
 
-AddEntryCommand::AddEntryCommand(BudgetPeriod& period, BudgetEntry entry) :
-    BudgetEntryCommandBase(period),
-    m_entry(std::move(entry)) {}
+AddEntryCommand::AddEntryCommand(BudgetDocument& document, const stapik::domain::YearMonth month, BudgetEntry entry) :
+    BudgetEntryCommandBase(document, month),
+    m_entry(std::move(entry))
+{
+}
 
 void AddEntryCommand::execute()
 {
-    m_period.addEntry(m_entry);
+    period().addEntry(m_entry);
 }
 
 void AddEntryCommand::undo()
 {
-    m_period.removeEntry(m_period.getEntries().size() - 1);
+    auto& target = period();
+    target.removeEntry(target.getEntries().size() - 1);
+}
+
+std::string AddEntryCommand::description() const
+{
+    return LocaleManager::instance().translate("command.entry.add");
 }

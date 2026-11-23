@@ -90,6 +90,11 @@ void BudgetDocumentStore::save(const BudgetDocument& document) const
         stapik::log::error("Cannot save the budget: {}", saved.error().message());
 }
 
+const stapik::document::DocumentFile<BudgetDocument>& BudgetDocumentStore::file() const
+{
+    return m_file;
+}
+
 void BudgetDocumentStore::moveUnusableFileAside() const
 {
     const auto moved = stapik::storage::quarantineFile(m_file.filePath(), stapik::time::systemClock().now());

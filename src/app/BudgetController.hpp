@@ -26,6 +26,8 @@ public:
     void setMonth(const stapik::domain::YearMonth& month);
     [[nodiscard]] const stapik::domain::YearMonth& month() const;
 
+    [[nodiscard]] const BudgetDocument& document() const;
+    [[nodiscard]] const stapik::document::DocumentFile<BudgetDocument>& documentFile() const;
     [[nodiscard]] const BudgetPeriod* currentPeriod() const;
     [[nodiscard]] const BudgetEntry* getEntry(std::size_t index) const;
     [[nodiscard]] const std::vector<stapik::domain::Category>& getCategories() const;
@@ -40,6 +42,8 @@ public:
     void addCategory(stapik::domain::Category category);
     void editCategory(const std::string& categoryId, stapik::domain::Category updated);
     void deleteCategory(const std::string& categoryId);
+
+    void restoreDocument(BudgetDocument document);
 
     [[nodiscard]] const stapik::domain::Currency& currency() const;
     void changeCurrency(const std::string& code);

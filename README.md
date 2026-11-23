@@ -144,6 +144,12 @@ Cloud configuration and the preferences (language, theme, font) are kept separat
 
 **Settings → Settings…** opens one window with the language, the theme, the font and the currency of the budget. Every change is applied and saved at once. The Edit menu shows what Undo and Redo will do, for example "Undo Delete entry", and the usual shortcuts work: `Ctrl+Z`, `Ctrl+Shift+Z` and `Ctrl+Q`.
 
+## Backups and export
+
+* **File → Restore from backup…** lists the automatic backups of the budget (the last three saves) by date and time. Restoring replaces the current budget and can be undone the same way, because the replaced data becomes the newest backup.
+* **File → Back up the whole application…** writes one ZIP file with the budget and the settings. **Restore the whole application…** reads such a file back; language, theme and font of the restored settings apply after a restart. The cloud connection is not part of the archive.
+* **File → Export month to CSV…** saves the displayed month as a spreadsheet file (UTF-8 with a byte order mark, and the separator Excel expects in the current language). **Export month to PDF…** and **Print month…** produce the same table as a document.
+
 ## Themes
 
 Choose a theme in the settings window:

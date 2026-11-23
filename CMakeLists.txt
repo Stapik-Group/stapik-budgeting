@@ -34,6 +34,8 @@ stapik_add_application(
         src/core/model/BudgetDocument.cpp
         src/core/model/ResolveCurrency.cpp
         src/core/util/MoneyText.cpp
+        src/core/report/MonthReportBuilder.cpp
+        src/core/report/MonthCsv.cpp
         src/core/command/BudgetDocumentCommand.cpp
         src/core/command/BudgetEntryCommandBase.cpp
         src/core/command/IndexedBudgetEntryCommand.cpp
@@ -58,6 +60,10 @@ stapik_add_application(
         src/ui/view/BudgetGrid.cpp
         src/ui/view/BudgetView.cpp
         src/ui/action/MenuActionHandler.cpp
+        src/ui/action/RestoreBackupAction.cpp
+        src/ui/action/ArchiveActions.cpp
+        src/ui/action/MonthExportActions.cpp
+        src/ui/print/MonthPrintableDocument.cpp
         src/ui/window/CloudNotifications.cpp
         src/ui/window/MainWindow.cpp
         LINK_LIBRARIES PkgConfig::GTKMM nlohmann_json::nlohmann_json)

@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../action/ArchiveActions.hpp"
 #include "../action/MenuActionHandler.hpp"
+#include "../action/MonthExportActions.hpp"
+#include "../action/RestoreBackupAction.hpp"
 #include "../settings/BudgetCurrencySetting.hpp"
 #include "../../app/BudgetController.hpp"
 
@@ -23,4 +26,7 @@ private:
     BudgetCurrencySetting m_currencySetting;
     StandardMenu m_menu;
     MenuActionHandler m_actionHandler;
+    RestoreBackupAction m_restoreBackup;
+    ArchiveActions m_archive;
+    MonthExportActions m_monthExport;
 };

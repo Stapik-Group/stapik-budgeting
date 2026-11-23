@@ -38,6 +38,16 @@ const stapik::domain::YearMonth& BudgetController::month() const
     return m_month;
 }
 
+const BudgetDocument& BudgetController::document() const
+{
+    return m_document;
+}
+
+const stapik::document::DocumentFile<BudgetDocument>& BudgetController::documentFile() const
+{
+    return m_store.file();
+}
+
 const BudgetPeriod* BudgetController::currentPeriod() const
 {
     return m_document.findPeriod(m_month);
@@ -126,6 +136,19 @@ void BudgetController::deleteCategory(const std::string& categoryId)
         return;
 
     m_history.execute(std::make_unique<DeleteCategoryCommand>(m_document, categoryId));
+}
+
+void BudgetController::restoreDocument(BudgetDocument document)
+{
+    const auto currencyChanged = document.currency() != m_document.currency();
+    m_document = std::move(document);
+
+    clearHistory();
+    commit();
+    m_signalChanged.emit();
+
+    if (currencyChanged)
+        m_signalCurrencyChanged.emit();
 }
 
 const stapik::domain::Currency& BudgetController::currency() const

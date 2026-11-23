@@ -1,0 +1,79 @@
+@define-color budget_surface #fbfaf4;
+@define-color budget_surface_alt #f1efe2;
+@define-color budget_border #7f9db9;
+@define-color budget_border_dark #003c74;
+@define-color budget_text #000000;
+@define-color budget_title_start #0a5fe0;
+@define-color budget_title_end #3d95ff;
+@define-color budget_accent #316ac5;
+@define-color budget_group_title #dbe8ff;
+@define-color budget_planned #e3ecfa;
+@define-color budget_actual #e8f3e0;
+
+.budget-navbar {
+    background: linear-gradient(to right, @budget_title_start, @budget_title_end);
+    padding: 4px 6px;
+    border-bottom: 1px solid @budget_border_dark;
+}
+
+.budget-navbar label,
+.budget-header label {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.budget-navbar button {
+    min-width: 28px;
+    min-height: 22px;
+}
+
+.budget-header {
+    background-color: @budget_accent;
+    border: 1px solid @budget_border_dark;
+    padding: 5px 8px;
+}
+
+.budget-group-title {
+    color: @budget_group_title;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.budget-row {
+    padding: 5px 8px;
+}
+
+.budget-row-even {
+    background-color: @budget_surface;
+}
+
+.budget-row-odd {
+    background-color: @budget_surface_alt;
+}
+
+.budget-group-planned,
+.budget-group-actual {
+    padding: 2px 6px;
+    border: 1px solid @budget_border;
+    border-radius: 3px;
+}
+
+.budget-row .budget-group-planned {
+    background-color: @budget_planned;
+}
+
+.budget-row .budget-group-actual {
+    background-color: @budget_actual;
+}
+
+.budget-row-expense {
+    color: @budget_text;
+}
+
+.budget-row-action {
+    color: @budget_text;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    font-size: 10px;
+}

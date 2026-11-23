@@ -1,0 +1,102 @@
+@define-color budget_surface #1c1c1e;
+@define-color budget_surface_alt #242426;
+@define-color budget_raised #2c2c2e;
+@define-color budget_border #3a3a3c;
+@define-color budget_text #f2f2f7;
+@define-color budget_text_muted #98989f;
+@define-color budget_planned #1f2b3d;
+@define-color budget_actual #1f3326;
+@define-color budget_hover #3a3a3c;
+@define-color budget_danger #ff453a;
+@define-color budget_danger_hover #4a2326;
+
+.budget-navbar {
+    background: @budget_raised;
+    padding: 10px 12px;
+    border-bottom: 1px solid @budget_border;
+}
+
+.budget-navbar label {
+    color: @budget_text;
+    font-weight: 600;
+}
+
+.budget-navbar button {
+    min-width: 30px;
+    min-height: 26px;
+    border-radius: 8px;
+}
+
+.budget-header {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid @budget_border;
+    padding: 8px 8px;
+}
+
+.budget-header label {
+    color: @budget_text_muted;
+    font-weight: 600;
+}
+
+.budget-group-title {
+    color: @budget_text_muted;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.budget-row {
+    padding: 6px 10px;
+}
+
+.budget-row-even {
+    background-color: @budget_surface;
+}
+
+.budget-row-odd {
+    background-color: @budget_surface_alt;
+}
+
+.budget-group-planned,
+.budget-group-actual {
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.budget-row .budget-group-planned {
+    background-color: @budget_planned;
+}
+
+.budget-row .budget-group-actual {
+    background-color: @budget_actual;
+}
+
+.budget-row-expense {
+    color: @budget_text;
+}
+
+.budget-row-action {
+    color: @budget_text_muted;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
+    font-size: 11px;
+    border-radius: 999px;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.budget-row-action:hover,
+.budget-row-action:active {
+    background-color: @budget_hover;
+    padding: 0;
+    box-shadow: none;
+}
+
+.budget-row-delete:hover,
+.budget-row-delete:active {
+    background-color: @budget_danger_hover;
+    color: @budget_danger;
+}

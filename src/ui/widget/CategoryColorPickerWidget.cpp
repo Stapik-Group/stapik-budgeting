@@ -13,7 +13,7 @@ void CategoryColorPickerWidget::initLayout()
     {
         auto* swatch = Gtk::make_managed<Gtk::ToggleButton>();
         swatch->set_size_request(SWATCH_SIZE, SWATCH_SIZE);
-        swatch->add_css_class("color-swatch");
+        swatch->add_css_class("stapik-color-swatch");
         swatch->add_css_class(stapik::domain::categoryColorCssClass(color));
         swatch->set_tooltip_text(LocaleManager::instance().translate(stapik::domain::categoryColorNameKey(color)));
         swatch->signal_toggled().connect([this, color, swatch]
